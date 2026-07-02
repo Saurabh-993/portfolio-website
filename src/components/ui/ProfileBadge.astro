@@ -1,0 +1,166 @@
+---
+/**
+ * ProfileBadge.astro — small profile image, fixed top-left.
+ * Desktop: B&W by default, crossfades to color on hover; click enlarges the
+ * badge and reveals a quick-links card (Resume PDF + LinkedIn) via GSAP.
+ * Mobile: color photo shown directly; tap toggles the card.
+ * Replace the placeholder image + LinkedIn URL with your real ones.
+ */
+import profile from '../../assets/images/profile-placeholder.svg';
+
+const LINKEDIN_URL = 'https://www.linkedin.com/in/your-handle'; // TODO: real URL
+const RESUME_URL = '/resume.pdf'; // served from public/
+---
+
+<div class="profile-badge" id="profile-badge">
+  <button class="badge-btn glass" aria-label="Profile — quick links" aria-expanded="false">
+    <!-- Two stacked copies of the photo: grayscale under, color over.
+         (Swap srcs for real profile-bw.jpg / profile-color.jpg later.) -->
+    <img class="photo photo-bw" src={profile.src} alt="" width="52" height="52" />
+    <img class="photo photo-color" src={profile.src} alt="Saurabh" width="52" height="52" />
+  </button>
+
+  <!-- Quick-links card for recruiters in a hurry -->
+  <div class="profile-card glass" hidden>
+    <p class="card-name serif">Saurabh</p>
+    <a class="card-link" href={RESUME_URL} target="_blank" rel="noopener">
+      <span class="dot"></span> Resume
+    </a>
+    <a class="card-link" href={LINKEDIN_URL} target="_blank" rel="noopener">
+      <span class="dot"></span> LinkedIn
+    </a>
+  </div>
+</div>
+
+<style>
+  .profile-badge {
+    position: fixed;
+    top: 18px;
+    left: 22px;
+    z-index: 110;
+  }
+
+  .badge-btn {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    padding: 2px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: block;
+  }
+
+  .photo {
+    position: absolute;
+    inset: 2px;
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  /* B&W base + color overlay; hover crossfades (desktop only) */
+  .photo-bw { filter: grayscale(1) contrast(1.1); }
+  .photo-color { opacity: 0; transition: opacity 0.35s ease; }
+  @media (hover: hover) and (min-width: 1024px) {
+    .badge-btn:hover .photo-color { opacity: 1; }
+  }
+  /* Mobile: show real (color) photo directly */
+  @media (max-width: 1023px) {
+    .photo-color { opacity: 1; }
+  }
+
+  .profile-card[hidden] { display: none; } /* keep [hidden] working despite display:flex */
+  .profile-card {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    min-width: 170px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transform-origin: top left;
+  }
+
+  .card-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .card-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+  }
+  .card-link:hover { color: var(--text); }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
+</style>
+
+<script>
+  /**
+   * Click/tap: enlarge badge slightly + reveal card (GSAP).
+   * This is a one-shot, event-driven tween — cheap enough to ship to all
+   * devices (the matchMedia gate is reserved for continuous animations).
+   */
+  import { gsap } from 'gsap';
+
+  const badge = document.getElementById('profile-badge')!;
+  const btn = badge.querySelector<HTMLButtonElement>('.badge-btn')!;
+  const card = badge.querySelector<HTMLElement>('.profile-card')!;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let open = false;
+
+  const show = () => {
+    card.hidden = false;
+    if (reduced) return;
+    gsap.fromTo(
+      card,
+      { autoAlpha: 0, y: -8, scale: 0.92 },
+      { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(1.6)' }
+    );
+    gsap.to(btn, { scale: 1.12, duration: 0.3, ease: 'back.out(2)' });
+  };
+
+  const hide = () => {
+    if (reduced) {
+      card.hidden = true;
+      return;
+    }
+    gsap.to(card, {
+      autoAlpha: 0, y: -8, scale: 0.92, duration: 0.25, ease: 'power2.in',
+      onComplete: () => { card.hidden = true; },
+    });
+    gsap.to(btn, { scale: 1, duration: 0.25, ease: 'power2.out' });
+  };
+
+  btn.addEventListener('click', () => {
+    open = !open;
+    btn.setAttribute('aria-expanded', String(open));
+    open ? show() : hide();
+  });
+
+  // Close when clicking anywhere else
+  document.addEventListener('click', (e) => {
+    if (open && !badge.contains(e.target as Node)) {
+      open = false;
+      btn.setAttribute('aria-expanded', 'false');
+      hide();
+    }
+  });
+</script>

@@ -1,0 +1,24 @@
+---
+/**
+ * index.astro — the ONLY route.
+ * Each "page" is a full-screen scroll SECTION stacked into one continuous
+ * Lenis-smoothed scroll. Add new sections in src/sections/ and stack them
+ * here in order.
+ */
+import Base from '../layouts/Base.astro';
+import Page1_Hero from '../sections/Page1_Hero.astro';
+import Page2_Work from '../sections/Page2_Work.astro';
+import Page3_Story from '../sections/Page3_Story.astro';
+import Page4_Process from '../sections/Page4_Process.astro';
+import Page5_Connect from '../sections/Page5_Connect.astro';
+---
+
+<Base title="Saurabh — Builder">
+  <main>
+    <Page1_Hero />
+    <Page2_Work />
+    <Page3_Story />
+    <Page4_Process />
+    <Page5_Connect />
+  </main>
+</Base>

@@ -1,0 +1,172 @@
+---
+/**
+ * Page1_Hero.astro — full-screen hero SCROLL SECTION (not a route).
+ *
+ * Layers (back → front):
+ *   1. Subtle grid background, edge-faded with a radial mask (.grid-bg)
+ *   2. Sun/Moon sketchy blob — decorative, top-right, behind the navbar
+ *   3. Glassmorphic navbar (fixed, top-center) + theme toggle
+ *   4. Profile badge (fixed, top-left) with recruiter quick-links
+ *   5. Strikethrough headline — "I am a … builder"
+ *   6. Liquid ball centerpiece — chaos in, reality out
+ *   7. Big serif name anchored at the bottom
+ *   8. Faint word-strip marquee as the section boundary
+ */
+import Navbar from '../components/ui/Navbar.astro';
+import ProfileBadge from '../components/ui/ProfileBadge.astro';
+import SunMoon from '../components/hero/SunMoon.astro';
+import StrikeHeadline from '../components/hero/StrikeHeadline.astro';
+import LiquidBall from '../components/hero/LiquidBall.astro';
+
+/* Marquee texture words — light, low-contrast, reads as a divider */
+const stripWords = [
+  'design', 'systems', 'frontend', 'motion', 'architecture',
+  'prototypes', 'interfaces', 'ideas', 'craft', 'detail',
+];
+---
+
+<section class="section hero" id="hero">
+  <!-- 1. grid background (styles in global.css) -->
+  <div class="grid-bg"></div>
+
+  <!-- 2. decorative celestial blob -->
+  <SunMoon />
+
+  <!-- 3 & 4. fixed chrome -->
+  <Navbar />
+  <ProfileBadge />
+
+  <div class="hero-content">
+    <!-- 5. core intro -->
+    <div class="headline-wrap">
+      <StrikeHeadline />
+    </div>
+
+    <!-- 6. centerpiece -->
+    <div class="ball-wrap">
+      <LiquidBall />
+    </div>
+
+    <!-- 7. signature name -->
+    <div class="name-wrap">
+      <p class="big-name serif">SAURABH</p>
+    </div>
+  </div>
+
+  <!-- 8. word-strip boundary: content duplicated once for a seamless loop -->
+  <div class="word-strip" aria-hidden="true">
+    <div class="strip-track-mask">
+      <div class="strip-track">
+        {[0, 1].map(() => (
+          <span class="strip-run">
+            {stripWords.map((w) => (
+              <span class="strip-word">{w}</span>
+            ))}
+          </span>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 96px; /* clear the fixed navbar */
+    min-height: 0;
+  }
+
+  .headline-wrap {
+    text-align: center;
+    padding: clamp(0.5rem, 2vh, 2rem) 1rem 0;
+  }
+
+  /* Ball floats in the middle band; flex keeps headline/name dominant */
+  .ball-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+
+  /* 7. Big name — full-width signature at the bottom */
+  .name-wrap {
+    width: 100%;
+    overflow: hidden;
+    line-height: 0.85;
+  }
+  .big-name {
+    font-size: clamp(4rem, 15.5vw, 15rem);
+    font-weight: 900;
+    text-align: center;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    /* tucked into the bottom edge like a stamp */
+    margin-bottom: -0.06em;
+    user-select: none;
+  }
+
+  /* 8. Marquee — its own DISTINCT band: contained strip with a subtle
+     contrasting background + hairline dividers, visually detached from the
+     big name above it. Texture, not headline. */
+  .word-strip {
+    position: relative;
+    z-index: 3;
+    margin-top: clamp(6px, 1.2vh, 14px); /* daylight between name and band */
+    background: var(--strip-bg);
+    border-top: 1px solid var(--strip-line);
+    border-bottom: 1px solid var(--strip-line);
+    padding: 9px 0;
+    overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  /* fade the words at the ends, but keep the band edges themselves crisp */
+  .strip-track-mask {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+  }
+  .strip-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 40s linear infinite;
+  }
+  .strip-run {
+    display: flex;
+    flex-shrink: 0;
+  }
+  .strip-word {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    padding: 0 1.6rem;
+  }
+  /* track holds two identical runs → -50% loops seamlessly */
+  @keyframes marquee {
+    to { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .strip-track { animation: none; }
+  }
+
+  @media (max-width: 1023px) {
+    .hero-content { padding-top: 84px; }
+  }
+</style>

@@ -1,0 +1,189 @@
+---
+/**
+ * StrikeHeadline.astro — three-tier cycling headline, COMPACT block.
+ *
+ *   "I'm the one who [verb] [object] into [outcome] — you can call me a [role]."
+ *
+ * TIER 1 (static)  : "I'm the one who", "into", "—", "you can call me a", "."
+ * TIER 2 (subtle)  : object + outcome — quiet sequential cross-fade
+ *                    (out 0.4s → in 0.4s with a tiny blur), opacity only.
+ * TIER 3 (strike)  : verb + role — accent color; strikethrough draws
+ *                    left-to-right, holds, then the state swaps.
+ *
+ * Plays ONCE through the 5 states, resting on "builds / builder" (accent,
+ * never struck).
+ *
+ * LAYOUT: the whole sentence flows as inline text inside a centered
+ * max-width (~640px) block, wrapping naturally into 2–3 tight lines.
+ * Every changing word sits in an inline-grid slot stacking ALL variants in
+ * one cell — slots keep the widest variant's width, so line-wrapping stays
+ * IDENTICAL across every state (no reflow, no jumping).
+ *
+ * prefers-reduced-motion / no-JS: final state shown statically (CSS).
+ */
+const states = [
+  { verb: 'designs',    obj: 'your imagination', out: 'shape',     role: 'designer' },
+  { verb: 'develops',   obj: 'your ideas',       out: 'products',  role: 'developer' },
+  { verb: 'architects', obj: 'your chaos',       out: 'structure', role: 'thinker' },
+  { verb: 'turns',      obj: 'dead-ends',        out: 'solutions', role: 'problem-solver' },
+  { verb: 'builds',     obj: 'Imagination',      out: 'reality',   role: 'builder' }, // FINAL
+];
+const last = states.length - 1;
+---
+
+<h1 class="strike-headline" id="strike-headline">
+  I'm&nbsp;the&nbsp;one&nbsp;who
+  <span class="slot slot-verb">
+    {states.map((s, i) => (
+      <span class:list={['sw', 't3', { final: i === last }]}>
+        {s.verb}
+        {i !== last && <i class="strike" aria-hidden="true"></i>}
+      </span>
+    ))}
+  </span>
+  <span class="slot slot-obj">
+    {states.map((s, i) => (
+      <span class:list={['sw', 't2']}>{s.obj}</span>
+    ))}
+  </span>
+  into
+  <span class="slot slot-out">
+    {states.map((s, i) => (
+      <span class:list={['sw', 't2']}>{s.out}</span>
+    ))}
+  </span>
+  — you&nbsp;can&nbsp;call&nbsp;me&nbsp;a
+  <span class="slot slot-role">
+    {states.map((s, i) => (
+      <span class:list={['sw', 't3', { final: i === last }]}>
+        {s.role}
+        {i !== last && <i class="strike" aria-hidden="true"></i>}
+      </span>
+    ))}
+  </span>.
+</h1>
+
+<style>
+  /* Space Grotesk — futuristic/techy, bold */
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap');
+
+  .strike-headline {
+    /* COMPACT centered block — sentence wraps into 2–3 tight lines */
+    max-width: min(640px, 92vw);
+    margin-inline: auto;
+    text-align: center;
+    text-wrap: balance; /* even line lengths where supported */
+
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    font-weight: 700; /* EVERYTHING bold */
+    letter-spacing: -0.03em;
+    font-size: clamp(1.35rem, 2.6vw, 2.2rem);
+    line-height: 1.4;
+    color: var(--text);
+
+    /* fixed vertical footprint (~3 lines) so nothing jumps as words swap */
+    min-height: calc(3 * 1.4em);
+  }
+
+  /* Slots: stack every variant in one inline-grid cell → the slot always has
+     the widest variant's width, so wrapping never changes mid-animation */
+  .slot {
+    display: inline-grid;
+    justify-items: center;
+    vertical-align: baseline;
+  }
+  .sw {
+    grid-area: 1 / 1;
+    position: relative;
+    white-space: nowrap;
+    opacity: 0;              /* JS reveals; fallback below */
+    visibility: hidden;
+    will-change: opacity, filter;
+  }
+
+  /* TIER 2 — swaps quietly; bold like everything, normal text color */
+  .t2 { color: var(--text); }
+
+  /* TIER 3 — the focus: verb + role in the accent color, all states */
+  .t3 { color: var(--accent); }
+
+  /* Strikethrough bar — drawn left→right by GSAP (scaleX 0→1).
+     Text-colored so it stays visible across the accent words. */
+  .strike {
+    position: absolute;
+    left: -3%;
+    right: -3%;
+    top: 52%;
+    height: 0.085em;
+    border-radius: 999px;
+    background: var(--text);
+    transform: scaleX(0);
+    transform-origin: left center;
+    pointer-events: none;
+  }
+
+  /* Fallback (no JS or reduced motion): rest on the FINAL state.
+     When JS takes over it adds html.js-headline and drives everything. */
+  .slot .sw:last-child { opacity: 1; visibility: visible; }
+  :global(html.js-headline) .slot .sw:last-child { opacity: 0; visibility: hidden; }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduced) {
+    // Hand control to the timeline (hides the CSS fallback final state)
+    document.documentElement.classList.add('js-headline');
+
+    const root = document.getElementById('strike-headline')!;
+    const pick = (sel: string) => Array.from(root.querySelectorAll<HTMLElement>(sel));
+
+    const verbs = pick('.slot-verb .sw');
+    const objs  = pick('.slot-obj .sw');
+    const outs  = pick('.slot-out .sw');
+    const roles = pick('.slot-role .sw');
+    const count = verbs.length;
+
+    /** all four changing words of state i */
+    const wordsOf = (i: number) => [verbs[i], objs[i], outs[i], roles[i]];
+    /** the two strike bars of state i (none on the final state) */
+    const strikesOf = (i: number) =>
+      [verbs[i].querySelector('.strike'), roles[i].querySelector('.strike')].filter(Boolean);
+
+    const tl = gsap.timeline({ delay: 0.5 });
+
+    // State 1 fades in whole
+    tl.fromTo(
+      wordsOf(0),
+      { autoAlpha: 0, filter: 'blur(2px)' },
+      { autoAlpha: 1, filter: 'blur(0px)', duration: 0.45, ease: 'power2.out' }
+    );
+
+    for (let i = 0; i < count - 1; i++) {
+      // read → STRIKE verb + role (left→right) → hold so the word lands
+      tl.to(strikesOf(i), { scaleX: 1, duration: 0.45, ease: 'power2.inOut' }, '+=0.3');
+
+      // SEQUENTIAL swap — smooth, opacity only, no movement:
+      // 1) outgoing words fade fully OUT…
+      tl.to(wordsOf(i), { autoAlpha: 0, duration: 0.4, ease: 'power2.out' }, '+=0.8');
+      // 2) …THEN incoming words fade in, sharpening from a tiny blur
+      tl.fromTo(
+        wordsOf(i + 1),
+        { autoAlpha: 0, filter: 'blur(2px)' },
+        { autoAlpha: 1, filter: 'blur(0px)', duration: 0.4, ease: 'power2.out' },
+        '>'
+      );
+    }
+
+    // FINAL state (builds / builder): accent, never struck — a small
+    // confident pop, then rest.
+    tl.fromTo(
+      [verbs[count - 1], roles[count - 1]],
+      { scale: 0.9 },
+      { scale: 1, duration: 0.5, ease: 'back.out(2.2)' },
+      '-=0.1'
+    );
+  }
+</script>

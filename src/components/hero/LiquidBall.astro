@@ -1,0 +1,386 @@
+---
+/**
+ * LiquidBall.astro — the hero centerpiece: a translucent water DROPLET.
+ *
+ * Rendering (back → front):
+ *   - .lines-svg  : the metaphor. THREE wavy stroked lines flow IN from the
+ *                   left/top (messy input); ONE clean straight line exits
+ *                   right (built output). Words ride these exact strokes via
+ *                   GSAP MotionPath (align: path).
+ *   - .ball-svg   : the droplet. A gooey cluster (blur + alpha-contrast) is
+ *                   rendered at ~50% opacity so the grid shows THROUGH it,
+ *                   then a gloss layer (specular highlight, rim light, inner
+ *                   refraction) sits on top un-blurred = liquid, not plastic.
+ *
+ * Interaction (desktop only, gated by gsap.matchMedia):
+ *   - mousemove : droplet leans toward the cursor (lagged quickTo)
+ *   - hover     : surface-tension ripple (elastic squash/stretch)
+ *   - click     : splash-wobble (bigger squash + satellite blobs kick)
+ *
+ * Mobile/tablet: lines hidden, CSS pulse + one CSS word in/out.
+ * prefers-reduced-motion: no JS motion at all; static strokes remain.
+ */
+const wordsIn = ['noise', 'chaos', 'ideas', 'sketches', 'plans'];
+---
+
+<div class="liquid-ball" id="liquid-ball" aria-hidden="true">
+  <!-- ============ FLOW LINES (the metaphor) ============
+       Wide canvas centered on the droplet: viewBox 1600x600, droplet
+       center at (800,300). CSS scales it so units match the ball svg. -->
+  <svg class="lines-svg" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid meet">
+    <!-- 3 curved/wavy input lines — they dive just inside the droplet edge -->
+    <path id="flow-in-1" class="flow-line flow-in"
+      d="M 10,150 C 220,40 380,260 560,210 S 700,270 745,292" />
+    <path id="flow-in-2" class="flow-line flow-in"
+      d="M 300,10 C 340,150 480,120 560,190 S 700,240 738,272" />
+    <path id="flow-in-3" class="flow-line flow-in"
+      d="M 0,450 C 250,540 420,360 570,400 S 710,330 748,318" />
+    <!-- 1 straight output line -->
+    <path id="flow-out" class="flow-line flow-out" d="M 855,300 L 1590,300" />
+  </svg>
+
+  <!-- ============ THE DROPLET ============ -->
+  <svg class="ball-svg" viewBox="0 0 600 600">
+    <defs>
+      <!-- Gooey merge: blur + alpha contrast (runs on OPAQUE shapes; the
+           whole layer is faded afterwards so translucency survives) -->
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur" />
+        <feColorMatrix
+          in="blur"
+          mode="matrix"
+          values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10"
+        />
+      </filter>
+
+      <filter id="soft-blur" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="9" />
+      </filter>
+
+      <!-- Watery body: light core → tinted edge (denser at the rim, like
+           real refraction) -->
+      <radialGradient id="dropGrad" cx="42%" cy="36%" r="72%">
+        <stop offset="0%"  style="stop-color: var(--drop-core)" />
+        <stop offset="62%" style="stop-color: var(--drop-mid)" />
+        <stop offset="100%" style="stop-color: var(--drop-edge)" />
+      </radialGradient>
+
+      <!-- Rim light: bright top-left, fades out bottom-right -->
+      <linearGradient id="rimGrad" x1="0%" y1="0%" x2="85%" y2="100%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+        <stop offset="45%" stop-color="#ffffff" stop-opacity="0.15" />
+        <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+
+    <g id="ball-group">
+      <!-- water body — goo merges core + satellites, layer opacity makes it
+           glassy so the grid is faintly visible through it -->
+      <g class="goo-layer" filter="url(#goo)">
+        <circle class="core"        cx="300" cy="300" r="150" fill="url(#dropGrad)" />
+        <circle class="blob blob-1" cx="220" cy="250" r="58"  fill="url(#dropGrad)" />
+        <circle class="blob blob-2" cx="380" cy="260" r="50"  fill="url(#dropGrad)" />
+        <circle class="blob blob-3" cx="350" cy="380" r="56"  fill="url(#dropGrad)" />
+        <circle class="blob blob-4" cx="245" cy="370" r="46"  fill="url(#dropGrad)" />
+      </g>
+
+      <!-- gloss layer: NOT gooed, NOT faded — crisp liquid optics -->
+      <g class="gloss-layer">
+        <!-- rim light following the droplet edge -->
+        <circle cx="300" cy="300" r="149" fill="none"
+          stroke="url(#rimGrad)" stroke-width="2.5" />
+        <!-- bright specular highlight, top-left -->
+        <ellipse cx="243" cy="222" rx="52" ry="30" fill="#ffffff" opacity="0.8"
+          transform="rotate(-28 243 222)" filter="url(#soft-blur)" />
+        <!-- tiny hard glint inside the highlight -->
+        <ellipse cx="230" cy="212" rx="14" ry="7" fill="#ffffff" opacity="0.95"
+          transform="rotate(-28 230 212)" />
+        <!-- inner refraction pooling at the bottom -->
+        <ellipse cx="330" cy="392" rx="86" ry="38" fill="#ffffff" opacity="0.14"
+          filter="url(#soft-blur)" />
+      </g>
+    </g>
+  </svg>
+
+  <!-- Raw input words — ride the curved lines INTO the droplet -->
+  {wordsIn.map((w, i) => (
+    <span class:list={['word-in', `wi-${i}`]}>{w}</span>
+  ))}
+
+  <!-- Clean output — ONE word on ONE straight line -->
+  <span class="word-out">reality</span>
+</div>
+
+<style>
+  .liquid-ball {
+    position: relative;
+    /* Big and central — but capped so headline & name stay dominant */
+    width: clamp(270px, 46vmin, 460px);
+    height: clamp(270px, 46vmin, 460px);
+    /* droplet tints (theme-aware).
+       IMPORTANT: keep these OPAQUE — the goo filter's alpha-contrast trick
+       destroys per-pixel alpha, so all translucency comes from the
+       .goo-layer group opacity applied AFTER the filter. */
+    --drop-core: #ffe9a3;
+    --drop-mid: #f5b301;
+    --drop-edge: #c97e00;
+  }
+  :global(html[data-theme='dark']) .liquid-ball {
+    --drop-core: #e6ddff;
+    --drop-mid: #a78bfa;
+    --drop-edge: #6d4fc4;
+  }
+
+  .ball-svg {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    /* soft caustic shadow under the droplet — water, not neon */
+    filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.12));
+  }
+
+  /* translucency AFTER the goo filter, so the alpha-contrast trick still
+     works but the grid shows through the finished body */
+  .goo-layer { opacity: 0.52; }
+  :global(html[data-theme='dark']) .goo-layer { opacity: 0.6; }
+
+  /* ---------------- Flow lines ---------------- */
+  .lines-svg {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100%;
+    /* viewBox is 1600 wide vs the ball's 600 → scale container to match */
+    width: calc(100% * (1600 / 600));
+    overflow: visible;
+    pointer-events: none;
+    z-index: 0; /* behind the droplet — lines vanish INTO the glass */
+  }
+
+  .flow-line {
+    fill: none;
+    stroke-linecap: round;
+  }
+  .flow-in {
+    stroke: var(--text-faint);
+    stroke-width: 1.6;
+  }
+  .flow-out {
+    stroke: var(--accent);
+    stroke-width: 2.2;
+    opacity: 0.85;
+  }
+
+  /* ---------------- Stream words ---------------- */
+  .word-in,
+  .word-out {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    white-space: nowrap;
+    opacity: 0;          /* revealed by GSAP (desktop) or CSS (mobile) */
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .word-out {
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ---------------- Mobile / tablet fallback (<1024px) ----------------
+     No GSAP, no lines — a gentle pulse + one word in, one word out. */
+  @media (max-width: 1023px) {
+    .lines-svg { display: none; }
+
+    .ball-svg { animation: pulse 5s ease-in-out infinite; }
+
+    .word-in:not(.wi-0) { display: none; }
+    .word-in.wi-0 { animation: word-in 6s ease-in infinite; }
+    .word-out     { animation: word-out 6s ease-out infinite 3s; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.045); }
+  }
+
+  @keyframes word-in {
+    0%       { opacity: 0; transform: translate(-130px, -90px) scale(1); }
+    15%      { opacity: 0.7; }
+    55%      { opacity: 0.7; }
+    80%,100% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+  }
+  @keyframes word-out {
+    0%       { opacity: 0; transform: translate(0, 0) scale(0.6); }
+    20%      { opacity: 1; transform: translate(40px, 0) scale(1); }
+    75%      { opacity: 1; transform: translate(130px, 0) scale(1); }
+    100%     { opacity: 0; transform: translate(160px, 0) scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ball-svg, .word-in, .word-out { animation: none !important; }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+
+  gsap.registerPlugin(MotionPathPlugin);
+
+  /**
+   * Desktop-only + motion-allowed. gsap.matchMedia() tears everything down
+   * automatically below the breakpoint, so phones never pay for any of it.
+   */
+  const mm = gsap.matchMedia();
+
+  mm.add('(min-width: 1024px) and (prefers-reduced-motion: no-preference)', () => {
+    const wrap = document.getElementById('liquid-ball');
+    if (!wrap) return;
+
+    const group = wrap.querySelector<SVGGElement>('#ball-group')!;
+    const blobs = wrap.querySelectorAll<SVGCircleElement>('.blob');
+    const core = wrap.querySelector<SVGCircleElement>('.core')!;
+
+    gsap.set(group, { transformOrigin: '50% 50%' });
+
+    /* ---------- 1. Surface-tension wobble ----------
+       Slow, elastic drift of the satellites; the goo filter melts them into
+       the core so the silhouette deforms like a held water droplet. */
+    blobs.forEach((blob, i) => {
+      gsap.to(blob, {
+        x: () => gsap.utils.random(-22, 22),
+        y: () => gsap.utils.random(-22, 22),
+        duration: () => gsap.utils.random(3.4, 5.2), // slow = surface tension
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true,
+        repeatRefresh: true,
+        delay: i * 0.5,
+      });
+    });
+    gsap.to(core, {
+      scale: 1.03,
+      transformOrigin: '50% 50%',
+      duration: 4,
+      ease: 'sine.inOut',
+      repeat: -1,
+      yoyo: true,
+    });
+
+    /* ---------- 2. Cursor reactivity: lean / ripple / splash ---------- */
+    const leanX = gsap.quickTo(group, 'x', { duration: 0.9, ease: 'power3.out' });
+    const leanY = gsap.quickTo(group, 'y', { duration: 0.9, ease: 'power3.out' });
+
+    const onMove = (e: MouseEvent) => {
+      const r = wrap.getBoundingClientRect();
+      const nx = (e.clientX - (r.left + r.width / 2)) / window.innerWidth;
+      const ny = (e.clientY - (r.top + r.height / 2)) / window.innerHeight;
+      leanX(nx * 64);
+      leanY(ny * 46);
+    };
+    window.addEventListener('mousemove', onMove);
+
+    // Hover → ripple: quick elastic squash/stretch, like a poked surface
+    const ripple = () => {
+      gsap.timeline()
+        .to(group, { scaleX: 1.06, scaleY: 0.94, duration: 0.16, ease: 'power2.out' })
+        .to(group, { scaleX: 1, scaleY: 1, duration: 1.1, ease: 'elastic.out(1, 0.3)' });
+    };
+    wrap.addEventListener('mouseenter', ripple);
+
+    // Click → splash-wobble: bigger squash + satellites kick outward (scale,
+    // not x/y — their positions belong to the wobble loop)
+    const splash = () => {
+      gsap.timeline()
+        .to(group, { scaleX: 1.18, scaleY: 0.82, duration: 0.14, ease: 'power3.out' })
+        .to(group, { scaleX: 1, scaleY: 1, duration: 1.5, ease: 'elastic.out(1.1, 0.25)' }, 0.14);
+      blobs.forEach((b) => {
+        gsap.fromTo(
+          b,
+          { scale: 1.45, transformOrigin: '50% 50%' },
+          { scale: 1, duration: 1.2, ease: 'elastic.out(1, 0.3)' }
+        );
+      });
+    };
+    wrap.addEventListener('click', splash);
+
+    /* ---------- 3. Draw the flow lines on ---------- */
+    const lines = wrap.querySelectorAll<SVGPathElement>('.flow-line');
+    lines.forEach((p, i) => {
+      const len = p.getTotalLength();
+      gsap.fromTo(
+        p,
+        { strokeDasharray: len, strokeDashoffset: len },
+        { strokeDashoffset: 0, duration: 1.6, delay: 0.4 + i * 0.3, ease: 'power2.inOut' }
+      );
+    });
+
+    /* ---------- 4. Words ride the lines ----------
+       Inputs: each word travels along one of the THREE curved strokes and is
+       absorbed (shrink + fade) as it reaches the droplet. align keeps HTML
+       spans locked to the rendered SVG path, whatever the scaling. */
+    const inLines = ['#flow-in-1', '#flow-in-2', '#flow-in-3'];
+
+    wrap.querySelectorAll<HTMLElement>('.word-in').forEach((el, i) => {
+      const path = inLines[i % inLines.length];
+      const dur = gsap.utils.random(4, 5.4);
+
+      const tl = gsap.timeline({
+        repeat: -1,
+        repeatDelay: gsap.utils.random(0.5, 1.4),
+        delay: 1 + i * 1.15, // stagger the stream; wait for lines to draw
+      });
+
+      tl.set(el, { scale: 1, opacity: 0 })
+        .to(el, { opacity: 0.8, duration: 0.6 }, 0)
+        .to(
+          el,
+          {
+            motionPath: { path, align: path, alignOrigin: [0.5, 0.5] },
+            duration: dur,
+            ease: 'power1.inOut',
+          },
+          0
+        )
+        // absorbed by the droplet
+        .to(el, { scale: 0.2, opacity: 0, duration: dur * 0.3 }, dur * 0.7);
+    });
+
+    // Output: ONE word, ONE straight line — the whole point of the metaphor.
+    const out = wrap.querySelector<HTMLElement>('.word-out')!;
+    const outTl = gsap.timeline({ repeat: -1, repeatDelay: 2, delay: 2.4 });
+
+    outTl
+      .set(out, { scale: 0.5, opacity: 0 })
+      .to(out, { opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out' }, 0.15)
+      .to(
+        out,
+        {
+          motionPath: { path: '#flow-out', align: '#flow-out', alignOrigin: [0.5, 0.5] },
+          duration: 3,
+          ease: 'power1.out',
+        },
+        0
+      )
+      .to(out, { opacity: 0, duration: 0.5 }, 2.5);
+
+    /* ---------- cleanup (matchMedia teardown) ---------- */
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      wrap.removeEventListener('mouseenter', ripple);
+      wrap.removeEventListener('click', splash);
+      gsap.set([group, core, ...blobs, ...lines], { clearProps: 'all' });
+    };
+  });
+</script>
