@@ -1,0 +1,213 @@
+---
+// FlowingWords.astro — wisprflow-style flowing text ribbons around the ball.
+//
+//   - THREE input ribbons: plain faint-grey monospace text (NO background
+//     band) flowing along three separate curves that enter OFF-SCREEN LEFT
+//     at different heights. Ribbon 1 carries the signature pigtail LOOP.
+//     Staggered via per-ribbon speed + phase, so they never move in sync.
+//   - ONE output ribbon: WHITE bold text on a SOLID BLACK band, emerging
+//     from behind the ball, rising off to the RIGHT. (Unchanged.)
+//   - Marquee-on-a-curve: textPath filled with repeated phrase, startOffset
+//     animated -phraseLen → 0 (increasing = glyphs travel start→end =
+//     LEFT→RIGHT).
+//   - ABSORPTION: all input paths run INTO the ball (ending ≈ its center),
+//     and the shared mask keeps text at FULL opacity until the ball's edge,
+//     dissolving it only across the edge itself — absorbed, not vanishing
+//     in empty space.
+//
+// Geometry: viewBox 2000x800, ball center (1000,400). Layer renders at
+// max(1300px,135vw) vs the ball's ~520px → on a 1440px screen 1 unit ≈
+// 0.97px, ball radius ≈ 155 units → ball edges ≈ x=845 / x=1155.
+---
+
+<div class="flow-ribbons" aria-hidden="true">
+  <svg viewBox="0 0 2000 800" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <!-- Three NON-CROSSING lanes (top / middle / bottom), each converging
+           on the ball (center 1000,400) from its own height. Lane
+           separation: at any shared x the paths stay ≥40 units apart. -->
+
+      <!-- INPUT 1 (TOP): gentle organic arc, no loop — drifts down into the
+           ball's upper-left edge -->
+      <path id="rib-in1" d="
+        M -160 200
+        C 150 165, 420 190, 620 255
+        C 760 300, 870 330, 945 358" />
+
+      <!-- INPUT 2 (MIDDLE): the curly one — small pigtail LOOP near the
+           start (the two middle cubics self-intersect to draw the curl),
+           then a level sweep straight into the ball's center -->
+      <path id="rib-in2" d="
+        M -160 430
+        C 20 425, 140 415, 225 395
+        C 285 380, 355 330, 300 295
+        C 245 262, 218 350, 290 385
+        C 420 440, 600 430, 750 415
+        C 850 405, 920 400, 1000 400" />
+
+      <!-- INPUT 3 (BOTTOM): mirror of ribbon 1 — rises from bottom-left
+           into the ball's lower-left edge -->
+      <path id="rib-in3" d="
+        M -160 600
+        C 150 635, 420 610, 620 545
+        C 760 500, 870 470, 950 442" />
+
+      <!-- OUTPUT: from behind the ball, gentle rise to the right -->
+      <path id="rib-out-path" d="M 1085 428 C 1320 424, 1560 380, 2160 275" />
+
+      <!-- INPUT fade: FULL opacity all the way to the ball's edge (≈x845),
+           dissolving only ACROSS the edge itself → "absorbed into the bubble" -->
+      <linearGradient id="rib-in-grad" gradientUnits="userSpaceOnUse"
+        x1="-160" y1="0" x2="920" y2="0">
+        <stop offset="0"     stop-color="#fff" stop-opacity="1" />
+        <stop offset="0.915" stop-color="#fff" stop-opacity="1" /><!-- x≈828: still fully visible -->
+        <stop offset="1"     stop-color="#fff" stop-opacity="0" /><!-- x=920: gone, just inside the edge -->
+      </linearGradient>
+      <linearGradient id="rib-out-grad" gradientUnits="userSpaceOnUse"
+        x1="1085" y1="0" x2="2160" y2="0">
+        <stop offset="0"    stop-color="#fff" stop-opacity="0" /><!-- hidden behind the ball -->
+        <stop offset="0.09" stop-color="#fff" stop-opacity="1" /><!-- ≈x1180: emerges -->
+        <stop offset="0.82" stop-color="#fff" stop-opacity="1" />
+        <stop offset="1"    stop-color="#fff" stop-opacity="0" />
+      </linearGradient>
+      <mask id="rib-in-mask"><rect x="-200" y="-100" width="1200" height="1000" fill="url(#rib-in-grad)" /></mask>
+      <mask id="rib-out-mask"><rect x="1085" y="-100" width="1120" height="1000" fill="url(#rib-out-grad)" /></mask>
+    </defs>
+
+    <!-- ============ INPUT ribbons: bare text, no bands ============ -->
+    <g class="ribbon ribbon-in" mask="url(#rib-in-mask)">
+      <text class="rib in" data-ribbon="in1"><textPath href="#rib-in1"></textPath></text>
+      <text class="rib in" data-ribbon="in2"><textPath href="#rib-in2"></textPath></text>
+      <text class="rib in" data-ribbon="in3"><textPath href="#rib-in3"></textPath></text>
+    </g>
+
+    <!-- ============ OUTPUT ribbon: black banner, white text ============ -->
+    <g class="ribbon ribbon-out" mask="url(#rib-out-mask)">
+      <use href="#rib-out-path" class="band band-out" />
+      <text class="rib out" data-ribbon="out"><textPath href="#rib-out-path"></textPath></text>
+    </g>
+  </svg>
+</div>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+  .flow-ribbons {
+    /* centered on the ball; wider than the viewport so input paths begin
+       genuinely OFF-SCREEN left and the output exits off-right */
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: max(1300px, 135vw); aspect-ratio: 2000 / 800;
+    pointer-events: none; z-index: 0; /* behind the ball (DOM order) */
+
+    --band-out: #141414;     /* solid black banner */
+    --rib-out-text: #fbf9f4; /* white text on the banner */
+  }
+  :global(html[data-theme='dark']) .flow-ribbons {
+    --band-out: #100722;
+    --rib-out-text: #f1ecff;
+  }
+
+  .flow-ribbons svg { width: 100%; height: 100%; overflow: visible; }
+
+  /* the ONLY band: the output banner */
+  .band { fill: none; stroke-linecap: round; transition: stroke 0.3s ease; }
+  .band-out { stroke: var(--band-out); stroke-width: 42; }
+
+  .rib {
+    font-family: "JetBrains Mono", "Space Mono", ui-monospace, monospace;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+    dominant-baseline: central;
+    pointer-events: painted; /* hover works on the words only */
+  }
+  /* input: bare faint grey text on its curve — no background shape */
+  .rib.in {
+    font-size: 17px;
+    fill: var(--text-muted, #8f8b80);
+    fill-opacity: 0.8;
+    transition: fill-opacity 0.25s ease;
+  }
+  .rib.out {
+    font-size: 19px;
+    font-weight: 700;
+    fill: var(--rib-out-text);
+    letter-spacing: 0.05em;
+    transition: opacity 0.25s ease;
+  }
+
+  /* subtle hover (no font-size changes — would break the loop period) */
+  .ribbon { transition: transform 0.35s ease; transform-box: fill-box; transform-origin: center; }
+  .ribbon:has(.rib:hover) { transform: scale(1.012); }
+  .rib.in:hover  { fill-opacity: 1; }
+  .rib.out:hover { opacity: 0.88; }
+</style>
+
+<script>
+  import gsap from "gsap";
+
+  /* ============ EDIT PHRASES / PACE HERE ============
+     One phrase per ribbon; trailing "· " gives repetitions air.
+     speed = viewBox units/sec; phase staggers the streams so they
+     never arrive in sync; fadeIn staggers their appearance on load. */
+  const RIBBONS = {
+    in1: { phrase: "ideas from your client, rough thoughts, half-formed concepts, maybe this maybe that · ", speed: 55, phase: 0.0,  fadeIn: 0.0 },
+    in2: { phrase: "noise from the client side, endless back-and-forth, doubts, second-guessing · ",          speed: 62, phase: 0.4,  fadeIn: 0.6 },
+    in3: { phrase: "scattered sketches, chaos, unclear plans, notes everywhere · ",                            speed: 49, phase: 0.75, fadeIn: 1.2 },
+    out: { phrase: "a planned execution — the clear, shipped solution · ",                                     speed: 75, phase: 0.0,  fadeIn: 0.8 },
+  };
+  /* ================================================== */
+
+  const root = document.querySelector(".flow-ribbons");
+  if (root) {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const setupRibbon = (textEl, { phrase, speed, phase, fadeIn }) => {
+      const tpEl = textEl.querySelector("textPath");
+      const pathEl = root.querySelector(tpEl.getAttribute("href"));
+      const pathLen = pathEl.getTotalLength();
+
+      // measure ONE phrase in the final font
+      tpEl.textContent = phrase;
+      const phraseLen = textEl.getComputedTextLength();
+      if (phraseLen <= 0) return;
+
+      // keep the whole path covered at every scroll position
+      const copies = Math.ceil((pathLen + phraseLen) / phraseLen) + 1;
+      tpEl.textContent = phrase.repeat(copies);
+
+      if (reduce) {
+        tpEl.setAttribute("startOffset", String(-phraseLen * 0.3));
+        return; // static text resting on the curve
+      }
+
+      /* startOffset INCREASES (-phraseLen → 0): glyphs travel start→end
+         = LEFT→RIGHT. Period = one phrase → invisible loop point.
+         `phase` offsets each ribbon's cycle so the streams are staggered. */
+      const state = { off: -phraseLen * (1 - phase) };
+      gsap.to(state, {
+        off: state.off + phraseLen, // exactly one period from wherever we start
+        duration: phraseLen / speed,
+        ease: "none",
+        repeat: -1,
+        onUpdate: () => {
+          // wrap into (-phraseLen, 0] so the offset never grows unbounded
+          const v = ((state.off % phraseLen) - phraseLen) % phraseLen;
+          tpEl.setAttribute("startOffset", String(v));
+        },
+      });
+
+      // staggered arrival on load
+      gsap.fromTo(textEl, { opacity: 0 }, { opacity: 1, duration: 0.9, delay: fadeIn, ease: "sine.out" });
+    };
+
+    // measure only after JetBrains Mono is in, or the loop period is wrong
+    const start = () => {
+      root.querySelectorAll("text.rib").forEach((el) => {
+        const key = el.getAttribute("data-ribbon");
+        setupRibbon(el, RIBBONS[key]);
+      });
+    };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(start);
+    else start();
+  }
+</script>

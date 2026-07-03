@@ -1,0 +1,393 @@
+---
+/**
+ * NameTrinkets.astro — a sticker trinket for EVERY letter of SAURABH
+ * (danielsun.space style). Overlay-only: the name itself is untouched.
+ *
+ * S → yellow sticky note, lightbulb doodle, "ideas!"
+ * A → red "HELLO my name is: builder" name tag
+ * U → laptop sticker with </> glowing on screen
+ * R → round chai-cup sticker, "chai first."
+ * A → enamel "SHIP IT!" badge with paper plane
+ * B → polaroid doodle of the liquid-ball metaphor, "chaos → reality"
+ * H → ADMIT ONE ticket stub, "the portfolio tour"
+ *
+ * BEHAVIOR (desktop + motion allowed):
+ *   - AUTO CYCLE: stickers take turns — pop in over their letter
+ *     (back.out + rotation settle), idle float, hold ~2.2s, pop out, next.
+ *   - HOVER REVEAL: each letter has an invisible hotspot — hovering a
+ *     letter summons ITS sticker instantly (cycle pauses), with lift +
+ *     tilt-toward-cursor. Leaving resumes the cycle from that letter.
+ * Mobile / reduced motion / no-JS: three stickers shown statically.
+ * Dark mode: violet edge glow. Layer: above name, below navbar.
+ */
+const LETTERS = 7; // S A U R A B H
+---
+
+<div class="name-trinkets" aria-hidden="true">
+  <!-- ======== hover hotspots: one per letter (active while cycling) ======== -->
+  {Array.from({ length: LETTERS }).map((_, i) => (
+    <div class="hotspot" data-spot={i} style={`left:${(i * 100) / LETTERS}%; width:${100 / LETTERS}%;`}></div>
+  ))}
+
+  <!-- ============ S — sticky note: "ideas!" ============ -->
+  <div class="trinket t0" data-trinket="0">
+    <div class="float"><div class="inner">
+      <svg viewBox="0 0 150 150" class="sticker">
+        <rect x="4" y="4" width="142" height="142" rx="4" fill="#ffe27a" />
+        <!-- folded corner -->
+        <path d="M 146 106 L 146 146 L 106 146 Z" fill="#e8c24f" />
+        <path d="M 146 106 L 106 146 L 146 146 Z" fill="#00000010" />
+        <!-- lightbulb doodle -->
+        <g stroke="#2b2b2b" stroke-width="2.6" fill="none" stroke-linecap="round">
+          <circle cx="75" cy="58" r="20" />
+          <path d="M 68 78 q 7 5 14 0" />
+          <rect x="68" y="82" width="14" height="10" rx="3" fill="#2b2b2b" stroke="none" />
+          <!-- rays -->
+          <path d="M 75 24 v -10 M 44 40 l -9 -6 M 106 40 l 9 -6 M 40 62 h -11 M 110 62 h 11" />
+          <!-- filament -->
+          <path d="M 70 62 q 5 -8 10 0" />
+        </g>
+        <text x="75" y="128" text-anchor="middle" fill="#2b2b2b"
+          font-family="Caveat, cursive" font-size="28" font-weight="600"
+          transform="rotate(-2 75 124)">ideas!</text>
+      </svg>
+    </div></div>
+  </div>
+
+  <!-- ============ A — HELLO name tag ============ -->
+  <div class="trinket t1" data-trinket="1">
+    <div class="float"><div class="inner">
+      <svg viewBox="0 0 200 124" class="sticker">
+        <rect x="2" y="2" width="196" height="120" rx="14" fill="#ffffff" />
+        <rect x="8" y="8" width="184" height="108" rx="9" fill="#e2382a" />
+        <rect x="8" y="8" width="184" height="30" rx="9" fill="#ffffff" opacity="0.08" />
+        <text x="100" y="38" text-anchor="middle" fill="#ffffff"
+          font-family="Arial Black, Arial, sans-serif" font-size="24"
+          font-weight="900" letter-spacing="2">HELLO</text>
+        <text x="100" y="54" text-anchor="middle" fill="#ffffff"
+          font-family="Arial, sans-serif" font-size="10.5" letter-spacing="1.5">my name is:</text>
+        <rect x="16" y="62" width="168" height="42" rx="4" fill="#fdfcf8" />
+        <text x="100" y="92" text-anchor="middle" fill="#1d1d1d"
+          font-family="Caveat, cursive" font-size="30" font-weight="600"
+          transform="rotate(-2 100 88)">builder</text>
+      </svg>
+    </div></div>
+  </div>
+
+  <!-- ============ U — laptop with </> ============ -->
+  <div class="trinket t2" data-trinket="2">
+    <div class="float"><div class="inner">
+      <svg viewBox="0 0 170 130" class="sticker">
+        <!-- white sticker border silhouette -->
+        <rect x="2" y="2" width="166" height="126" rx="12" fill="#ffffff" />
+        <rect x="9" y="9" width="152" height="112" rx="8" fill="#f3efe6" />
+        <!-- screen -->
+        <rect x="38" y="22" width="94" height="62" rx="6" fill="#1e1533" />
+        <rect x="38" y="22" width="94" height="62" rx="6" fill="none" stroke="#3a2d5c" stroke-width="2" />
+        <!-- glowing code -->
+        <text x="85" y="60" text-anchor="middle" fill="#ffd75e"
+          font-family="ui-monospace, monospace" font-size="22" font-weight="700">&lt;/&gt;</text>
+        <!-- blinking-cursor tick -->
+        <rect x="112" y="48" width="3" height="14" fill="#a78bfa" opacity="0.9" />
+        <!-- base -->
+        <path d="M 30 88 h 110 l 8 12 q 1 4 -4 4 H 26 q -5 0 -4 -4 z" fill="#c9c2b4" />
+        <rect x="72" y="90" width="26" height="5" rx="2.5" fill="#a89f8d" />
+        <text x="85" y="120" text-anchor="middle" fill="#5c564a"
+          font-family="Caveat, cursive" font-size="17" font-weight="600">it compiles ☕</text>
+      </svg>
+    </div></div>
+  </div>
+
+  <!-- ============ R — chai cup round sticker ============ -->
+  <div class="trinket t3" data-trinket="3">
+    <div class="float"><div class="inner">
+      <svg viewBox="0 0 140 140" class="sticker">
+        <circle cx="70" cy="70" r="67" fill="#ffffff" />
+        <circle cx="70" cy="70" r="59" fill="#f8f2e2" />
+        <circle cx="70" cy="70" r="59" fill="none" stroke="#e2d8bf" stroke-width="2" />
+        <g stroke="#2b2b2b" stroke-width="2.6" fill="none" stroke-linecap="round">
+          <!-- cup + handle + saucer -->
+          <path d="M 46 62 h 44 v 18 q 0 14 -14 14 h -16 q -14 0 -14 -14 z" fill="#fff" />
+          <path d="M 90 66 q 14 2 12 12 q -2 9 -14 6" />
+          <path d="M 38 100 q 32 10 64 0" />
+          <!-- steam squiggles -->
+          <path d="M 56 52 q 4 -8 0 -14 q -4 -6 0 -12" />
+          <path d="M 70 54 q 5 -9 0 -16 q -4 -6 1 -12" />
+          <path d="M 84 52 q 4 -8 0 -14" />
+        </g>
+        <text x="70" y="126" text-anchor="middle" fill="#2b2b2b"
+          font-family="Caveat, cursive" font-size="21" font-weight="600">chai first.</text>
+      </svg>
+    </div></div>
+  </div>
+
+  <!-- ============ A — SHIP IT! enamel badge ============ -->
+  <div class="trinket t4" data-trinket="4">
+    <div class="float"><div class="inner">
+      <svg viewBox="0 0 140 140" class="sticker">
+        <circle cx="70" cy="70" r="67" fill="#ffffff" />
+        <circle cx="70" cy="70" r="60" fill="#f5b301" />
+        <circle cx="70" cy="70" r="46" fill="#241747" />
+        <!-- pin gloss -->
+        <ellipse cx="52" cy="42" rx="22" ry="10" fill="#ffffff" opacity="0.18" transform="rotate(-24 52 42)" />
+        <!-- paper plane -->
+        <g stroke="#fdfcf8" stroke-width="2.4" fill="#fdfcf8" stroke-linejoin="round">
+          <path d="M 44 74 L 96 50 L 78 82 L 66 74 Z" fill-opacity="0.95" />
+          <path d="M 66 74 L 68 86 L 74 78" fill="none" />
+        </g>
+        <!-- motion swooshes -->
+        <g stroke="#a78bfa" stroke-width="2" fill="none" stroke-linecap="round">
+          <path d="M 34 62 h 12 M 30 72 h 9" />
+        </g>
+        <text x="70" y="108" text-anchor="middle" fill="#241747"
+          font-family="Arial Black, Arial, sans-serif" font-size="14"
+          font-weight="900" letter-spacing="1">SHIP IT!</text>
+      </svg>
+    </div></div>
+  </div>
+
+  <!-- ============ B — polaroid: chaos → reality ============ -->
+  <div class="trinket t5" data-trinket="5">
+    <div class="float"><div class="inner">
+      <svg viewBox="0 0 180 204" class="sticker">
+        <rect x="2" y="2" width="176" height="200" rx="7" fill="#ffffff" />
+        <rect x="2" y="2" width="176" height="200" rx="7" fill="none" stroke="#00000014" stroke-width="1" />
+        <rect x="12" y="12" width="156" height="132" rx="3" fill="#f6f1e4" />
+        <g stroke="#2b2b2b" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 20 40 q 8 -7 16 0 t 16 0 t 14 6" />
+          <path d="M 18 76 q 9 -5 18 0 t 18 2 t 12 1" />
+          <path d="M 22 112 q 8 6 16 1 t 16 -6 t 12 -8" />
+          <path d="M 62 41 l 5 4 l -7 2" />
+          <path d="M 62 78 l 6 2 l -6 4" />
+          <path d="M 62 100 l 6 -2 l -3 6" />
+          <path d="M 96 58 c 12 -6 26 -2 31 10 c 5 11 1 25 -9 31 c -11 6 -25 3 -31 -7 c -6 -11 -3 -28 9 -34 z" />
+          <path d="M 98 68 q 4 -5 10 -4" />
+          <path d="M 130 80 L 160 80" />
+          <path d="M 153 74 L 161 80 L 153 86" />
+        </g>
+        <path d="M 96 58 c 12 -6 26 -2 31 10 c 5 11 1 25 -9 31 c -11 6 -25 3 -31 -7 c -6 -11 -3 -28 9 -34 z"
+          fill="#f5b301" opacity="0.22" />
+        <text x="90" y="180" text-anchor="middle" fill="#2b2b2b"
+          font-family="Caveat, cursive" font-size="24" font-weight="600"
+          transform="rotate(-1.5 90 176)">chaos → reality</text>
+        <rect x="118" y="-6" width="52" height="18" rx="2" fill="#efe6b0" opacity="0.85" transform="rotate(8 144 3)" />
+      </svg>
+    </div></div>
+  </div>
+
+  <!-- ============ H — ADMIT ONE ticket ============ -->
+  <div class="trinket t6" data-trinket="6">
+    <div class="float"><div class="inner">
+      <svg viewBox="0 0 190 100" class="sticker">
+        <!-- ticket body with notched sides -->
+        <path d="M 10 6 h 170 q 6 0 6 6 v 26 a 12 12 0 0 0 0 24 v 26 q 0 6 -6 6 H 10 q -6 0 -6 -6 V 62 a 12 12 0 0 0 0 -24 V 12 q 0 -6 6 -6 z"
+          fill="#fdf6e6" stroke="#d8cbaa" stroke-width="2" />
+        <!-- red edge stripes -->
+        <rect x="14" y="12" width="8" height="76" fill="#e2382a" opacity="0.85" />
+        <rect x="168" y="12" width="8" height="76" fill="#e2382a" opacity="0.85" />
+        <!-- perforation -->
+        <line x1="140" y1="10" x2="140" y2="90" stroke="#b9ac8b" stroke-width="2" stroke-dasharray="3 6" stroke-linecap="round" />
+        <text x="80" y="45" text-anchor="middle" fill="#2b2b2b"
+          font-family="Arial Black, Arial, sans-serif" font-size="17"
+          font-weight="900" letter-spacing="2">ADMIT ONE</text>
+        <text x="80" y="68" text-anchor="middle" fill="#6b6350"
+          font-family="Caveat, cursive" font-size="18" font-weight="600">the portfolio tour</text>
+        <!-- stub star -->
+        <text x="155" y="56" text-anchor="middle" fill="#e2382a"
+          font-family="Arial, sans-serif" font-size="18" transform="rotate(90 155 50)">★</text>
+      </svg>
+    </div></div>
+  </div>
+</div>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
+
+  .name-trinkets {
+    position: absolute;
+    inset: 0;
+    z-index: 5;             /* above the name, far below the navbar (100) */
+    pointer-events: none;
+  }
+
+  /* ---- hotspots: invisible letter zones; interactive only while cycling ---- */
+  .hotspot {
+    position: absolute;
+    top: -12%;
+    height: 124%;
+    pointer-events: none;
+  }
+  .name-trinkets.cycling .hotspot { pointer-events: auto; }
+
+  /* ---- trinkets ---- */
+  .trinket {
+    position: absolute;
+    pointer-events: auto;
+    transform: translateX(-50%); /* anchored by letter-center % */
+  }
+  /* letter centers: (i + 0.5) / 7 of the name's width; tops scattered so
+     the stickers feel tossed on, not aligned */
+  .t0 { left: 7.1%;  top: -6%;  width: clamp(64px, 6.6vw, 104px); }
+  .t1 { left: 21.4%; top: 6%;   width: clamp(78px, 8.4vw, 132px); }
+  .t2 { left: 35.7%; top: -10%; width: clamp(70px, 7.4vw, 116px); }
+  .t3 { left: 50%;   top: 12%;  width: clamp(62px, 6.4vw, 100px); }
+  .t4 { left: 64.3%; top: -8%;  width: clamp(60px, 6.2vw, 98px); }
+  .t5 { left: 78.6%; top: 2%;   width: clamp(68px, 7vw, 112px); }
+  .t6 { left: 92.9%; top: 16%;  width: clamp(78px, 8.2vw, 128px); }
+
+  .sticker {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 6px 14px rgba(20, 10, 40, 0.28));
+    transition: filter 0.3s ease;
+  }
+  :global(html[data-theme='dark']) .sticker {
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5))
+            drop-shadow(0 0 10px rgba(167, 139, 250, 0.35));
+  }
+
+  /* "slapped on crooked" base rotations (inner layer = hover layer) */
+  .t0 .inner { transform: rotate(-7deg); }
+  .t1 .inner { transform: rotate(-5deg); }
+  .t2 .inner { transform: rotate(4deg); }
+  .t3 .inner { transform: rotate(-4deg); }
+  .t4 .inner { transform: rotate(6deg); }
+  .t5 .inner { transform: rotate(5deg); }
+  .t6 .inner { transform: rotate(-8deg); }
+  .inner { transition: transform 0.3s ease; }
+
+  /* ---- static fallback (no-JS / reduced motion / mobile):
+     three spread-out stickers only, so it stays tasteful ---- */
+  .trinket { display: none; }
+  .t1, .t3, .t5 { display: block; }
+  .name-trinkets.cycling .trinket { display: block; } /* JS cycle owns them all */
+
+  @media (max-width: 1023px) {
+    .t1 { width: clamp(58px, 12vw, 84px); }
+    .t3 { width: clamp(46px, 9.5vw, 66px); }
+    .t5 { width: clamp(52px, 10.5vw, 76px); }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const layer = document.querySelector<HTMLElement>('.name-trinkets');
+  const mm = gsap.matchMedia();
+
+  if (layer) {
+    mm.add('(min-width: 1024px) and (prefers-reduced-motion: no-preference)', () => {
+      layer.classList.add('cycling');
+
+      const trinkets = gsap.utils.toArray<HTMLElement>('.trinket', layer);
+      const hotspots = gsap.utils.toArray<HTMLElement>('.hotspot', layer);
+      const inners = trinkets.map((t) => t.querySelector<HTMLElement>('.inner')!);
+      const baseRot = [-7, -5, 4, -4, 6, 5, -8];
+      const n = trinkets.length;
+
+      const HOLD = 2.2;        // how long each sticker stays up in the cycle
+      let idx = 0;             // next sticker the cycle will show
+      let hovered = -1;        // which letter is hover-locked (-1 = none)
+      let pending: gsap.core.Tween | null = null; // scheduled cycle step
+
+      // xPercent:-50 re-creates the CSS translateX(-50%) anchor inside GSAP's
+      // transform state — otherwise the first scale tween would wipe it out
+      gsap.set(trinkets, { scale: 0, xPercent: -50, transformOrigin: '50% 60%' });
+
+      /* idle float — always running on the middle layer */
+      trinkets.forEach((t, i) => {
+        gsap.to(t.querySelector('.float'), {
+          y: i % 2 ? 5 : -5,
+          rotation: i % 2 ? -1.6 : 1.6,
+          duration: 2.4 + (i % 3) * 0.5,
+          ease: 'sine.inOut',
+          repeat: -1,
+          yoyo: true,
+        });
+      });
+
+      const popIn = (i: number) =>
+        gsap.fromTo(
+          trinkets[i],
+          { scale: 0, rotation: -10 },
+          { scale: 1, rotation: 0, duration: 0.5, ease: 'back.out(1.8)' }
+        );
+      const popOut = (i: number) =>
+        gsap.to(trinkets[i], { scale: 0, rotation: 8, duration: 0.3, ease: 'power2.in' });
+
+      /* ---------- auto cycle (delayedCall chain, easy to interrupt) ---------- */
+      const step = () => {
+        if (hovered !== -1) return; // hover owns the stage
+        const i = idx;
+        popIn(i);
+        pending = gsap.delayedCall(HOLD, () => {
+          popOut(i);
+          pending = gsap.delayedCall(0.4, () => {
+            idx = (idx + 1) % n;
+            step();
+          });
+        });
+      };
+      gsap.delayedCall(1, step);
+
+      /* ---------- hover reveal (hotspot OR the sticker itself) ----------
+         Debounced leave so moving from letter → its sticker doesn't flicker. */
+      let leaveTimer: gsap.core.Tween | null = null;
+
+      const enter = (i: number) => {
+        leaveTimer?.kill();
+        if (hovered === i) return;
+        pending?.kill();
+        // clear the stage, summon this letter's sticker
+        trinkets.forEach((_, k) => { if (k !== i) popOut(k); });
+        hovered = i;
+        popIn(i);
+        gsap.to(inners[i], { scale: 1.08, duration: 0.3, ease: 'power2.out' });
+        gsap.to(trinkets[i].querySelector('.sticker'), {
+          filter: 'drop-shadow(0 12px 22px rgba(20,10,40,0.38))', duration: 0.3,
+        });
+      };
+
+      const leave = (i: number) => {
+        leaveTimer?.kill();
+        leaveTimer = gsap.delayedCall(0.12, () => {
+          if (hovered !== i) return;
+          hovered = -1;
+          gsap.to(inners[i], { scale: 1, rotation: baseRot[i], duration: 0.3 });
+          gsap.to(trinkets[i].querySelector('.sticker'), { clearProps: 'filter', duration: 0.2 });
+          popOut(i);
+          idx = (i + 1) % n; // cycle resumes from the NEXT letter
+          pending = gsap.delayedCall(0.5, step);
+        });
+      };
+
+      const tilt = (i: number, e: MouseEvent) => {
+        if (hovered !== i) return;
+        const r = trinkets[i].getBoundingClientRect();
+        const nx = (e.clientX - (r.left + r.width / 2)) / Math.max(r.width, 1);
+        gsap.to(inners[i], { rotation: baseRot[i] + nx * 9, duration: 0.4, ease: 'power2.out' });
+      };
+
+      hotspots.forEach((h, i) => {
+        h.addEventListener('mouseenter', () => enter(i));
+        h.addEventListener('mouseleave', () => leave(i));
+        h.addEventListener('mousemove', (e) => tilt(i, e));
+      });
+      trinkets.forEach((t, i) => {
+        t.addEventListener('mouseenter', () => enter(i));
+        t.addEventListener('mouseleave', () => leave(i));
+        t.addEventListener('mousemove', (e) => tilt(i, e));
+      });
+
+      return () => {
+        layer.classList.remove('cycling');
+        pending?.kill();
+        leaveTimer?.kill();
+        gsap.set(trinkets, { clearProps: 'all' });
+        inners.forEach((el) => gsap.set(el, { clearProps: 'all' }));
+        trinkets.forEach((t) => gsap.set(t.querySelector('.float'), { clearProps: 'all' }));
+      };
+    });
+  }
+</script>

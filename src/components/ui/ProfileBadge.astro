@@ -1,24 +1,43 @@
 ---
 /**
  * ProfileBadge.astro — small profile image, fixed top-left.
- * Desktop: B&W by default, crossfades to color on hover; click enlarges the
- * badge and reveals a quick-links card (Resume PDF + LinkedIn) via GSAP.
- * Mobile: color photo shown directly; tap toggles the card.
- * Replace the placeholder image + LinkedIn URL with your real ones.
+ *
+ *  - Default shows IMG1; hovering OR opening the card crossfades to IMG2.
+ *    (Both use the placeholder for now — IMG1 is grayscaled so the swap is
+ *    visible. Drop img1.jpg / img2.jpg into assets/images and update the
+ *    imports below.)
+ *  - Click: badge enlarges + quick-links card reveals (GSAP):
+ *    Resume / LinkedIn / GitHub — recruiter-in-a-hurry shortcuts.
+ *  - A sketchy hand-drawn arrow + note ("in a hurry? check it!") points at
+ *    the badge: draws itself in on load, then idles with a gentle wiggle.
  */
 import profile from '../../assets/images/profile-placeholder.svg';
 
-const LINKEDIN_URL = 'https://www.linkedin.com/in/your-handle'; // TODO: real URL
+const IMG1 = profile.src; // TODO: replace with stylized/bw photo (img1)
+const IMG2 = profile.src; // TODO: replace with real color photo (img2)
+
 const RESUME_URL = '/resume.pdf'; // served from public/
+const LINKEDIN_URL = 'https://www.linkedin.com/in/your-handle'; // TODO
+const GITHUB_URL = 'https://github.com/your-handle'; // TODO
 ---
 
 <div class="profile-badge" id="profile-badge">
   <button class="badge-btn glass" aria-label="Profile — quick links" aria-expanded="false">
-    <!-- Two stacked copies of the photo: grayscale under, color over.
-         (Swap srcs for real profile-bw.jpg / profile-color.jpg later.) -->
-    <img class="photo photo-bw" src={profile.src} alt="" width="52" height="52" />
-    <img class="photo photo-color" src={profile.src} alt="Saurabh" width="52" height="52" />
+    <!-- img1 under, img2 over; opacity crossfade on hover / open -->
+    <img class="photo photo-img1" src={IMG1} alt="" width="52" height="52" />
+    <img class="photo photo-img2" src={IMG2} alt="Saurabh" width="52" height="52" />
   </button>
+
+  <!-- sketchy "look here" hint -->
+  <div class="badge-hint" aria-hidden="true">
+    <svg class="hint-arrow" viewBox="0 0 64 30" width="72" height="34">
+      <!-- wobbly marker line, drawn right→left toward the badge -->
+      <path class="arrow-line" d="M 60 7 C 44 3, 30 13, 18 15 C 14 15.7, 11 16, 7 17" />
+      <!-- arrowhead -->
+      <path class="arrow-head" d="M 14 11 L 6 17 L 15 21" />
+    </svg>
+    <span class="hint-text">in a hurry? check it!</span>
+  </div>
 
   <!-- Quick-links card for recruiters in a hurry -->
   <div class="profile-card glass" hidden>
@@ -29,10 +48,16 @@ const RESUME_URL = '/resume.pdf'; // served from public/
     <a class="card-link" href={LINKEDIN_URL} target="_blank" rel="noopener">
       <span class="dot"></span> LinkedIn
     </a>
+    <a class="card-link" href={GITHUB_URL} target="_blank" rel="noopener">
+      <span class="dot"></span> GitHub
+    </a>
   </div>
 </div>
 
 <style>
+  /* Caveat = the handwritten/marker voice of the hint */
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
+
   .profile-badge {
     position: fixed;
     top: 18px;
@@ -59,17 +84,86 @@ const RESUME_URL = '/resume.pdf'; // served from public/
     object-fit: cover;
   }
 
-  /* B&W base + color overlay; hover crossfades (desktop only) */
-  .photo-bw { filter: grayscale(1) contrast(1.1); }
-  .photo-color { opacity: 0; transition: opacity 0.35s ease; }
+  /* IMG1 base (grayscaled placeholder stand-in), IMG2 crossfades over on
+     hover (desktop) or whenever the card is open (any device) */
+  .photo-img1 { filter: grayscale(1) contrast(1.1); }
+  .photo-img2 { opacity: 0; transition: opacity 0.35s ease; }
   @media (hover: hover) and (min-width: 1024px) {
-    .badge-btn:hover .photo-color { opacity: 1; }
+    .badge-btn:hover .photo-img2 { opacity: 1; }
   }
-  /* Mobile: show real (color) photo directly */
+  .profile-badge.open .photo-img2 { opacity: 1; }
+  /* Mobile: show the real photo (img2) directly */
   @media (max-width: 1023px) {
-    .photo-color { opacity: 1; }
+    .photo-img2 { opacity: 1; }
   }
 
+  /* ---------------- sketchy hint ---------------- */
+  .badge-hint {
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: max-content;
+    pointer-events: none;
+    transform: rotate(-4.5deg); /* matches the sway's `from` — no jump when it kicks in */
+    transform-origin: left center;
+    /* gentle idle sway (killed by reduced-motion rule in global.css) */
+    animation: hint-sway 3.4s ease-in-out 2.2s infinite alternate;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+  }
+  /* get out of the way once the card is open — it did its job */
+  .profile-badge.open .badge-hint { opacity: 0; }
+
+  @keyframes hint-sway {
+    from { transform: rotate(-4.5deg) translateY(0); }
+    to   { transform: rotate(-1.5deg) translateY(2px); }
+  }
+
+  .hint-arrow {
+    overflow: visible;
+    flex-shrink: 0;
+  }
+  .arrow-line,
+  .arrow-head {
+    fill: none;
+    stroke: var(--text-muted);
+    stroke-width: 2.4;           /* medium weight — marker, not Sharpie */
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  /* draw-in: line sketches itself right→left, then the head + text pop in.
+     (Under prefers-reduced-motion, global.css collapses durations → the
+     final drawn state appears instantly.) */
+  .arrow-line {
+    stroke-dasharray: 90;
+    stroke-dashoffset: 90;
+    animation: hint-draw 0.8s ease-out 1.1s forwards;
+  }
+  .arrow-head {
+    opacity: 0;
+    animation: hint-pop 0.3s ease-out 1.8s forwards;
+  }
+  .hint-text {
+    font-family: 'Caveat', 'Comic Sans MS', cursive;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    opacity: 0;
+    animation: hint-pop 0.45s ease-out 1.5s forwards;
+  }
+  @keyframes hint-draw { to { stroke-dashoffset: 0; } }
+  @keyframes hint-pop  { to { opacity: 0.9; } }
+
+  @media (max-width: 1023px) {
+    .hint-text { font-size: 1.05rem; }
+    .hint-arrow { width: 56px; height: 26px; }
+  }
+
+  /* ---------------- quick-links card ---------------- */
   .profile-card[hidden] { display: none; } /* keep [hidden] working despite display:flex */
   .profile-card {
     position: absolute;
@@ -114,8 +208,7 @@ const RESUME_URL = '/resume.pdf'; // served from public/
 <script>
   /**
    * Click/tap: enlarge badge slightly + reveal card (GSAP).
-   * This is a one-shot, event-driven tween — cheap enough to ship to all
-   * devices (the matchMedia gate is reserved for continuous animations).
+   * One-shot, event-driven tweens — cheap enough for all devices.
    */
   import { gsap } from 'gsap';
 
@@ -128,6 +221,7 @@ const RESUME_URL = '/resume.pdf'; // served from public/
 
   const show = () => {
     card.hidden = false;
+    badge.classList.add('open'); // → img2 crossfade + hint fades away
     if (reduced) return;
     gsap.fromTo(
       card,
@@ -138,6 +232,7 @@ const RESUME_URL = '/resume.pdf'; // served from public/
   };
 
   const hide = () => {
+    badge.classList.remove('open');
     if (reduced) {
       card.hidden = true;
       return;

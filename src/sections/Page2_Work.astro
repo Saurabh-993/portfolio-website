@@ -1,22 +1,416 @@
 ---
 /**
- * Page2_Work.astro — placeholder scroll section (100dvh).
- * TODO: selected projects / case studies.
+ * Page2_Work.astro — About / Skills. Clean, professional, near-white.
+ * Intentionally LIGHT in both site themes — a deliberate palette shift
+ * from the hero (the dark particle panel is the single dark accent).
+ *
+ * BENTO — exactly three boxes, no overlap, even 24px gaps:
+ *   ┌ About (42%) ────────┬ Particle (58%) ─┐
+ *   ├ Tech I build with ──┤  (tall, empty,  │
+ *   │  [logo marquee →]   │   dark panel)   │
+ *   └─────────────────────┴─────────────────┘
+ *
+ * TRANSITION: scrolling page1 → page2 runs a short scrubbed gaussian-blur
+ * handoff (hero content blurs out, this section resolves from blur to
+ * crisp). Skipped entirely under prefers-reduced-motion / mobile.
+ *
+ * The right box is EMPTY — mount your three.js component inside
+ * #particle-morph-slot (already position:relative, overflow:hidden).
  */
+
+/* Tech stack, in order. `slug` = Simple Icons CDN id; no slug → text chip */
+const TECH = [
+  { label: 'JavaScript',  slug: 'javascript' },
+  { label: 'TypeScript',  slug: 'typescript' },
+  { label: 'Python',      slug: 'python' },
+  { label: 'Node.js',     slug: 'nodedotjs' },
+  { label: 'Express',     slug: 'express' },
+  { label: 'FastAPI',     slug: 'fastapi' },
+  { label: 'REST APIs' },
+  { label: 'MongoDB',     slug: 'mongodb' },
+  { label: 'PostgreSQL',  slug: 'postgresql' },
+  { label: 'MySQL',       slug: 'mysql' },
+  { label: 'React',       slug: 'react' },
+  { label: 'LangChain',   slug: 'langchain' },
+  { label: 'LangGraph' },
+  { label: 'n8n',         slug: 'n8n' },
+  { label: 'Git',         slug: 'git' },
+  { label: 'GitHub',      slug: 'github' },
+];
+
+const HIGHLIGHTS = [
+  { k: 'Currently', v: 'creative frontend & real-time graphics' },
+  { k: 'Focus',     v: 'engineering × design' },
+  { k: 'Building',  v: 'end to end — sketch to deployed URL' },
+];
 ---
 
-<section class="section placeholder" id="work">
-  <p class="label serif">Work — coming soon</p>
+<section class="section about" id="work">
+  <div class="about-inner">
+    <div class="bento">
+      <!-- ================= LEFT COLUMN ================= -->
+      <div class="col-left">
+        <!-- ABOUT -->
+        <article class="box box-about">
+          <p class="box-label"><span class="dot"></span>About</p>
+          <div class="about-head">
+            <div class="avatar" aria-hidden="true">S</div>
+            <h2 class="box-title">Hi, I'm Saurabh.</h2>
+          </div>
+          <p class="box-body">
+            <!-- PLACEHOLDER bio — swap in yours -->
+            I build things that live on the line between engineering and
+            design — interfaces with real motion, systems that stay simple
+            underneath. Give me a vague idea and I'll hand you back
+            something deployed.
+          </p>
+          <ul class="highlights">
+            {HIGHLIGHTS.map((h) => (
+              <li>
+                <span class="hl-key">{h.k}</span>
+                <span class="hl-val">{h.v}</span>
+              </li>
+            ))}
+          </ul>
+        </article>
+
+        <!-- TECH / STACK -->
+        <article class="box box-tech">
+          <p class="box-label"><span class="dot"></span>Stack</p>
+          <h2 class="box-title">Tech I build with</h2>
+          <p class="box-body">
+            The tools I reach for when an idea needs to become software —
+            from interface to API to database.
+          </p>
+
+          <!-- continuous left→right marquee · hover pauses -->
+          <div class="marquee" aria-label="Tech stack">
+            <div class="marquee-track">
+              {[0, 1].map(() => (
+                <div class="marquee-run">
+                  {TECH.map((t) => (
+                    <span class="chip" title={t.label}>
+                      {t.slug && (
+                        <img src={`https://cdn.simpleicons.org/${t.slug}`}
+                          alt="" width="18" height="18" loading="lazy"
+                          onerror="this.remove()" />
+                      )}
+                      <span class="chip-label">{t.label}</span>
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- ================= RIGHT: PARTICLE (empty for your three.js) ================= -->
+      <article class="box box-particle">
+        <p class="box-label"><span class="dot"></span>Playground</p>
+        <!-- dark inner panel: glowing particles will read against this -->
+        <div class="particle-panel" id="particle-morph-slot">
+          <span class="panel-note">particle morph</span>
+        </div>
+      </article>
+    </div>
+  </div>
 </section>
 
 <style>
-  .placeholder {
+  @import url('https://api.fontshare.com/v2/css?f[]=clash-display@600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500&display=swap');
+
+  /* ---- local palette: professional near-white, independent of theme ---- */
+  .about {
+    --pg-bg: #fbfbf9;
+    --pg-card: #ffffff;
+    --pg-line: #e9e6de;      /* hairline */
+    --pg-ink: #17161a;
+    --pg-ink-soft: #55534d;
+    --pg-ink-faint: #98948a;
+    --pg-glow: rgba(245, 179, 1, 0.22); /* gentle amber halo on hover */
+
+    background: var(--pg-bg);
+    color: var(--pg-ink);
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(76px, 10vh, 120px) clamp(16px, 4vw, 48px);
+  }
+
+  .about-inner {
+    width: min(1180px, 100%);
+    will-change: filter; /* the blur handoff animates this wrapper */
+  }
+
+  /* ---------------- bento: exactly three boxes, even gaps ---------------- */
+  .bento {
+    display: grid;
+    grid-template-columns: 42fr 58fr;
+    gap: 24px;
+    align-items: stretch;
+  }
+  .col-left {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 24px;
+    min-width: 0; /* keeps the marquee inside its card */
+  }
+
+  /* ---------------- box style: white, hairline, soft hover glow ---------------- */
+  .box {
+    background: var(--pg-card);
+    border: 1px solid var(--pg-line);
+    border-radius: 18px;
+    padding: clamp(24px, 2.8vw, 38px);
+    transition: box-shadow 0.35s ease, transform 0.35s ease, border-color 0.35s ease;
+  }
+  .box:hover {
+    transform: translateY(-3px);
+    border-color: #eadfc2;
+    box-shadow:
+      0 0 0 4px rgba(245, 179, 1, 0.05),
+      0 0 28px var(--pg-glow),
+      0 18px 44px rgba(23, 22, 26, 0.07);
+  }
+
+  .box-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--pg-ink-faint);
+    margin-bottom: 16px;
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #f5b301;
+    box-shadow: 0 0 6px rgba(245, 179, 1, 0.5);
+  }
+
+  .box-title {
+    font-family: 'Clash Display', 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: clamp(1.45rem, 2.2vw, 2rem);
+    letter-spacing: -0.01em;
+    color: var(--pg-ink);
+  }
+
+  .box-body {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(0.94rem, 1.05vw, 1.02rem);
+    line-height: 1.65;
+    color: var(--pg-ink-soft);
+    margin-top: 10px;
+    max-width: 52ch;
+  }
+
+  /* ---------------- about internals ---------------- */
+  .about-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .avatar {
+    /* placeholder avatar — swap for a real photo when ready */
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #f5b301, #a78bfa);
+    color: #ffffff;
+    font-family: 'Clash Display', sans-serif;
+    font-weight: 600;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .highlights {
+    list-style: none;
+    margin-top: 20px;
+    padding: 0;
+    border-top: 1px solid var(--pg-line);
+  }
+  .highlights li {
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+    padding: 11px 2px;
+    border-bottom: 1px solid var(--pg-line);
+  }
+  .hl-key {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pg-ink-faint);
+    min-width: 86px;
+    flex-shrink: 0;
+  }
+  .hl-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.92rem;
+    color: var(--pg-ink);
+  }
+
+  /* ---------------- marquee ---------------- */
+  .marquee {
+    margin-top: clamp(18px, 2.4vh, 26px);
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    /* reverse → visual flow is left→right; two runs = seamless -50% loop */
+    animation: logo-scroll 36s linear infinite reverse;
+  }
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+  .marquee-run { display: flex; flex-shrink: 0; gap: 10px; padding-right: 10px; }
+  @keyframes logo-scroll { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid var(--pg-line);
+    border-radius: 999px;
+    background: #fdfdfb;
+    white-space: nowrap;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .chip:hover { border-color: #ddd3b8; transform: translateY(-1px); }
+  .chip img { display: block; }
+  .chip-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--pg-ink-soft);
+  }
+
+  /* ---------------- particle box (right, tall) ---------------- */
+  .box-particle {
+    display: flex;
+    flex-direction: column;
+    min-height: clamp(460px, 74vh, 660px);
+  }
+  .particle-panel {
+    /* the intentional DARK accent on the light page — deep navy so glowing
+       particles pop. Your three.js canvas mounts here (absolute inside). */
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    background:
+      radial-gradient(120% 90% at 50% 30%, #16203f 0%, #0b1020 55%, #070a16 100%);
     display: grid;
     place-items: center;
   }
-  .label {
-    font-size: clamp(1.2rem, 2.5vw, 2rem);
-    color: var(--text-faint);
-    font-style: italic;
+  .panel-note {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(240, 238, 255, 0.28);
+  }
+
+  /* ---------------- responsive: stack neatly ---------------- */
+  @media (max-width: 899px) {
+    .bento { grid-template-columns: 1fr; }
+    .box-particle { min-height: 380px; }
   }
 </style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const mm = gsap.matchMedia();
+
+  mm.add('(min-width: 1024px) and (prefers-reduced-motion: no-preference)', () => {
+    /* ---------- gaussian-blur handoff, page1 → page2 (scrubbed) ----------
+       Blur target inside the hero is .hero-content — NOT the whole section:
+       the navbar/profile badge are position:fixed inside it, and filtering
+       their ancestor would break fixed positioning. */
+    const heroContent = document.querySelector('.hero .hero-content');
+    const inner = document.querySelector('.about-inner');
+    const anims: gsap.core.Tween[] = [];
+
+    if (heroContent) {
+      anims.push(
+        gsap.fromTo(
+          heroContent,
+          { filter: 'blur(0px)', opacity: 1 },
+          {
+            filter: 'blur(7px)',
+            opacity: 0.55,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: '.about',
+              start: 'top bottom',   // page2 enters the viewport
+              end: 'top 40%',
+              scrub: 0.4,
+            },
+          }
+        )
+      );
+    }
+    if (inner) {
+      anims.push(
+        gsap.fromTo(
+          inner,
+          { filter: 'blur(9px)', opacity: 0.45 },
+          {
+            filter: 'blur(0px)',
+            opacity: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: '.about',
+              start: 'top 90%',
+              end: 'top 35%',        // fully crisp well before it centers
+              scrub: 0.4,
+            },
+          }
+        )
+      );
+    }
+
+    /* ---------- subtle staggered rise of the three boxes ---------- */
+    const boxes = gsap.utils.toArray<HTMLElement>('.about .box');
+    boxes.forEach((box, i) => {
+      anims.push(
+        gsap.fromTo(
+          box,
+          { y: 30, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.65,
+            delay: i * 0.1,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: '.about', start: 'top 60%' },
+          }
+        )
+      );
+    });
+
+    return () => anims.forEach((a) => a.scrollTrigger?.kill());
+  });
+</script>

@@ -17,6 +17,8 @@ import ProfileBadge from '../components/ui/ProfileBadge.astro';
 import SunMoon from '../components/hero/SunMoon.astro';
 import StrikeHeadline from '../components/hero/StrikeHeadline.astro';
 import LiquidBall from '../components/hero/LiquidBall.astro';
+import FlowingWords from "../components/hero/FlowingWords.astro";
+import NameTrinkets from "../components/hero/NameTrinkets.astro";
 
 /* Marquee texture words — light, low-contrast, reads as a divider */
 const stripWords = [
@@ -43,13 +45,16 @@ const stripWords = [
     </div>
 
     <!-- 6. centerpiece -->
-    <div class="ball-wrap">
+    <div class="hero-center" style="position:relative; display:grid; place-items:center;">
+      <FlowingWords />
       <LiquidBall />
     </div>
 
     <!-- 7. signature name -->
     <div class="name-wrap">
       <p class="big-name serif">SAURABH</p>
+      <!-- sticker trinkets popping in over the letters -->
+      <NameTrinkets />
     </div>
   </div>
 
@@ -70,6 +75,9 @@ const stripWords = [
 </section>
 
 <style>
+  /* Clash Display (Fontshare) — for the big signature name only */
+  @import url('https://api.fontshare.com/v2/css?f[]=clash-display@700&display=swap');
+
   .hero {
     height: 100dvh;
     overflow: hidden;
@@ -105,15 +113,20 @@ const stripWords = [
 
   /* 7. Big name — full-width signature at the bottom */
   .name-wrap {
+    position: relative; /* anchors the NameTrinkets overlay */
     width: 100%;
-    overflow: hidden;
+    overflow: visible;  /* trinkets may poke above the letters */
     line-height: 0.85;
   }
   .big-name {
+    /* Clash Display: modern + striking, pairs with the Space Grotesk-style
+       headline. (Elegant serif alternative: 'Fraunces', already loaded in
+       Base.astro — just swap the family here.) */
+    font-family: 'Clash Display', 'Fraunces', Georgia, sans-serif;
     font-size: clamp(4rem, 15.5vw, 15rem);
-    font-weight: 900;
+    font-weight: 700; /* Clash Display bold */
     text-align: center;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.015em; /* Clash likes tighter tracking than the serif did */
     white-space: nowrap;
     /* tucked into the bottom edge like a stamp */
     margin-bottom: -0.06em;

@@ -1,240 +1,128 @@
 ---
-/**
- * StrikeHeadline.astro — three-tier cycling headline, COMPACT block.
- *
- *   "I'm the one who [verb] [object] into [outcome] — you can call me a [role]."
- *
- * SPACING: the sentence is a flex-wrap row of tokens with ONE consistent
- * `gap` — no manual spaces, so words can never collide. Each changing word
- * sits in a slot whose WIDTH IS ANIMATED to match the active word, so there
- * are no giant reserved gaps around short words either.
- *
- * TIER 1 (static) : "I'm the one who", "into", "—", "you can call me a", "."
- * TIER 2 (subtle) : object + outcome — sequential fade out → fade in (blur).
- * TIER 3 (strike) : verb + role — normal text color, struck through…
- *                   EXCEPT the final "builds/builder": accent, never struck.
- *
- * The em dash is welded to the outcome slot (one no-wrap token) so it can
- * never dangle alone at a line end.
- *
- * prefers-reduced-motion / no-JS: final state shown statically; non-final
- * words are display:none so slots collapse to the final word's width.
- */
-const states = [
-  { verb: 'designs',    obj: 'your imagination', out: 'shape',     role: 'designer' },
-  { verb: 'develops',   obj: 'your ideas',       out: 'products',  role: 'developer' },
-  { verb: 'architects', obj: 'your chaos',       out: 'structure', role: 'thinker' },
-  { verb: 'turns',      obj: 'dead-ends',        out: 'solutions', role: 'problem-solver' },
-  { verb: 'builds',     obj: 'Imagination',      out: 'reality',   role: 'builder' }, // FINAL
-];
-const last = states.length - 1;
+// StrikeHeadline.astro
+// Animated hero headline. Uses your installed GSAP (npm i gsap).
 ---
 
-<h1 class="strike-headline" id="strike-headline">
-  <span class="tok">I'm the one who</span>
-
-  <span class="tok slot slot-verb">
-    {states.map((s, i) => (
-      <span class:list={['sw', 't3', { final: i === last }]}>
-        {s.verb}
-        {i !== last && <i class="strike" aria-hidden="true"></i>}
-      </span>
-    ))}
+<h1 class="strike-headline">
+  <span class="row one">
+    <span class="static">I'm the one who</span>
+    <span class="slot" data-slot="verb"><span class="txt">Designs</span><i class="line"></i></span>
+    <span class="slot" data-slot="noun"><span class="txt">visions</span></span>
   </span>
-
-  <span class="tok slot slot-obj">
-    {states.map((s) => (
-      <span class="sw t2">{s.obj}</span>
-    ))}
-  </span>
-
-  <span class="tok">into</span>
-
-  <!-- outcome + em dash welded together: the dash never dangles -->
-  <span class="tok">
-    <span class="slot slot-out">
-      {states.map((s) => (
-        <span class="sw t2">{s.out}</span>
-      ))}
-    </span><span class="dash">&nbsp;—</span>
-  </span>
-
-  <span class="tok">you can call me a</span>
-
-  <!-- role + period welded together -->
-  <span class="tok">
-    <span class="slot slot-role">
-      {states.map((s, i) => (
-        <span class:list={['sw', 't3', { final: i === last }]}>
-          {s.role}
-          {i !== last && <i class="strike" aria-hidden="true"></i>}
-        </span>
-      ))}
-    </span><span>.</span>
+  <span class="row two">
+    <span class="static">essentially, a</span>
+    <span class="slot" data-slot="role"><span class="txt">Designer</span><i class="line"></i></span>
   </span>
 </h1>
 
 <style>
-  /* Space Grotesk — futuristic/techy, bold */
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap');
-
   .strike-headline {
-    /* COMPACT centered block — wraps into 2–3 tight lines */
-    max-width: min(660px, 92vw);
-    margin-inline: auto;
-
-    /* ONE consistent space between every token: flex gap, no text spaces */
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: baseline;
-    column-gap: 0.3em;
-    row-gap: 0.08em;
-
-    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-    font-weight: 700; /* everything bold */
-    letter-spacing: -0.03em;
-    font-size: clamp(1.35rem, 2.6vw, 2.2rem);
-    line-height: 1.4;
-    color: var(--text);
-
-    /* fixed vertical footprint (~3 lines) so the block never jumps */
-    min-height: calc(3 * 1.4em);
+    text-align:center;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--text, #111);
+    min-height:2.6em;                 /* reserves 2 lines so nothing jumps */
+    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+    margin:0;
+    /* To try ALL CAPS, uncomment: */
+    /* text-transform:uppercase; */
   }
 
-  /* Tokens never break internally — they wrap as whole units */
-  .tok {
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: baseline;
+  .strike-headline .row {
+    display:block; white-space:nowrap;   /* each line stays on ONE row, always */
+    font-size:clamp(1.2rem, 4vw, 2.45rem);   /* a bit smaller now */
+    line-height:1.3;
   }
 
-  /* Slots stack all variants in one cell; JS animates the slot's width to
-     the ACTIVE word, so spacing stays even — no collisions, no big gaps */
-  .slot {
-    display: inline-grid;
-    justify-items: center;
-    vertical-align: baseline;
-  }
-  .sw {
-    grid-area: 1 / 1;
-    position: relative;
-    white-space: nowrap;
-    opacity: 0;              /* JS reveals; fallback below */
-    visibility: hidden;
-    will-change: opacity, filter;
+  .strike-headline .static { display:inline-block; }
+  .strike-headline .slot { position:relative; display:inline-block; white-space:nowrap; }
+  .strike-headline .slot .txt { display:inline-block; }
+
+  /* GUARANTEED SPACING: gap comes from CSS, not text whitespace (Astro can strip that) */
+  .strike-headline .slot { margin-left:0.3em; }
+
+  /* focus words: bold + italic + slightly larger */
+  .strike-headline .slot[data-slot="verb"] .txt,
+  .strike-headline .slot[data-slot="role"] .txt {
+    font-style:italic; font-weight:700;
+    font-size:1.05em; letter-spacing:-0.02em;
   }
 
-  /* TIER 2 — bold, normal text color (fade behavior is what keeps it quiet) */
-  .t2 { color: var(--text); }
+  /* the changing noun stays quiet/muted */
+  .strike-headline .slot[data-slot="noun"] .txt { color:var(--muted, #9a968c); font-weight:500; }
 
-  /* TIER 3 — struck roles/verbs: NORMAL text color like the rest… */
-  .t3 { color: var(--text); }
-  /* …only the FINAL "builds"/"builder" gets the accent (and no strike) */
-  .t3.final { color: var(--accent); }
-
-  /* Strikethrough bar — drawn left→right by GSAP (scaleX 0→1) */
-  .strike {
-    position: absolute;
-    left: -3%;
-    right: -3%;
-    top: 52%;
-    height: 0.085em;
-    border-radius: 999px;
-    background: var(--text);
-    transform: scaleX(0);
-    transform-origin: left center;
-    pointer-events: none;
+  /* strike line: overlay, matches word color, never affects spacing */
+  .strike-headline .slot .line {
+    position:absolute; left:0; top:56%;
+    width:100%; height:0.1em;
+    background:currentColor; border-radius:2px;
+    transform:scaleX(0); transform-origin:left center;
+    pointer-events:none;
   }
-
-  /* ---------- Fallback (no JS / reduced motion): final state only ----------
-     Non-final variants are removed from layout so each slot collapses to
-     exactly the final word's width — even spacing without any JS. */
-  .slot .sw:last-child { opacity: 1; visibility: visible; }
-  :global(html:not(.js-headline)) .slot .sw:not(:last-child) { display: none; }
-  :global(html.js-headline) .slot .sw:last-child { opacity: 0; visibility: hidden; }
 </style>
 
 <script>
-  import { gsap } from 'gsap';
+  import gsap from "gsap";
 
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ============ EDIT WORDS + COLORS HERE ============ */
+  const states = [
+    { verb:"Designs",    noun:"visions",     role:"Designer",       color:"#E5674F" },
+    { verb:"Develops",   noun:"ideas",       role:"Developer",      color:"#2F7FE5" },
+    { verb:"Architects", noun:"systems",     role:"Thinker",        color:"#3FA06B" },
+    { verb:"Solves",     noun:"problems",    role:"Problem-Solver", color:"#9B5CF6" },
+    { verb:"Builds",     noun:"imagination", role:"Builder",        color:"#E0A200", final:true },
+  ];
 
-  if (!reduced) {
-    // Hand control to the timeline (hides the CSS fallback final state)
-    document.documentElement.classList.add('js-headline');
+  /* ============ TIMING / FEEL KNOBS ============
+     STRIKE = how fast the line dashes across (smaller = faster/snappier zap)
+     KNOCK  = how far the word gets shoved by the hit (px). 0 = word doesn't move at all
+     SETTLE_EASE = how the word returns. "power2.out" = clean stop.
+                   "back.out(2)" = tiny overshoot. "elastic.out(1,0.35)" = bouncy (artificial)
+  */
+  const FADE_IN  = 0.5, STRIKE = 0.26, HOLD = 0.8, FADE_OUT = 0.4, GAP = 0.06;
+  const KNOCK    = 5;
+  const SETTLE_EASE = "power2.out";
+  /* ============================================ */
 
-    const root = document.getElementById('strike-headline')!;
-    const pick = (sel: string) => Array.from(root.querySelectorAll<HTMLElement>(sel));
+  const root = document.querySelector(".strike-headline");
+  if (root) {
+    const S = (n) => root.querySelector('[data-slot="' + n + '"]');
+    const verb=S("verb"), noun=S("noun"), role=S("role");
+    const setText=(s,v)=>{ s.querySelector(".txt").textContent=v; };
+    const setColor=(s,c)=>{ s.querySelector(".txt").style.color=c; };
+    const line=(s)=>s.querySelector(".line");
 
-    // Wait for Space Grotesk so slot-width measurements are accurate.
-    const start = () => {
-      const verbs = pick('.slot-verb .sw');
-      const objs  = pick('.slot-obj .sw');
-      const outs  = pick('.slot-out .sw');
-      const roles = pick('.slot-role .sw');
-      const count = verbs.length;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      // Each slot + the measured natural width of every variant inside it
-      const slots = (
-        [
-          ['.slot-verb', verbs],
-          ['.slot-obj', objs],
-          ['.slot-out', outs],
-          ['.slot-role', roles],
-        ] as const
-      ).map(([sel, words]) => ({
-        el: root.querySelector<HTMLElement>(sel)!,
-        widths: words.map((w) => w.offsetWidth),
-      }));
+    if (reduce) {
+      const f = states[states.length-1];
+      setText(verb,f.verb); setText(noun,f.noun); setText(role,f.role);
+      setColor(verb,f.color); setColor(role,f.color);
+    } else {
+      const tl = gsap.timeline({ delay:0.5 });
+      states.forEach((s)=>{
+        tl.add(()=>{
+          setText(verb,s.verb); setText(noun,s.noun); setText(role,s.role);
+          setColor(verb,s.color); setColor(role,s.color);
+          gsap.set([line(verb),line(role)],{ scaleX:0 });
+          gsap.set([verb,role],{ x:0 });
+        });
+        tl.fromTo([verb,role],
+          { opacity:0, filter:"blur(4px)", y:6 },
+          { opacity:1, filter:"blur(0px)", y:0, duration:FADE_IN, ease:"sine.out" });
+        tl.fromTo(noun, { opacity:0 }, { opacity:0.55, duration:FADE_IN*1.1, ease:"sine.out" }, "<");
 
-      /** all four changing words of state i */
-      const wordsOf = (i: number) => [verbs[i], objs[i], outs[i], roles[i]];
-      /** the two strike bars of state i (none on the final state) */
-      const strikesOf = (i: number) =>
-        [verbs[i].querySelector('.strike'), roles[i].querySelector('.strike')].filter(Boolean);
-
-      const tl = gsap.timeline({ delay: 0.5 });
-
-      // Slots start at the width of their FIRST word (kills the giant gaps)
-      slots.forEach((s) => tl.set(s.el, { width: s.widths[0] }, 0));
-
-      // State 1 fades in whole
-      tl.fromTo(
-        wordsOf(0),
-        { autoAlpha: 0, filter: 'blur(2px)' },
-        { autoAlpha: 1, filter: 'blur(0px)', duration: 0.45, ease: 'power2.out' }
-      );
-
-      for (let i = 0; i < count - 1; i++) {
-        // read → STRIKE verb + role (left→right) → hold so the word lands
-        tl.to(strikesOf(i), { scaleX: 1, duration: 0.45, ease: 'power2.inOut' }, '+=0.3');
-
-        // SEQUENTIAL swap: outgoing fades OUT while each slot glides to the
-        // incoming word's width…
-        tl.to(wordsOf(i), { autoAlpha: 0, duration: 0.4, ease: 'power2.out' }, '+=0.8');
-        slots.forEach((s) =>
-          tl.to(s.el, { width: s.widths[i + 1], duration: 0.4, ease: 'power2.inOut' }, '<')
-        );
-        // …THEN the incoming words fade in, sharpening from a tiny blur
-        tl.fromTo(
-          wordsOf(i + 1),
-          { autoAlpha: 0, filter: 'blur(2px)' },
-          { autoAlpha: 1, filter: 'blur(0px)', duration: 0.4, ease: 'power2.out' },
-          '>'
-        );
-      }
-
-      // FINAL state (builds / builder): accent, never struck — small pop, rest.
-      tl.fromTo(
-        [verbs[count - 1], roles[count - 1]],
-        { scale: 0.9 },
-        { scale: 1, duration: 0.5, ease: 'back.out(2.2)' },
-        '-=0.1'
-      );
-    };
-
-    if (document.fonts?.ready) document.fonts.ready.then(start);
-    else start();
+        if (!s.final) {
+          // line dashes across...
+          tl.to([line(verb),line(role)], { scaleX:1, duration:STRIKE, ease:"power4.out" }, "+="+GAP);
+          // ...word gets a quick shove from the hit, then a clean settle (no rubbery bounce)
+          tl.to([verb,role], { x:KNOCK, duration:STRIKE*0.5, ease:"power3.out" }, "<");
+          tl.to([verb,role], { x:0, duration:0.35, ease:SETTLE_EASE });
+          tl.to({}, { duration:HOLD });
+          tl.to([verb,role], { opacity:0, filter:"blur(4px)", y:-6, duration:FADE_OUT, ease:"sine.inOut" }, "+="+GAP);
+          tl.to(noun, { opacity:0, duration:FADE_OUT, ease:"sine.inOut" }, "<");
+        }
+      });
+    }
   }
 </script>
