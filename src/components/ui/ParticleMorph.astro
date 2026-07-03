@@ -1,6 +1,18 @@
 ---
-// ParticleMorph.astro — glowing particle fluid that morphs through tech shapes.
-// Two-layer render (bright core + soft halo) = deep bloom-like glow.
+// ParticleMorph.astro — volumetric particle fluid that morphs through tech
+// shapes (reference: the green "algae cloud" GIF).
+//
+// What makes it read like the reference:
+//   - SOLID shapes: icon paths are filled with the evenodd rule → particles
+//     occupy the whole glyph body, not just its outline.
+//   - EXPOSURE CONTROL: a dim wide halo + a colored body layer + a small
+//     set of pure-white sparkle flecks. Nothing stacks to blown-out white;
+//     color survives everywhere.
+//   - VOLUMETRIC shading: brightness falls off from the cloud's core to its
+//     edge, with a slight white lift at the very center → depth, not flat.
+//   - TUMBLE: the whole cloud slowly oscillates in 3D while fluid, easing
+//     to rest as a shape forms.
+//   - Mouse pushes the fluid aside with a swirl; it recloses viscously.
 ---
 
 <div class="particle-morph">
@@ -9,38 +21,60 @@
 
 <style>
   .particle-morph { position:relative; width:100%; height:100%; min-height:420px; }
+
+  /* theme-aware shape label */
   .pm-label {
-    position:absolute; bottom:16px; left:0; right:0; text-align:center;
-    font-family:"JetBrains Mono","Space Mono",monospace; font-size:13px;
-    letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.6);
+    position:absolute; bottom:14px; left:0; right:0; text-align:center;
+    font-family:"JetBrains Mono","Space Mono",monospace;
+    font-size:12.5px; font-weight:500;
+    letter-spacing:0.3em; text-transform:uppercase;
     pointer-events:none; z-index:2;
+    transition: opacity 0.28s ease, transform 0.28s ease;
+    opacity:0; transform: translateY(4px);
+  }
+  .pm-label.show { opacity:1; transform: translateY(0); }
+
+  /* LIGHT page: warm amber, crisp, no glow */
+  .pm-label {
+    color: #d9b24a;
+  }
+  /* DARK page: mint with a soft letterglow, matching the fluid */
+  :global(html[data-theme='dark']) .pm-label {
+    color: #9dffcb;
+    text-shadow: 0 0 12px rgba(92, 255, 160, 0.45), 0 0 30px rgba(92, 255, 160, 0.2);
   }
 </style>
 
 <script>
   import * as THREE from "three";
 
+  /* ============ SHAPES (order = morph order) ============ */
   const SHAPES = [
-    { slug:"python",     color:"#7ec6ff", label:"python" },
-    { slug:"javascript", color:"#ffe94d", label:"javascript" },
-    { slug:"mysql",      color:"#7fc3ff", label:"sql" },
-    { slug:"postgresql", color:"#8fb4ff", label:"postgresql" },
-    { slug:"nodedotjs",  color:"#8ff06a", label:"node.js" },
-    { slug:"express",    color:"#f0f0f0", label:"express" },
-    { slug:"react",      color:"#7fe9ff", label:"react" },
-    { text:"AI/ML",      color:"#9dffb8", label:"ai / ml" },
+    { slug:"python",     color:"#58a6ff", label:"python" },
+    { slug:"javascript", color:"#ffd53d", label:"javascript" },
+    { slug:"mysql",      color:"#3fa7f5", label:"sql" },
+    { slug:"postgresql", color:"#6b8ffb", label:"postgresql" },
+    { slug:"nodedotjs",  color:"#69d95d", label:"node.js" },
+    { slug:"express",    color:"#e8e8e8", label:"express" },
+    { slug:"react",      color:"#53d9f7", label:"react" },
+    { text:"AI/ML",      color:"#7dffab", label:"ai / ml" },
   ];
 
-  const N          = 5200;          // denser
-  const FORM = 2.0, HOLD = 4.5, MELT = 1.6, SWIM = 2.0;
-  const BLOB_COLOR = "#5cffa0";     // brighter green
-  const AMP_BLOB = 0.26, AMP_ICON = 0.02;
-  const MOUSE_R = 0.7, MOUSE_F = 0.35;
+  /* ============ FEEL KNOBS ============ */
+  const N          = 5200;
+  const N_SPARK    = 620;            // pure-white flecks (the reference's glints)
+  const FORM = 1.4, HOLD = 3.4, MELT = 1.1, SWIM = 1.4;   // livelier pacing
+  const BLOB_COLOR = "#46e88c";
+  const AMP_BLOB = 0.24, AMP_ICON = 0.018;
+  const MOUSE_R = 0.85, MOUSE_F = 0.32;
+  const VISC = 0.2;                  // render-pos lerp per frame
+  /* ==================================== */
 
   const wrap = document.querySelector(".particle-morph");
   const labelEl = document.querySelector("[data-pm-label]");
   try { if (wrap) init(); } catch (e) { console.error("[ParticleMorph]", e); }
 
+  /* ---------------- shape sampling ---------------- */
   function samplePixels(ctx, S, spread) {
     const px = ctx.getImageData(0,0,S,S).data, pts = [];
     for (let y=0;y<S;y+=1) for (let x=0;x<S;x+=1)
@@ -48,7 +82,9 @@
     if (!pts.length) throw new Error("empty shape");
     const out = new Float32Array(N*3);
     for (let i=0;i<N;i++){ const p = pts[(Math.random()*pts.length)|0];
-      out[i*3]=p[0]+(Math.random()-0.5)*0.02; out[i*3+1]=p[1]+(Math.random()-0.5)*0.02; out[i*3+2]=(Math.random()-0.5)*0.06; }
+      out[i*3]   = p[0]+(Math.random()-0.5)*0.02;
+      out[i*3+1] = p[1]+(Math.random()-0.5)*0.02;
+      out[i*3+2] = (Math.random()-0.5)*0.12; }   // slight thickness = volume
     return out;
   }
   function textCloud(text){
@@ -60,22 +96,23 @@
     return samplePixels(ctx,S,2.4);
   }
   async function iconCloud(slug){
-    const urls=[`https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${slug}.svg`,`https://cdn.simpleicons.org/${slug}`];
+    const urls=[`https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${slug}.svg`,
+                `https://cdn.simpleicons.org/${slug}`];
     let txt=null;
     for (const u of urls){ try { const r=await fetch(u); if (r.ok){ txt=await r.text(); break; } } catch {} }
     if (!txt) throw new Error("fetch fail");
     const d=(txt.match(/\sd="([^"]+)"/)||[])[1]; if (!d) throw new Error("no path");
     const S=260, c=document.createElement("canvas"); c.width=c.height=S;
     const ctx=c.getContext("2d"); ctx.setTransform(S/24,0,0,S/24,0,0); ctx.fillStyle="#fff";
-    ctx.fill(new Path2D(d)); ctx.setTransform(1,0,0,1,0,0);
+    ctx.fill(new Path2D(d), "evenodd");   // ← SOLID glyphs, holes preserved
+    ctx.setTransform(1,0,0,1,0,0);
     return samplePixels(ctx,S,2.2);
   }
-  // 3D sphere VOLUME (organic, not a flat disc)
   function blobCloud(){
     const out=new Float32Array(N*3);
     for (let i=0;i<N;i++){
-      const u=Math.random(), v=Math.random();
-      const th=6.283*u, ph=Math.acos(2*v-1), r=0.9*Math.cbrt(Math.random());
+      const th=6.283*Math.random(), ph=Math.acos(2*Math.random()-1);
+      const r=0.9*Math.cbrt(Math.random());
       out[i*3]   = Math.sin(ph)*Math.cos(th)*r*1.15;
       out[i*3+1] = Math.sin(ph)*Math.sin(th)*r*0.95;
       out[i*3+2] = Math.cos(ph)*r*0.9;
@@ -83,12 +120,11 @@
     return out;
   }
 
-  // soft round sprite; `core` = tight bright, else = wide soft halo
-  function sprite(core){
+  function sprite(hard){
     const S=128, c=document.createElement("canvas"); c.width=c.height=S;
     const x=c.getContext("2d"); const g=x.createRadialGradient(S/2,S/2,0,S/2,S/2,S/2);
-    if (core){ g.addColorStop(0,"rgba(255,255,255,1)"); g.addColorStop(0.25,"rgba(255,255,255,0.9)"); g.addColorStop(0.6,"rgba(255,255,255,0.25)"); g.addColorStop(1,"rgba(255,255,255,0)"); }
-    else     { g.addColorStop(0,"rgba(255,255,255,0.6)"); g.addColorStop(0.4,"rgba(255,255,255,0.22)"); g.addColorStop(1,"rgba(255,255,255,0)"); }
+    if (hard){ g.addColorStop(0,"rgba(255,255,255,1)"); g.addColorStop(0.3,"rgba(255,255,255,0.85)"); g.addColorStop(0.7,"rgba(255,255,255,0.15)"); g.addColorStop(1,"rgba(255,255,255,0)"); }
+    else     { g.addColorStop(0,"rgba(255,255,255,0.9)"); g.addColorStop(0.45,"rgba(255,255,255,0.3)"); g.addColorStop(1,"rgba(255,255,255,0)"); }
     x.fillStyle=g; x.fillRect(0,0,S,S);
     return new THREE.CanvasTexture(c);
   }
@@ -102,33 +138,50 @@
       iconCloud(s.slug).then(c=>clouds[i]=c).catch(useText);
     });
 
-    const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+    const renderer = new THREE.WebGLRenderer({ antialias:false, alpha:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 1.75));
     wrap.appendChild(renderer.domElement);
+    // inline styles: Astro's scoped CSS can't reach this runtime canvas
     renderer.domElement.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:block;";
     const scene = new THREE.Scene();
     const cam = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
     cam.position.z = 4.2;
+
+    /* group lets the whole cloud tumble in 3D while fluid */
+    const group = new THREE.Group();
+    scene.add(group);
 
     const geo=new THREE.BufferGeometry();
     const pos=new Float32Array(BLOB), col=new Float32Array(N*3);
     geo.setAttribute("position", new THREE.BufferAttribute(pos,3));
     geo.setAttribute("color", new THREE.BufferAttribute(col,3));
 
-    // two additive layers: soft halo (big, dim) + bright core (small)
-    const glowMat=new THREE.PointsMaterial({ size:0.26, sizeAttenuation:true, map:sprite(false),
-      vertexColors:true, transparent:true, opacity:0.55, depthWrite:false, blending:THREE.AdditiveBlending });
-    const coreMat=new THREE.PointsMaterial({ size:0.075, sizeAttenuation:true, map:sprite(true),
-      vertexColors:true, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending });
-    const glow=new THREE.Points(geo,glowMat); glow.frustumCulled=false;
-    const core=new THREE.Points(geo,coreMat); core.frustumCulled=false;
-    scene.add(glow); scene.add(core);
+    /* THREE layers, exposure-controlled:
+       halo  — wide + DIM ambience (this used to blow out; now opacity .2)
+       body  — the colored mass, most of the light
+       spark — few pure-white flecks, like the reference's bright grains */
+    const haloMat=new THREE.PointsMaterial({ size:0.2, map:sprite(false), vertexColors:true,
+      transparent:true, opacity:0.2, depthWrite:false, blending:THREE.AdditiveBlending });
+    const bodyMat=new THREE.PointsMaterial({ size:0.05, map:sprite(false), vertexColors:true,
+      transparent:true, opacity:0.85, depthWrite:false, blending:THREE.AdditiveBlending });
+    const halo=new THREE.Points(geo,haloMat); halo.frustumCulled=false;
+    const body=new THREE.Points(geo,bodyMat); body.frustumCulled=false;
+    group.add(halo); group.add(body);
+
+    const sparkGeo=new THREE.BufferGeometry();
+    const sparkPos=new Float32Array(N_SPARK*3);
+    const sparkIdx=new Uint32Array(N_SPARK);
+    for (let j=0;j<N_SPARK;j++) sparkIdx[j]=(Math.random()*N)|0;
+    sparkGeo.setAttribute("position", new THREE.BufferAttribute(sparkPos,3));
+    const sparkMat=new THREE.PointsMaterial({ size:0.075, map:sprite(true), color:0xffffff,
+      transparent:true, opacity:0.8, depthWrite:false, blending:THREE.AdditiveBlending });
+    const spark=new THREE.Points(sparkGeo,sparkMat); spark.frustumCulled=false;
+    group.add(spark);
 
     const phase=new Float32Array(N), lag=new Float32Array(N), shade=new Float32Array(N);
-    for (let i=0;i<N;i++){ phase[i]=Math.random()*6.283; lag[i]=Math.random()*0.4; shade[i]=0.85+Math.random()*0.55; }
+    for (let i=0;i<N;i++){ phase[i]=Math.random()*6.283; lag[i]=Math.random()*0.4; shade[i]=0.6+Math.random()*0.5; }
 
     const green=new THREE.Color(BLOB_COLOR), colNow=green.clone(), colTgt=green.clone();
-    for (let i=0;i<N;i++){ const ix=i*3,s=shade[i]; col[ix]=green.r*s; col[ix+1]=green.g*s; col[ix+2]=green.b*s; }
 
     function resize(){
       const w=Math.max(wrap.clientWidth,1), h=Math.max(wrap.clientHeight,1);
@@ -142,43 +195,120 @@
       const vh=Math.tan(45*Math.PI/360)*cam.position.z; mouse.set(nx*vh*cam.aspect, ny*vh); hasMouse=true; });
     wrap.addEventListener("pointerleave",()=>hasMouse=false);
 
-    let state="swim", stateT=0, icon=-1, A=BLOB, B=BLOB, amp=AMP_BLOB, ampTgt=AMP_BLOB;
+    const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let visible=true;
+    new IntersectionObserver(([e])=>{ visible=e.isIntersecting; }).observe(wrap);
+
+    /* ---------- state machine ---------- */
+    let state="swim", stateT=0, icon=-1, A=BLOB, B=BLOB;
+    let amp=AMP_BLOB, ampTgt=AMP_BLOB;
+    let iconMix=0, iconMixTgt=0;      // 0 = fluid (tumbling), 1 = shape (still)
     const DUR={form:FORM,hold:HOLD,melt:MELT,swim:SWIM};
     const ease=(p)=> p<0.5 ? 4*p*p*p : 1-Math.pow(-2*p+2,3)/2;
-    const setLabel=(t)=>{ if (labelEl) labelEl.textContent=t||" "; };
+    const setLabel=(t)=>{
+      if (!labelEl) return;
+      if (!t){ labelEl.classList.remove("show"); return; }
+      labelEl.classList.remove("show");
+      setTimeout(()=>{ labelEl.textContent=t; labelEl.classList.add("show"); }, 200);
+    };
     function nextReady(from){ for (let k=1;k<=SHAPES.length;k++){ const j=(from+k)%SHAPES.length; if (clouds[j]) return j; } return -1; }
-    function advance(){ stateT=0;
-      if (state==="swim"){ const j=nextReady(icon); if (j===-1) return; state="form"; icon=j; A=BLOB; B=clouds[icon]; colTgt.set(SHAPES[icon].color); ampTgt=AMP_ICON; setLabel(SHAPES[icon].label); }
-      else if (state==="form") state="hold";
-      else if (state==="hold"){ state="melt"; A=clouds[icon]; B=BLOB; colTgt.copy(green); ampTgt=AMP_BLOB; setLabel(""); }
-      else state="swim";
+    function advance(){
+      stateT=0;
+      if (state==="swim"){
+        const j=nextReady(icon); if (j===-1) return;
+        state="form"; icon=j; A=BLOB; B=clouds[icon];
+        colTgt.set(SHAPES[icon].color); ampTgt=AMP_ICON; iconMixTgt=1;
+        setLabel(SHAPES[icon].label);
+      } else if (state==="form"){ state="hold"; }
+      else if (state==="hold"){
+        state="melt"; A=clouds[icon]; B=BLOB;
+        colTgt.copy(green); ampTgt=AMP_BLOB; iconMixTgt=0;
+        setLabel("");
+      } else { state="swim"; }
     }
 
     const clock=new THREE.Clock(); let t=0;
+
     function frame(){
       requestAnimationFrame(frame);
+      if (!visible){ clock.getDelta(); return; }
       const dt=Math.min(clock.getDelta(),0.05); t+=dt;
-      stateT+=dt; if (stateT>=DUR[state]) advance();
+
+      if (!reduce){ stateT+=dt; if (stateT>=DUR[state]) advance(); }
+
       const raw=(state==="form"||state==="melt") ? Math.min(stateT/DUR[state],1) : 1;
-      amp+=(ampTgt-amp)*(1-Math.exp(-dt*2.2));
-      colNow.lerp(colTgt,1-Math.exp(-dt*1.6));
-      const breathe=0.95+0.12*Math.sin(t*0.5);
+      amp += (ampTgt-amp)*(1-Math.exp(-dt*2.4));
+      colNow.lerp(colTgt, 1-Math.exp(-dt*2));
+      iconMix += (iconMixTgt-iconMix)*(1-Math.exp(-dt*2.2));
+
+      /* slow 3D tumble while fluid; eases to rest as a shape forms */
+      const free=1-iconMix;
+      group.rotation.y = Math.sin(t*0.28)*0.5*free;
+      group.rotation.x = Math.cos(t*0.21)*0.28*free;
+      group.rotation.z = Math.sin(t*0.16)*0.12*free;
+
+      const breathe=0.9+0.1*Math.sin(t*0.5);
+      const mx=mouse.x, my=mouse.y;
+      const cr=colNow.r, cg=colNow.g, cb=colNow.b;
+
       for (let i=0;i<N;i++){
-        const ix=i*3, li=lag[i];
+        const ix=i*3;
+        const li=lag[i];
         const ei = raw>=1 ? 1 : ease(Math.min(Math.max((raw-li)/(1-li),0),1));
-        let x=A[ix]+(B[ix]-A[ix])*ei, y=A[ix+1]+(B[ix+1]-A[ix+1])*ei, z=A[ix+2]+(B[ix+2]-A[ix+2])*ei;
+
+        let x=A[ix]+(B[ix]-A[ix])*ei;
+        let y=A[ix+1]+(B[ix+1]-A[ix+1])*ei;
+        let z=A[ix+2]+(B[ix+2]-A[ix+2])*ei;
+
         const ph=phase[i];
-        x += (Math.sin(y*2.1+t*0.7+ph)+0.5*Math.sin((x+y)*1.3+t*0.35))*amp*0.55;
-        y += (Math.cos(x*1.7-t*0.55+ph*1.7)-0.5*Math.sin((x-y)*1.4+t*0.4))*amp*0.55;
-        z += Math.sin((x-y)*1.6+t*0.5+ph)*amp*0.35;
-        if (hasMouse){ const dx=x-mouse.x, dy=y-mouse.y, dd=dx*dx+dy*dy;
-          if (dd<MOUSE_R*MOUSE_R){ const d=Math.sqrt(dd)+1e-4, f=(1-d/MOUSE_R)*MOUSE_F; x+=(dx/d)*f; y+=(dy/d)*f; } }
-        pos[ix]+=(x-pos[ix])*0.2; pos[ix+1]+=(y-pos[ix+1])*0.2; pos[ix+2]+=(z-pos[ix+2])*0.2;
-        const s=shade[i]*breathe; col[ix]=colNow.r*s; col[ix+1]=colNow.g*s; col[ix+2]=colNow.b*s;
+        const fx=Math.sin(y*2.1+t*0.7+ph)+0.5*Math.sin((x+y)*1.3+t*0.35);
+        const fy=Math.cos(x*1.7-t*0.55+ph*1.7)-0.5*Math.sin((x-y)*1.4+t*0.4);
+        x+=fx*amp*0.5; y+=fy*amp*0.5; z+=Math.sin(x*1.2+t*0.4+ph)*amp*0.3;
+
+        if (hasMouse){
+          const dx=x-mx, dy=y-my, dd=dx*dx+dy*dy;
+          if (dd<MOUSE_R*MOUSE_R){
+            const d=Math.sqrt(dd)+1e-4, f=(1-d/MOUSE_R)*MOUSE_F;
+            x+=(dx/d)*f-(dy/d)*f*0.45;
+            y+=(dy/d)*f+(dx/d)*f*0.45;
+          }
+        }
+
+        pos[ix]  +=(x-pos[ix])*VISC;
+        pos[ix+1]+=(y-pos[ix+1])*VISC;
+        pos[ix+2]+=(z-pos[ix+2])*VISC;
+
+        /* volumetric shading: bright luminous core → darker edge,
+           with a slight white lift at the very center (reference look) */
+        const rx=pos[ix], ry=pos[ix+1], rz=pos[ix+2];
+        const d2=rx*rx+ry*ry+rz*rz;
+        const fall=1.25-Math.min(d2*0.55,0.85);
+        const lift=Math.max(0,0.3-d2*0.35);           // white-ish heart
+        const b=shade[i]*fall*breathe;
+        col[ix]  =(cr+(1-cr)*lift)*b;
+        col[ix+1]=(cg+(1-cg)*lift)*b;
+        col[ix+2]=(cb+(1-cb)*lift)*b;
       }
-      geo.attributes.position.needsUpdate=true; geo.attributes.color.needsUpdate=true;
+
+      /* sparkles ride a subset of the body particles */
+      for (let j=0;j<N_SPARK;j++){
+        const s3=j*3, p3=sparkIdx[j]*3;
+        sparkPos[s3]=pos[p3]; sparkPos[s3+1]=pos[p3+1]; sparkPos[s3+2]=pos[p3+2];
+      }
+      sparkMat.opacity = 0.55 + 0.25*Math.sin(t*0.9);
+
+      geo.attributes.position.needsUpdate=true;
+      geo.attributes.color.needsUpdate=true;
+      sparkGeo.attributes.position.needsUpdate=true;
       renderer.render(scene,cam);
     }
+
+    /* first paint: green fluid immediately (never blank, never black) */
+    for (let i=0;i<N;i++){ const ix=i*3,s=shade[i];
+      col[ix]=green.r*s; col[ix+1]=green.g*s; col[ix+2]=green.b*s; }
+    geo.attributes.color.needsUpdate=true;
+
+    if (reduce){ renderer.render(scene,cam); return; }
     frame();
   }
 </script>
