@@ -24,6 +24,9 @@ const loop = [...tech, ...tech];
 ---
 
 <section class="p2" id="work">
+  <!-- page1 → page2 boundary: full-width smooth gradient band -->
+  <div class="p2__band" aria-hidden="true"></div>
+
   <!-- Ambient background glow that triggers on hover -->
   <div class="p2__glow" aria-hidden="true"></div>
 
@@ -91,7 +94,7 @@ const loop = [...tech, ...tech];
 
 <style>
   :root, html[data-theme='light'] {
-    --p2-bg: #f7f6f3; /* Professional warm white background matching Image 1 */
+    --p2-bg: #fbfbfa; /* clean professional near-white (ref 3's lower field) */
     --mac-bg: #ffffff;
     --mac-header-bg: linear-gradient(to bottom, #f5f5f7, #e8e8ed);
     --mac-border: rgba(0, 0, 0, 0.12);
@@ -108,9 +111,9 @@ const loop = [...tech, ...tech];
     --mac-icon: #7d7d7d;
   }
 
-  .p2 { 
-    background: var(--p2-bg); 
-    color: var(--text); 
+  .p2 {
+    background: var(--p2-bg);
+    color: var(--text);
     position: relative;
     height: 100dvh;
     display: flex;
@@ -118,6 +121,69 @@ const loop = [...tech, ...tech];
     justify-content: center;
     overflow: hidden;
     transition: background-color 0.3s ease;
+  }
+
+  /* ================= DARK MODE: de-purpled, neutral + cool =================
+     Scoped re-definition of the site vars INSIDE .p2 only — the bento goes
+     neutral dark with cyan/blue accents (refs 3 & 4), never violet. */
+  :global(html[data-theme='dark']) .p2 {
+    --card-bg: #131313;
+    --glass-border: rgba(255, 255, 255, 0.09);
+    --grid-line: rgba(255, 255, 255, 0.07);
+    --accent: #22d3ee;                      /* cyan */
+    --accent-glow: rgba(34, 211, 238, 0.25);
+    --accent-soft: rgba(34, 211, 238, 0.1);
+    --ball-a: #67e8f9;                      /* avatar gradient: cyan → blue */
+    --ball-b: #2563eb;
+    --text: #f4f6f8;
+    --text-muted: rgba(235, 240, 248, 0.62);
+    --text-faint: rgba(235, 240, 248, 0.32);
+  }
+
+  /* ================= boundary gradient band (top of page 2) ================= */
+  .p2__band {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: clamp(120px, 20vh, 220px);
+    pointer-events: none;
+    z-index: 0;
+    /* DAY — organic gold → white. Like hiartem's band, the hue varies
+       HORIZONTALLY too: gold pools left + right, a softer honey glow in
+       the center — overlapping radials under a vertical dissolve, so it
+       reads like light, not like a CSS gradient. */
+    background:
+      radial-gradient(58% 150% at 8% -30%,  rgba(242, 195, 74, 0.95) 0%, rgba(242, 195, 74, 0) 62%),
+      radial-gradient(70% 170% at 48% -45%, rgba(250, 228, 158, 0.85) 0%, rgba(250, 228, 158, 0) 66%),
+      radial-gradient(55% 140% at 90% -25%, rgba(238, 186, 62, 0.9) 0%, rgba(238, 186, 62, 0) 60%),
+      linear-gradient(to bottom, #faf6ef 0%, rgba(250, 246, 239, 0) 65%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 30%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 30%, transparent 100%);
+  }
+  /* NIGHT — ref 3's aurora, horizontally alive: soft green breathing on
+     the left, teal center, deep navy pooling right — dissolving into the
+     page's near-black. */
+  :global(html[data-theme='dark']) .p2__band {
+    background:
+      radial-gradient(55% 160% at 6% -30%,  rgba(96, 214, 148, 0.5) 0%, rgba(96, 214, 148, 0) 60%),
+      radial-gradient(65% 170% at 42% -40%, rgba(28, 168, 152, 0.55) 0%, rgba(28, 168, 152, 0) 64%),
+      radial-gradient(70% 170% at 92% -35%, rgba(35, 66, 150, 0.7) 0%, rgba(35, 66, 150, 0) 65%),
+      linear-gradient(to bottom, #1a1030 0%, rgba(16, 12, 28, 0) 70%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 28%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 28%, transparent 100%);
+  }
+
+  /* ================= dark mode: bright, softly glowing headings (ref 4) ================= */
+  :global(html[data-theme='dark']) .p2 h2 {
+    color: #ffffff;
+    text-shadow:
+      0 0 14px rgba(255, 255, 255, 0.35),
+      0 0 40px rgba(147, 197, 253, 0.22);
+  }
+  :global(html[data-theme='dark']) .p2 .bio {
+    color: rgba(236, 242, 252, 0.72);
+    text-shadow: 0 0 24px rgba(147, 197, 253, 0.1);
   }
 
   /* ---- ambient hover glow (positioned behind content) ---- */
@@ -297,4 +363,61 @@ const loop = [...tech, ...tech];
     .facts > div { grid-template-columns: 100px 1fr; }
   }
   @media (prefers-reduced-motion: reduce) { .marquee__track { animation: none; } }
-</style></style>
+</style>
+
+<script>
+  /* Camera handoff, page1 → page2 (scrubbed by scroll):
+     - page 1 content blurs out and scales UP slightly (camera pulling past)
+     - the mac window resolves from blur + 0.94 scale to crisp 1.0 (settling)
+     Desktop + motion-allowed only. */
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const mm = gsap.matchMedia();
+  mm.add('(min-width: 1024px) and (prefers-reduced-motion: no-preference)', () => {
+    const anims: gsap.core.Tween[] = [];
+
+    // Blur .hero-content only — navbar/profile badge are position:fixed
+    // inside the hero; filtering their ancestor breaks fixed positioning.
+    const heroContent = document.querySelector('.hero .hero-content');
+    if (heroContent) {
+      anims.push(
+        gsap.fromTo(
+          heroContent,
+          { filter: 'blur(0px)', opacity: 1, scale: 1 },
+          {
+            filter: 'blur(3px)',   // light haze, not frosted glass
+            opacity: 0.8,
+            scale: 1.02,           // barely-there push past page 1
+            ease: 'power1.in',     // effect builds late, feels natural
+            scrollTrigger: { trigger: '.p2', start: 'top bottom', end: 'top 35%', scrub: 0.6 },
+          }
+        )
+      );
+    }
+
+    const win = document.querySelector('.p2 .mac-window');
+    if (win) {
+      anims.push(
+        gsap.fromTo(
+          win,
+          // like content naturally arriving in front of you: a soft rise
+          // from slightly small + hazy, settling early with an ease-out
+          { filter: 'blur(4px)', opacity: 0.72, scale: 0.97, y: 28 },
+          {
+            filter: 'blur(0px)',
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            ease: 'power2.out',    // settles gently instead of inflating linearly
+            scrollTrigger: { trigger: '.p2', start: 'top 95%', end: 'top 40%', scrub: 0.6 },
+          }
+        )
+      );
+    }
+
+    return () => anims.forEach((a) => a.scrollTrigger?.kill());
+  });
+</script>
