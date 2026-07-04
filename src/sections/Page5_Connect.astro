@@ -29,16 +29,18 @@ const LETTERS = "SAURABH".split("");
           <!-- golden halo (hover) -->
           <span class="iso-glow" aria-hidden="true"></span>
 
-          <!-- hand-drawn bursts, sidewise (hover) -->
-          <svg class="sketch sketch-l" viewBox="0 0 70 90" aria-hidden="true">
-            <path d="M 52 14 C 30 22 24 40 34 56" />
-            <path d="M 26 8 C 16 24 12 44 20 62" />
-            <path d="M 58 70 C 46 74 38 72 30 66" />
+          <!-- sketchy WINGS, fanning out on hover -->
+          <svg class="sketch sketch-l" viewBox="0 0 90 90" aria-hidden="true">
+            <path d="M 80 46 C 56 40 38 26 30 8" />
+            <path d="M 78 55 C 52 51 33 41 20 24" />
+            <path d="M 78 64 C 50 64 30 56 14 44" />
+            <path d="M 80 73 C 54 78 34 74 20 66" />
           </svg>
-          <svg class="sketch sketch-r" viewBox="0 0 70 90" aria-hidden="true">
-            <path d="M 18 14 C 40 22 46 40 36 56" />
-            <path d="M 44 8 C 54 24 58 44 50 62" />
-            <path d="M 12 70 C 24 74 32 72 40 66" />
+          <svg class="sketch sketch-r" viewBox="0 0 90 90" aria-hidden="true">
+            <path d="M 10 46 C 34 40 52 26 60 8" />
+            <path d="M 12 55 C 38 51 57 41 70 24" />
+            <path d="M 12 64 C 40 64 60 56 76 44" />
+            <path d="M 10 73 C 36 78 56 74 70 66" />
           </svg>
 
           <span class="iso-cap">Connect</span>
@@ -62,14 +64,18 @@ const LETTERS = "SAURABH".split("");
     </div>
 
     <!-- ================= aurora: white → black, NO blunt line ================= -->
-    <div class="c5-aurora" aria-hidden="true"></div>
+    <div class="c5-aurora" aria-hidden="true">
+      <!-- blending veil: melts the (unchanged) gradient into the white
+           above and the black below — sits over the drifting blobs too -->
+      <span class="aurora-blend"></span>
+    </div>
 
     <!-- ================= BLACK footer (approved — unchanged) ================= -->
     <footer class="c5-footer">
       <div class="foot-top">
         <div class="foot-left">
           <p class="foot-copy">© 2026 Saurabh. All rights reserved.</p>
-          <p class="foot-muted">made with love — or any line like this.</p>
+          <p class="foot-muted">Fueled by coffee and creativity.</p>
         </div>
 
         <a class="foot-right" href="#hero" data-totop>
@@ -97,13 +103,60 @@ const LETTERS = "SAURABH".split("");
   .connect {
     --c5-white: #ffffff;
     --c5-black: #0b0b0d;
-    --c5-gold: #ffd94d;
+    --c5-gold: #ffd94d;       /* accent color              */
+    --c5-glow: 255, 217, 77;  /* accent as rgb triplet     */
+    --btn-glow: 255, 217, 77; /* Connect halo: GOLD by day */
+    --c5-ink: #131313;       /* main text               */
+    --c5-ink-soft: #77756e;  /* secondary text          */
     background: var(--c5-white);
-    color: #131313;
+    color: var(--c5-ink);
     overflow: hidden;
-    min-height: 100dvh; /* Force perfect viewport fit */
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
+  }
+
+  /* ============ DARK MODE: teal → deep navy (the reference image) ============
+     The whole upper portion becomes the mint/teal-to-navy wash, darkening
+     downward so it hands off seamlessly to the (untouched) black footer.
+     Every accent flips gold → luminous cyan via the vars above. */
+  :global(html[data-theme='dark']) .connect {
+    --c5-gold: #4fe3c1;
+    --c5-glow: 79, 227, 193;
+    --btn-glow: 226, 234, 240; /* Connect halo: SILVER by night */
+    --c5-ink: #f2fbf8;
+    --c5-ink-soft: rgba(230, 250, 244, 0.62);
+    /* The gradient must be FULLY BLACK by the time the footer starts
+       (~62% of section height) — previously it was still navy there, which
+       is exactly what drew the visible lines. The band above the footer now
+       shows this same continuous descent, nothing else. */
+    background: linear-gradient(180deg,
+      #86e5c4 0%,
+      #5ec7ab 10%,
+      #37ab98 20%,
+      #1d8a8c 29%,
+      #12687c 37%,
+      #0e4a68 44%,
+      #0a3553 50%,
+      #082441 55%,
+      #06172c 59%,
+      #04101e 62%,
+      var(--c5-black) 67%,
+      var(--c5-black) 100%);
+  }
+  /* desktop: hard-lock the whole page to exactly one viewport */
+  @media (min-width: 900px) and (min-height: 620px) {
+    .connect { height: 100dvh; }
+  }
+  /* creative touch: hovering the email pill re-lights the sunset behind —
+     the whole gradient warms and shifts hue, then settles back */
+  .connect:has(.email-slider:hover) .c5-aurora {
+    filter: hue-rotate(-42deg) saturate(1.25) brightness(1.06);
+  }
+  /* dark: the band is deep, so the hover reaction must LIFT it — the
+     drifting pools brighten into a violet-indigo aurora */
+  :global(html[data-theme='dark']) .connect:has(.email-slider:hover) .c5-aurora {
+    filter: hue-rotate(95deg) saturate(1.6) brightness(1.7);
   }
   .c5-inner { 
     flex: 1;
@@ -116,15 +169,18 @@ const LETTERS = "SAURABH".split("");
   .c5-top {
     flex: 1; /* Automatically stretches to balance the height perfectly! */
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; padding: 6vh 5vw 4vh; gap: 12px;
+    text-align: center; padding: 2.5vh 5vw 1.5vh; gap: 8px;
+    min-height: 0; /* let flex compress it into the viewport */
   }
   .c5-heading {
     display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
     gap: clamp(16px, 2.4vw, 34px);
     font-family: "Clash Display", "Space Grotesk", sans-serif;
-    font-weight: 700; font-size: clamp(2.6rem, 6vw, 5rem);
-    letter-spacing: -0.02em; color: #131313; margin: 0 0 6px;
+    font-weight: 700; font-size: clamp(2.1rem, 4.4vw, 3.8rem); /* compact enough to fit */
+    letter-spacing: -0.02em; color: var(--c5-ink); margin: 0 0 4px;
   }
+  /* "Let's" a touch bigger so it holds its own against the 3D Connect */
+  .c5-heading .lets { font-size: 1.18em; line-height: 1; }
 
   /* ============ THE isometric connect button (danielsun style) ============ */
   .iso-btn {
@@ -132,6 +188,15 @@ const LETTERS = "SAURABH".split("");
     padding: 0 32px; /* room for the sketch bursts */
     font: inherit;
     margin-top: 8px; /* visual balance with text */
+    /* idle: a slow, fluid wiggle — the button floats like it's alive
+       (killed automatically by the reduced-motion rule in global.css) */
+    animation: iso-float 7s ease-in-out infinite;
+  }
+  @keyframes iso-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    28%      { transform: translateY(-4px) rotate(0.7deg); }
+    55%      { transform: translateY(1px) rotate(-0.5deg); }
+    80%      { transform: translateY(-2px) rotate(0.4deg); }
   }
   /* dark cap riding on a light base plate; perspective tilt = isometric */
   .iso-cap {
@@ -153,16 +218,40 @@ const LETTERS = "SAURABH".split("");
       inset 0 -4px 8px rgba(0, 0, 0, 0.6);
     transition: transform 0.15s cubic-bezier(0.3, 0.8, 0.3, 1), box-shadow 0.3s ease, color 0.3s ease, background 0.3s ease;
   }
-  
-  /* hover: cap warms, text goes gold, rim goes gold */
+
+  /* AURORA RIM (the clip's contour glow, in theme colors): a pill-shaped
+     gradient hugging the cap's edge. As a ::before of the cap it inherits
+     the isometric transform automatically — the glow tilts WITH the button. */
+  /* (the inner rim glow that sat over the button is removed — the button
+     now gets ONE bigger halo behind it, via .iso-glow below) */
+  .iso-cap { position: relative; } /* anchors the rim pseudo */
+
+  /* hover: cap warms, text + rim take the theme accent.
+     The TEXT itself blooms (soft layered glow, like a lit sign) —
+     golden by day, silver-white by night via --btn-glow. */
   .iso-btn:hover .iso-cap {
     color: var(--c5-gold);
+    text-shadow:
+      0 0 10px rgba(var(--btn-glow), 0.65),
+      0 0 26px rgba(var(--btn-glow), 0.4),
+      0 0 54px rgba(var(--btn-glow), 0.22);
     background: linear-gradient(180deg, #2b2718 0%, #171505 100%);
     box-shadow:
-      0 12px 0 -1px #e6d9a0, /* yellow rim */
+      0 12px 0 -1px #e6d9a0, /* accent rim */
       0 12px 2px -1px rgba(120, 90, 0, 0.3),
-      0 24px 44px rgba(255, 217, 77, 0.4), /* golden ground glow */
+      0 24px 44px rgba(var(--c5-glow), 0.4), /* accent ground glow */
       inset 0 2px 3px rgba(255, 240, 160, 0.3),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.5);
+  }
+  /* dark: SILVER treatment — bright steel text + rim, cool ground glow */
+  :global(html[data-theme='dark']) .iso-btn:hover .iso-cap {
+    color: #f0f4f7;
+    background: linear-gradient(180deg, #2c2e32 0%, #131417 100%);
+    box-shadow:
+      0 12px 0 -1px #cfd6dc,
+      0 12px 2px -1px rgba(40, 50, 60, 0.45),
+      0 24px 44px rgba(var(--btn-glow), 0.35),
+      inset 0 2px 3px rgba(240, 246, 250, 0.35),
       inset 0 -4px 8px rgba(0, 0, 0, 0.5);
   }
   
@@ -176,17 +265,29 @@ const LETTERS = "SAURABH".split("");
       inset 0 2px 5px rgba(0, 0, 0, 0.55);
   }
 
-  /* golden halo behind the cap */
+  /* wide AURORA bloom behind everything — gold heart, orange mid,
+     violet-blue fringe (matches the sunset band below) */
+  /* ONE clean, BIG halo behind the button:
+     GOLDEN in light mode, SILVER in dark mode (via --btn-glow). */
   .iso-glow {
-    position: absolute; inset: -30% -10%;
+    position: absolute; inset: -62% -30%;
     border-radius: 50%;
-    background: radial-gradient(circle at 50% 50%, rgba(255, 217, 77, 0.55) 0%, rgba(255, 217, 77, 0.1) 50%, transparent 70%);
-    filter: blur(12px);
+    background: radial-gradient(50% 55% at 50% 52%,
+      rgba(var(--btn-glow), 0.45) 0%, rgba(var(--btn-glow), 0.16) 48%, rgba(var(--btn-glow), 0) 72%);
+    filter: blur(16px);
     opacity: 0; transform: scale(0.85);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: opacity 0.35s ease, transform 0.35s ease;
     pointer-events: none; z-index: -1;
   }
-  .iso-btn:hover .iso-glow { opacity: 1; transform: scale(1); }
+  .iso-btn:hover .iso-glow {
+    opacity: 1; transform: scale(1);
+    animation: aurora-breathe 4s ease-in-out infinite alternate;
+  }
+  /* gentle breathing only — no hue cycling (that's what looked ugly) */
+  @keyframes aurora-breathe {
+    from { filter: blur(16px); transform: scale(1); }
+    to   { filter: blur(20px); transform: scale(1.05); }
+  }
 
   /* hand-drawn bursts, appearing with the glow */
   .sketch {
@@ -197,13 +298,30 @@ const LETTERS = "SAURABH".split("");
   }
   .sketch-l { left: -6px; transform: translate(-100%, -50%) rotate(-10deg) scale(0.8); }
   .sketch-r { right: -6px; transform: translate(100%, -50%) rotate(10deg) scale(0.8); }
-  .iso-btn:hover .sketch-l { opacity: 1; transform: translate(-100%, -50%) rotate(-2deg) scale(1.1); }
-  .iso-btn:hover .sketch-r { opacity: 1; transform: translate(100%, -50%) rotate(2deg) scale(1.1); }
+  .iso-btn:hover .sketch-l {
+    opacity: 1; transform: translate(-100%, -50%) rotate(-2deg) scale(1.1);
+    animation: wing-l 1.6s ease-in-out 0.35s infinite alternate;
+  }
+  @keyframes wing-l {
+    from { transform: translate(-100%, -50%) rotate(-2deg) scale(1.1); }
+    to   { transform: translate(-100%, -50%) rotate(-7deg) scale(1.15); }
+  }
+  .iso-btn:hover .sketch-r {
+    opacity: 1; transform: translate(100%, -50%) rotate(2deg) scale(1.1);
+    animation: wing-r 1.6s ease-in-out 0.35s infinite alternate;
+  }
+  @keyframes wing-r {
+    from { transform: translate(100%, -50%) rotate(2deg) scale(1.1); }
+    to   { transform: translate(100%, -50%) rotate(7deg) scale(1.15); }
+  }
 
   .c5-note {
     font-family: "Caveat", cursive; font-size: 1.4rem; font-weight: 600;
-    color: #9a9a96; margin: 4px 0 26px; transform: rotate(-3deg);
+    color: #9a9a96; margin: 2px 0 14px; transform: rotate(-3deg);
   }
+  :global(html[data-theme='dark']) .c5-note { color: rgba(235, 252, 246, 0.66); }
+  /* wings: ink strokes read on white; in dark they go pale mint */
+  :global(html[data-theme='dark']) .sketch { stroke: rgba(226, 250, 242, 0.85); }
 
   /* ============ glassy slide-to-reveal email ============ */
   .email-slider {
@@ -256,13 +374,29 @@ const LETTERS = "SAURABH".split("");
   }
   .email-slider.copied .es-copied { opacity: 1; }
 
-  .c5-sub { color: #77756e; font-size: clamp(14px, 1.4vw, 17px); margin: 18px 0 0; max-width: 40ch; }
+  .c5-sub { color: var(--c5-ink-soft); font-size: clamp(13px, 1.3vw, 16px); margin: 10px 0 0; max-width: 40ch; }
+
+  /* ---- dark mode: the glassy slider goes deep-teal glass ---- */
+  :global(html[data-theme='dark']) .email-slider {
+    background: rgba(8, 34, 44, 0.45);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  }
+  :global(html[data-theme='dark']) .es-email { color: #d9f8ee; }
+  :global(html[data-theme='dark']) .es-cover {
+    background: linear-gradient(180deg, rgba(11, 44, 54, 0.96), rgba(6, 27, 36, 0.96));
+  }
+  :global(html[data-theme='dark']) .es-label { color: rgba(226, 248, 240, 0.75); }
+  :global(html[data-theme='dark']) .es-hint { color: #5fe8c8; }
+  :global(html[data-theme='dark']) .es-copied { color: #5fe8c8; }
 
   /* ============ aurora join: Organic Sunset Mesh Gradient ============ */
   .c5-aurora {
-    height: 38vh; 
+    height: clamp(120px, 20vh, 220px); /* slimmer → whole page fits one viewport */
     width: 100%;
     position: relative;
+    transition: filter 0.9s ease; /* lets the sunset react to the email pill */
+    flex-shrink: 0;
     /* Smooth base fade matching a sunset */
     background: linear-gradient(to bottom, 
       #ffffff 0%, 
@@ -310,6 +444,49 @@ const LETTERS = "SAURABH".split("");
     100% { transform: translate(-12%, 12%) scale(1.05); }
   }
 
+  /* ---- DARK MODE band: the page is already the teal→navy wash, so the
+     band just deepens it into the footer black, with faint cyan + blue
+     pools drifting (same animated blobs, recolored). ---- */
+  /* DARK band: NO background of its own — the section's continuous descent
+     shows through, so there is literally no seam to see. Only the two
+     drifting color pools remain, and a vertical mask feathers them so
+     their blurred edges can never draw a line either. */
+  :global(html[data-theme='dark']) .c5-aurora {
+    background: none;
+    -webkit-mask-image: linear-gradient(to bottom,
+      transparent 0%, black 30%, black 65%, transparent 96%);
+    mask-image: linear-gradient(to bottom,
+      transparent 0%, black 30%, black 65%, transparent 96%);
+  }
+  :global(html[data-theme='dark']) .c5-aurora::before {
+    background: radial-gradient(circle, rgba(46, 211, 175, 0.26) 0%, transparent 60%);
+  }
+  :global(html[data-theme='dark']) .c5-aurora::after {
+    background: radial-gradient(circle, rgba(64, 105, 224, 0.35) 0%, transparent 60%);
+  }
+  /* the light-mode veil would paint white at the top — disable it in dark */
+  :global(html[data-theme='dark']) .aurora-blend { background: none; }
+
+  /* ---- blending veil (colors untouched — edges only) ----
+     Sits ABOVE the base gradient and the animated blooms, so even when the
+     blobs drift near an edge, the band still dissolves cleanly:
+     white feathers in from the top, black rises from the bottom. */
+  .aurora-blend {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      var(--c5-white) 0%,
+      rgba(255, 255, 255, 0.55) 9%,
+      rgba(255, 255, 255, 0) 28%,
+      rgba(11, 11, 13, 0) 60%,
+      rgba(11, 11, 13, 0.55) 82%,
+      var(--c5-black) 100%
+    );
+  }
+
   /* ---------------- black footer (approved) ---------------- */
   .c5-footer { background: var(--c5-black); color: #f4f4f2; }
   .foot-top {
@@ -345,11 +522,20 @@ const LETTERS = "SAURABH".split("");
   }
   .foot-right:hover .big {
     color: var(--c5-gold);
-    text-shadow: 0 0 18px rgba(255, 217, 77, 0.35);
+    text-shadow: 0 0 18px rgba(var(--c5-glow), 0.35);
+  }
+  /* dark: HERE warms to periwinkle-violet instead of more cyan */
+  :global(html[data-theme='dark']) .foot-right:hover .big {
+    color: #a7b6ff;
+    text-shadow: 0 0 18px rgba(143, 157, 255, 0.42);
   }
   .chev { display: inline-block; margin-left: 0.04em; animation: c5-race 1.5s ease-in-out infinite; }
   .c2 { animation-delay: 0.12s; }
   .c3 { animation-delay: 0.24s; }
+  /* dark: the racing chevrons carry the aurora hues even at rest */
+  :global(html[data-theme='dark']) .chev.c1 { color: #4fe3c1; }
+  :global(html[data-theme='dark']) .chev.c2 { color: #58b6ff; }
+  :global(html[data-theme='dark']) .chev.c3 { color: #b48cff; }
   @keyframes c5-race {
     0%, 55%, 100% { transform: translateX(0); opacity: 1; }
     25% { transform: translateX(0.28em); opacity: 0.35; }
@@ -370,11 +556,22 @@ const LETTERS = "SAURABH".split("");
   }
   .ltr {
     --g: 0;
+    --lc: var(--c5-gold); /* per-letter glow color (overridden in dark) */
     display: inline-block;
-    color: color-mix(in srgb, #ffffff calc((1 - var(--g)) * 100%), var(--c5-gold) calc(var(--g) * 100%));
-    text-shadow: 0 0 calc(var(--g) * 42px) rgba(255, 217, 77, calc(var(--g) * 0.55));
+    color: color-mix(in srgb, #ffffff calc((1 - var(--g)) * 100%), var(--lc) calc(var(--g) * 100%));
+    text-shadow: 0 0 calc(var(--g) * 42px)
+      color-mix(in srgb, var(--lc) calc(var(--g) * 55%), transparent);
     transition: color 0.18s linear, text-shadow 0.18s linear;
   }
+  /* DARK: the name becomes a mini-aurora — each letter glows its own hue,
+     mint → cyan → sky → periwinkle → violet → pink → coral across SAURABH */
+  :global(html[data-theme='dark']) .ltr:nth-child(1) { --lc: #4fe3c1; }
+  :global(html[data-theme='dark']) .ltr:nth-child(2) { --lc: #3ccfe0; }
+  :global(html[data-theme='dark']) .ltr:nth-child(3) { --lc: #58b6ff; }
+  :global(html[data-theme='dark']) .ltr:nth-child(4) { --lc: #8f9dff; }
+  :global(html[data-theme='dark']) .ltr:nth-child(5) { --lc: #b48cff; }
+  :global(html[data-theme='dark']) .ltr:nth-child(6) { --lc: #ef9de0; }
+  :global(html[data-theme='dark']) .ltr:nth-child(7) { --lc: #ff9d80; }
   @media (hover: hover) {
     .foot-name:hover .ltr:hover { --g: 1; }
   }
