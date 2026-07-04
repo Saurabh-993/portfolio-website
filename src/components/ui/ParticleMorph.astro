@@ -5,11 +5,11 @@
 // What makes it read like the reference:
 //   - SOLID shapes: icon paths are filled with the evenodd rule → particles
 //     occupy the whole glyph body, not just its outline.
-//   - EXPOSURE CONTROL: a dim wide halo + a colored body layer + a small
-//     set of pure-white sparkle flecks. Nothing stacks to blown-out white;
-//     color survives everywhere.
-//   - VOLUMETRIC shading: brightness falls off from the cloud's core to its
-//     edge, with a slight white lift at the very center → depth, not flat.
+//   - RESTING SHAPE: a BRAIN silhouette — the fluid gathers back into a
+//     gently breathing brain between every tech icon.
+//   - EXPOSURE CONTROL: a dim wide halo + a colored body layer. No white
+//     sparkles, no white core mixing — brightness shapes the volume but the
+//     hue stays pure → rich, saturated, jewel-like color with a soft glow.
 //   - TUMBLE: the whole cloud slowly oscillates in 3D while fluid, easing
 //     to rest as a shape forms.
 //   - Mouse pushes the fluid aside with a swirl; it recloses viscously.
@@ -62,10 +62,9 @@
 
   /* ============ FEEL KNOBS ============ */
   const N          = 5200;
-  const N_SPARK    = 620;            // pure-white flecks (the reference's glints)
   const FORM = 1.4, HOLD = 3.4, MELT = 1.1, SWIM = 1.4;   // livelier pacing
   const BLOB_COLOR = "#46e88c";
-  const AMP_BLOB = 0.24, AMP_ICON = 0.018;
+  const AMP_BLOB = 0.15, AMP_ICON = 0.018;  // gentler breathe → brain stays readable
   const MOUSE_R = 0.85, MOUSE_F = 0.32;
   const VISC = 0.2;                  // render-pos lerp per frame
   /* ==================================== */
@@ -108,15 +107,22 @@
     ctx.setTransform(1,0,0,1,0,0);
     return samplePixels(ctx,S,2.2);
   }
+  /* RESTING SHAPE: a BRAIN silhouette (was a sphere). Drawn locally on a
+     canvas — overlapping lobes give the bumpy gyri outline, plus a
+     cerebellum and stem — then sampled exactly like the tech icons. */
   function blobCloud(){
-    const out=new Float32Array(N*3);
-    for (let i=0;i<N;i++){
-      const th=6.283*Math.random(), ph=Math.acos(2*Math.random()-1);
-      const r=0.9*Math.cbrt(Math.random());
-      out[i*3]   = Math.sin(ph)*Math.cos(th)*r*1.15;
-      out[i*3+1] = Math.sin(ph)*Math.sin(th)*r*0.95;
-      out[i*3+2] = Math.cos(ph)*r*0.9;
-    }
+    const S=260, c=document.createElement("canvas"); c.width=c.height=S;
+    const ctx=c.getContext("2d"); ctx.fillStyle="#fff";
+    // cerebrum: cluster of overlapping lobes → bumpy cortex perimeter
+    const lobes=[[92,96,46],[138,72,48],[184,92,42],[210,124,34],[100,140,40],[148,134,50],[192,152,30]];
+    for (const l of lobes){ ctx.beginPath(); ctx.arc(l[0],l[1],l[2],0,6.283); ctx.fill(); }
+    // cerebellum (lower back)
+    ctx.beginPath(); ctx.ellipse(196,180,26,20,-0.3,0,6.283); ctx.fill();
+    // brain stem
+    ctx.beginPath(); ctx.moveTo(150,186); ctx.quadraticCurveTo(160,210,142,224);
+    ctx.lineTo(124,214); ctx.quadraticCurveTo(138,200,132,186); ctx.closePath(); ctx.fill();
+    const out=samplePixels(ctx,S,2.3);
+    for (let i=0;i<N;i++) out[i*3+2]*=3.2;   // give the flat sample real depth
     return out;
   }
 
@@ -168,15 +174,7 @@
     const body=new THREE.Points(geo,bodyMat); body.frustumCulled=false;
     group.add(halo); group.add(body);
 
-    const sparkGeo=new THREE.BufferGeometry();
-    const sparkPos=new Float32Array(N_SPARK*3);
-    const sparkIdx=new Uint32Array(N_SPARK);
-    for (let j=0;j<N_SPARK;j++) sparkIdx[j]=(Math.random()*N)|0;
-    sparkGeo.setAttribute("position", new THREE.BufferAttribute(sparkPos,3));
-    const sparkMat=new THREE.PointsMaterial({ size:0.075, map:sprite(true), color:0xffffff,
-      transparent:true, opacity:0.8, depthWrite:false, blending:THREE.AdditiveBlending });
-    const spark=new THREE.Points(sparkGeo,sparkMat); spark.frustumCulled=false;
-    group.add(spark);
+    /* (white sparkle layer removed — it washed the color out to white) */
 
     const phase=new Float32Array(N), lag=new Float32Array(N), shade=new Float32Array(N);
     for (let i=0;i<N;i++){ phase[i]=Math.random()*6.283; lag[i]=Math.random()*0.4; shade[i]=0.6+Math.random()*0.5; }
@@ -278,28 +276,18 @@
         pos[ix+1]+=(y-pos[ix+1])*VISC;
         pos[ix+2]+=(z-pos[ix+2])*VISC;
 
-        /* volumetric shading: bright luminous core → darker edge,
-           with a slight white lift at the very center (reference look) */
+        /* volumetric shading: luminous core → darker edge — but the color
+           itself stays PURE (no white mixing), so it reads rich and
+           jewel-like instead of shiny white */
         const rx=pos[ix], ry=pos[ix+1], rz=pos[ix+2];
         const d2=rx*rx+ry*ry+rz*rz;
-        const fall=1.25-Math.min(d2*0.55,0.85);
-        const lift=Math.max(0,0.3-d2*0.35);           // white-ish heart
+        const fall=1.1-Math.min(d2*0.5,0.72);
         const b=shade[i]*fall*breathe;
-        col[ix]  =(cr+(1-cr)*lift)*b;
-        col[ix+1]=(cg+(1-cg)*lift)*b;
-        col[ix+2]=(cb+(1-cb)*lift)*b;
+        col[ix]=cr*b; col[ix+1]=cg*b; col[ix+2]=cb*b;
       }
-
-      /* sparkles ride a subset of the body particles */
-      for (let j=0;j<N_SPARK;j++){
-        const s3=j*3, p3=sparkIdx[j]*3;
-        sparkPos[s3]=pos[p3]; sparkPos[s3+1]=pos[p3+1]; sparkPos[s3+2]=pos[p3+2];
-      }
-      sparkMat.opacity = 0.55 + 0.25*Math.sin(t*0.9);
 
       geo.attributes.position.needsUpdate=true;
       geo.attributes.color.needsUpdate=true;
-      sparkGeo.attributes.position.needsUpdate=true;
       renderer.render(scene,cam);
     }
 

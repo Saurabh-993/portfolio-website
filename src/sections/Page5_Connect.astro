@@ -1,22 +1,150 @@
 ---
 /**
- * Page5_Connect.astro — placeholder scroll section (100dvh).
- * TODO: contact / socials / footer.
+ * Page5_Connect.astro — closing / contact page (LIGHT theme first).
+ * Light + smooth: pure CSS + GSAP (no WebGL).
+ *  - "Let's connect" + glowing isometric Connect button (the one hero glow)
+ *  - soft gradient joining the light area into the dark footer
+ *  - footer: quiet copyright (left) + subtle gold hover "HERE" (right)
+ *  - giant clipped SAURABH name that COMPRESSES then STRETCHES on scroll
  */
 ---
 
-<section class="section placeholder" id="connect">
-  <p class="label serif">Connect — coming soon</p>
+<section class="connect section" id="connect">
+  <div class="connect__cta">
+    <p class="connect__kicker">Let's connect</p>
+    <button class="connect-btn" type="button" aria-label="Connect">
+      <span>Connect</span>
+    </button>
+    <p class="connect__sub">Got an idea worth building? Let's turn it into reality.</p>
+  </div>
+
+  <div class="connect__divider" aria-hidden="true"></div>
+
+  <footer class="connect__footer">
+    <div class="foot-top">
+      <div class="foot-left">
+        <p class="foot-copy">© 2026 Saurabh. All rights reserved.</p>
+        <p class="foot-muted">Designed &amp; built end to end — sketch to deployed URL.</p>
+      </div>
+      <a class="foot-right hover-fill" href="mailto:saurabhsharma090903@gmail.com">
+        <span class="small">what I do?</span>
+        <span class="big">HERE&nbsp;↗</span>
+      </a>
+    </div>
+
+    <div class="foot-name">
+      <span data-stretch>SAURABH</span>
+    </div>
+  </footer>
 </section>
 
 <style>
-  .placeholder {
-    display: grid;
-    place-items: center;
+  .connect { background: #faf6ef; color: #111; overflow: hidden; }
+
+  /* ---- upper CTA (light) ---- */
+  .connect__cta {
+    min-height: 62vh; display: grid; place-items: center; text-align: center;
+    padding: 10vh 5vw 6vh; gap: 26px;
   }
-  .label {
-    font-size: clamp(1.2rem, 2.5vw, 2rem);
-    color: var(--text-faint);
-    font-style: italic;
+  .connect__kicker {
+    font-family: "JetBrains Mono", monospace; font-size: 13px;
+    letter-spacing: 0.32em; text-transform: uppercase; color: #9a968c; margin: 0;
+  }
+  .connect__sub { color: #6a6a66; font-size: clamp(14px, 1.4vw, 17px); margin: 0; max-width: 40ch; }
+
+  /* ---- THE hero glow: isometric Connect button ---- */
+  .connect-btn {
+    position: relative; border: none; cursor: pointer;
+    padding: clamp(16px, 2.2vw, 26px) clamp(44px, 6vw, 82px);
+    border-radius: 999px;
+    font-family: "Clash Display", "Space Grotesk", sans-serif;
+    font-weight: 700; font-size: clamp(1.4rem, 3vw, 2.6rem); letter-spacing: -0.01em;
+    color: #4a3800;
+    background: linear-gradient(180deg, #ffe98a 0%, #f5c518 58%, #e0a200 100%);
+    box-shadow:
+      0 7px 0 #b5860b,
+      0 12px 26px rgba(245, 197, 24, 0.30),
+      inset 0 2px 2px rgba(255, 255, 255, 0.75);
+    transition: transform 0.12s ease, box-shadow 0.32s ease, filter 0.32s ease;
+  }
+  .connect-btn:hover {
+    filter: brightness(1.05);
+    box-shadow:
+      0 7px 0 #b5860b,
+      0 0 44px rgba(245, 197, 24, 0.75),
+      0 16px 40px rgba(245, 197, 24, 0.55),
+      inset 0 2px 2px rgba(255, 255, 255, 0.85);
+  }
+  .connect-btn:active {
+    transform: translateY(5px);
+    box-shadow:
+      0 2px 0 #b5860b,
+      0 0 34px rgba(245, 197, 24, 0.65),
+      inset 0 2px 3px rgba(255, 255, 255, 0.7);
+  }
+
+  /* ---- soft gradient joining light → dark ---- */
+  .connect__divider {
+    height: 24vh;
+    background: linear-gradient(to bottom, #faf6ef 0%, #efe9dd 40%, #0e0e10 100%);
+  }
+
+  /* ---- dark footer ---- */
+  .connect__footer { background: #0e0e10; color: #f5f2ea; padding-top: 3vh; }
+  .foot-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 2rem; padding: 2vh 5vw 4vh; flex-wrap: wrap;
+  }
+  .foot-copy { margin: 0 0 4px; font-size: 14px; font-weight: 500; }
+  .foot-muted { margin: 0; font-size: 13px; color: rgba(245, 242, 234, 0.45); }
+
+  /* subtle gold hover-fill (restrained, per plan) */
+  .foot-right { text-align: right; text-decoration: none; display: inline-flex; flex-direction: column; align-items: flex-end; }
+  .foot-right .small { font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(245, 242, 234, 0.5); }
+  .foot-right .big {
+    font-family: "Clash Display", "Space Grotesk", sans-serif; font-weight: 700;
+    font-size: clamp(1.6rem, 3.2vw, 2.4rem); color: #f5f2ea;
+    transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .foot-right:hover .big { color: #ffd64a; text-shadow: 0 0 20px rgba(255, 214, 74, 0.45); transform: translateX(4px); }
+
+  /* ---- giant clipped name: compresses then stretches on scroll ---- */
+  .foot-name { overflow: hidden; line-height: 0.8; margin-top: -1vh; }
+  .foot-name span {
+    display: block; text-align: center; white-space: nowrap;
+    font-family: "Clash Display", "Space Grotesk", sans-serif; font-weight: 800;
+    font-size: clamp(7rem, 26vw, 30rem); letter-spacing: -0.02em;
+    color: #ffffff; margin-bottom: -0.1em;
+    transform: scaleX(0.85); transform-origin: center; will-change: transform;
+  }
+
+  @media (max-width: 700px) {
+    .foot-top { flex-direction: column; }
+    .foot-right { text-align: left; align-items: flex-start; }
   }
 </style>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+
+  const section = document.querySelector("#connect");
+  const name = document.querySelector("#connect [data-stretch]");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (name && section) {
+    if (reduce) {
+      (name as HTMLElement).style.transform = "scaleX(1)";
+    } else {
+      // compress (0.85) → stretch (1.3) as the section scrolls up through view
+      gsap.fromTo(name,
+        { scaleX: 0.85 },
+        {
+          scaleX: 1.3, ease: "none",
+          scrollTrigger: { trigger: section, start: "top 80%", end: "bottom bottom", scrub: 0.6 },
+        }
+      );
+    }
+  }
+</script>
