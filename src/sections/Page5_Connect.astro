@@ -41,7 +41,7 @@ const LETTERS = "SAURABH".split("");
             <path d="M 12 70 C 24 74 32 72 40 66" />
           </svg>
 
-          <span class="iso-cap">connect</span>
+          <span class="iso-cap">Connect</span>
         </button>
       </h2>
 
@@ -95,20 +95,28 @@ const LETTERS = "SAURABH".split("");
   @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
 
   .connect {
-    --c5-white: #fefefe;
+    --c5-white: #ffffff;
     --c5-black: #0b0b0d;
     --c5-gold: #ffd94d;
     background: var(--c5-white);
     color: #131313;
     overflow: hidden;
+    min-height: 100dvh; /* Force perfect viewport fit */
+    display: flex;
+    flex-direction: column;
   }
-  .c5-inner { will-change: transform; }
+  .c5-inner { 
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    will-change: transform; 
+  }
 
   /* ---------------- upper portion ---------------- */
   .c5-top {
-    min-height: 58vh;
+    flex: 1; /* Automatically stretches to balance the height perfectly! */
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; padding: 12vh 5vw 2vh; gap: 12px;
+    text-align: center; padding: 6vh 5vw 4vh; gap: 12px;
   }
   .c5-heading {
     display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
@@ -121,78 +129,79 @@ const LETTERS = "SAURABH".split("");
   /* ============ THE isometric connect button (danielsun style) ============ */
   .iso-btn {
     position: relative; border: none; background: none; cursor: pointer;
-    padding: 0 26px; /* room for the sketch bursts */
+    padding: 0 32px; /* room for the sketch bursts */
     font: inherit;
+    margin-top: 8px; /* visual balance with text */
   }
   /* dark cap riding on a light base plate; perspective tilt = isometric */
   .iso-cap {
     display: inline-block;
-    padding: 0.28em 0.9em 0.34em;
+    padding: 0.35em 1.2em 0.4em;
     border-radius: 999px;
-    font-family: inherit; font-weight: 700; font-size: 0.94em;
+    font-family: inherit; font-weight: 700; font-size: 1.05em;
     letter-spacing: -0.01em;
-    color: #f3f3f1;
-    background:
-      radial-gradient(130% 170% at 50% -20%, #3a3a3e 0%, #232326 48%, #161618 100%);
-    transform: perspective(820px) rotateX(24deg) rotateZ(-3.5deg);
+    color: #e6e6e6; /* Light grey text normally */
+    /* Dark grey face like Image 5 */
+    background: linear-gradient(180deg, #333333 0%, #1a1a1a 100%);
+    transform: perspective(800px) rotateX(22deg) rotateZ(-2.5deg);
+    /* Thick silver rim like Image 5 */
     box-shadow:
-      0 13px 0 -2px #dcdcda,                     /* the light base plate  */
-      0 15px 2px -2px rgba(0, 0, 0, 0.18),      /* plate's contact edge  */
-      0 26px 34px rgba(0, 0, 0, 0.22),          /* ground shadow         */
-      inset 0 2px 3px rgba(255, 255, 255, 0.22),
-      inset 0 -6px 10px rgba(0, 0, 0, 0.5);
-    transition: transform 0.14s ease, box-shadow 0.3s ease, color 0.3s ease,
-      background 0.3s ease;
+      0 12px 0 -1px #b3b3b3,                     /* silver base plate  */
+      0 12px 2px -1px rgba(0, 0, 0, 0.2),      /* plate's contact edge  */
+      0 20px 30px rgba(0, 0, 0, 0.15),          /* ground shadow         */
+      inset 0 2px 3px rgba(255, 255, 255, 0.15),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.6);
+    transition: transform 0.15s cubic-bezier(0.3, 0.8, 0.3, 1), box-shadow 0.3s ease, color 0.3s ease, background 0.3s ease;
   }
-  /* hover: cap warms, text goes gold, halo blooms (we have the space) */
+  
+  /* hover: cap warms, text goes gold, rim goes gold */
   .iso-btn:hover .iso-cap {
     color: var(--c5-gold);
-    background:
-      radial-gradient(130% 170% at 50% -20%, #45400f 0%, #2b2708 48%, #171505 100%);
+    background: linear-gradient(180deg, #2b2718 0%, #171505 100%);
     box-shadow:
-      0 13px 0 -2px #e6d9a0,
-      0 15px 2px -2px rgba(120, 90, 0, 0.25),
-      0 26px 44px rgba(214, 168, 40, 0.35),
+      0 12px 0 -1px #e6d9a0, /* yellow rim */
+      0 12px 2px -1px rgba(120, 90, 0, 0.3),
+      0 24px 44px rgba(255, 217, 77, 0.4), /* golden ground glow */
       inset 0 2px 3px rgba(255, 240, 160, 0.3),
-      inset 0 -6px 10px rgba(0, 0, 0, 0.45);
+      inset 0 -4px 8px rgba(0, 0, 0, 0.5);
   }
-  /* click: sinks onto its plate — a real key press */
+  
+  /* click: sinks onto its plate */
   .iso-btn:active .iso-cap {
-    transform: perspective(820px) rotateX(30deg) rotateZ(-3.5deg) translateY(10px);
+    transform: perspective(800px) rotateX(28deg) rotateZ(-2.5deg) translateY(8px);
     box-shadow:
-      0 3px 0 -2px #dcd096,
-      0 5px 2px -2px rgba(120, 90, 0, 0.3),
-      0 14px 26px rgba(214, 168, 40, 0.3),
+      0 4px 0 -1px #dcd096,
+      0 4px 2px -1px rgba(120, 90, 0, 0.3),
+      0 12px 24px rgba(255, 217, 77, 0.3),
       inset 0 2px 5px rgba(0, 0, 0, 0.55);
   }
 
   /* golden halo behind the cap */
   .iso-glow {
-    position: absolute; inset: -34% -18%;
+    position: absolute; inset: -30% -10%;
     border-radius: 50%;
-    background: radial-gradient(50% 50% at 50% 52%,
-      rgba(255, 217, 77, 0.55) 0%, rgba(255, 217, 77, 0.18) 45%, rgba(255, 217, 77, 0) 72%);
-    filter: blur(6px);
+    background: radial-gradient(circle at 50% 50%, rgba(255, 217, 77, 0.55) 0%, rgba(255, 217, 77, 0.1) 50%, transparent 70%);
+    filter: blur(12px);
     opacity: 0; transform: scale(0.85);
-    transition: opacity 0.35s ease, transform 0.35s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
     pointer-events: none; z-index: -1;
   }
   .iso-btn:hover .iso-glow { opacity: 1; transform: scale(1); }
 
   /* hand-drawn bursts, appearing with the glow */
   .sketch {
-    position: absolute; top: 50%; width: clamp(34px, 3.6vw, 54px); height: auto;
-    fill: none; stroke: #1d1d1b; stroke-width: 5; stroke-linecap: round;
+    position: absolute; top: 40%; width: clamp(38px, 4vw, 56px); height: auto;
+    fill: none; stroke: #1d1d1b; stroke-width: 4.5; stroke-linecap: round;
     opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
     pointer-events: none;
   }
-  .sketch-l { left: -14px; transform: translate(-100%, -55%) rotate(-8deg) scale(0.8); }
-  .sketch-r { right: -14px; transform: translate(100%, -55%) rotate(8deg) scale(0.8); }
-  .iso-btn:hover .sketch-l { opacity: 1; transform: translate(-100%, -55%) rotate(-2deg) scale(1); }
-  .iso-btn:hover .sketch-r { opacity: 1; transform: translate(100%, -55%) rotate(2deg) scale(1); }
+  .sketch-l { left: -6px; transform: translate(-100%, -50%) rotate(-10deg) scale(0.8); }
+  .sketch-r { right: -6px; transform: translate(100%, -50%) rotate(10deg) scale(0.8); }
+  .iso-btn:hover .sketch-l { opacity: 1; transform: translate(-100%, -50%) rotate(-2deg) scale(1.1); }
+  .iso-btn:hover .sketch-r { opacity: 1; transform: translate(100%, -50%) rotate(2deg) scale(1.1); }
 
   .c5-note {
-    font-family: "Caveat", cursive; font-size: 1.3rem; font-weight: 600;
+    font-family: "Caveat", cursive; font-size: 1.4rem; font-weight: 600;
     color: #9a9a96; margin: 4px 0 26px; transform: rotate(-3deg);
   }
 
@@ -216,13 +225,12 @@ const LETTERS = "SAURABH".split("");
     font-family: "JetBrains Mono", ui-monospace, monospace;
     font-size: clamp(0.85rem, 1.5vw, 1.05rem); font-weight: 500;
     color: #2b2b28; letter-spacing: 0.01em;
-    filter: blur(5px);                 /* teased, unreadable under the cover */
+    filter: blur(5px);                 
     transition: filter 0.45s ease 0.1s;
     user-select: all;
   }
   .email-slider.open .es-email { filter: blur(0); }
 
-  /* the cover shutter */
   .es-cover {
     position: absolute; inset: 0;
     display: grid; place-items: center;
@@ -250,27 +258,56 @@ const LETTERS = "SAURABH".split("");
 
   .c5-sub { color: #77756e; font-size: clamp(14px, 1.4vw, 17px); margin: 18px 0 0; max-width: 40ch; }
 
-  /* ============ aurora join: hiartem-grade, no blunt line ============
-     TALL band; many-stop vertical dissolve (white → cream → olive-gold →
-     deep bronze → black) with warm pools drifting across it horizontally.
-     The last stops approach #0b0b0d GRADUALLY — no edge against the footer. */
+  /* ============ aurora join: Organic Sunset Mesh Gradient ============ */
   .c5-aurora {
-    height: clamp(240px, 36vh, 420px);
-    background:
-      radial-gradient(58% 85% at 10% 58%,  rgba(206, 168, 74, 0.4) 0%, rgba(206, 168, 74, 0) 68%),
-      radial-gradient(72% 95% at 48% 66%,  rgba(232, 205, 130, 0.35) 0%, rgba(232, 205, 130, 0) 70%),
-      radial-gradient(60% 88% at 90% 56%,  rgba(160, 124, 44, 0.4) 0%, rgba(160, 124, 44, 0) 66%),
-      linear-gradient(to bottom,
-        #fefefe 0%,
-        #fdfaf1 18%,
-        #f4ecd6 34%,
-        #ddcda2 48%,
-        #b3a06b 60%,
-        #7d6f45 71%,
-        #4c4229 81%,
-        #262214 90%,
-        #131109 96%,
-        var(--c5-black) 100%);
+    height: 38vh; 
+    width: 100%;
+    position: relative;
+    /* Smooth base fade matching a sunset */
+    background: linear-gradient(to bottom, 
+      #ffffff 0%, 
+      #fff4ce 20%, 
+      #ff984d 50%, 
+      #2b3a6b 80%, 
+      var(--c5-black) 100%
+    );
+    overflow: hidden;
+    flex-shrink: 0; 
+  }
+  
+  /* Add organic blobs for the hiartem style mesh look */
+  .c5-aurora::before,
+  .c5-aurora::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+  }
+
+  /* Golden/Orange bloom */
+  .c5-aurora::before {
+    width: 70%; height: 140%;
+    background: radial-gradient(circle, rgba(255, 179, 71, 0.7) 0%, transparent 60%);
+    top: 5%; left: -15%;
+    animation: sunset-drift-1 12s ease-in-out infinite alternate;
+  }
+
+  /* Deep purple/blue twilight bloom */
+  .c5-aurora::after {
+    width: 70%; height: 140%;
+    background: radial-gradient(circle, rgba(43, 39, 105, 0.9) 0%, transparent 60%);
+    top: 20%; right: -15%;
+    animation: sunset-drift-2 15s ease-in-out infinite alternate;
+  }
+
+  @keyframes sunset-drift-1 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(12%, -8%) scale(1.1); }
+  }
+  @keyframes sunset-drift-2 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-12%, 12%) scale(1.05); }
   }
 
   /* ---------------- black footer (approved) ---------------- */
