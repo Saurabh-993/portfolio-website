@@ -1,121 +1,254 @@
 ---
 /**
- * Page5_Connect.astro — closing / contact page (LIGHT theme first).
- * Light + smooth: pure CSS + GSAP (no WebGL).
- *  - "Let's connect" + glowing isometric Connect button (the one hero glow)
- *  - soft gradient joining the light area into the dark footer
- *  - footer: quiet copyright (left) + subtle gold hover "HERE" (right)
- *  - giant clipped SAURABH name that COMPRESSES then STRETCHES on scroll
+ * Page5_Connect.astro — closing page (LIGHT theme pass; dark comes later).
+ * Matches Figma node 36-419 + the three reference clips:
+ *
+ *   WHITE upper   : "Let's connect" (grey pill on "connect"), handwritten
+ *                   nudge, the ISOMETRIC Connect button (dark pill, golden
+ *                   text, restrained glow; click = realistic press, then the
+ *                   label becomes the email + it's copied; next click mails).
+ *   AURORA JOIN   : hiartem-style band — overlapping radials (horizontal
+ *                   hue variation) dissolving professional white → black.
+ *   BLACK footer  : copyright left · "wanna check what I do? / HERE ››"
+ *                   right ("d" + "?" wiggle, ›› race; click scrolls to top)
+ *                   · giant SAURABH clipped at the bottom edge, letters
+ *                   lighting up GOLD near the cursor (clip-1 effect).
+ *   TRANSITION    : the whole section slides up into place (scrubbed
+ *                   reveal, clip-3) while the name stretches wider.
  */
+const EMAIL = "saurabhsharma090903@gmail.com";
+const LETTERS = "SAURABH".split("");
 ---
 
 <section class="connect section" id="connect">
-  <div class="connect__cta">
-    <p class="connect__kicker">Let's connect</p>
-    <button class="connect-btn" type="button" aria-label="Connect">
-      <span>Connect</span>
-    </button>
-    <p class="connect__sub">Got an idea worth building? Let's turn it into reality.</p>
-  </div>
+  <div class="c5-inner">
+    <!-- ================= WHITE upper portion ================= -->
+    <div class="c5-top">
+      <h2 class="c5-heading">
+        Let's <span class="pill">connect</span>
+      </h2>
 
-  <div class="connect__divider" aria-hidden="true"></div>
+      <p class="c5-note" aria-hidden="true">go on — press it :)</p>
 
-  <footer class="connect__footer">
-    <div class="foot-top">
-      <div class="foot-left">
-        <p class="foot-copy">© 2026 Saurabh. All rights reserved.</p>
-        <p class="foot-muted">Designed &amp; built end to end — sketch to deployed URL.</p>
+      <button class="connect-btn" type="button" data-email={EMAIL}
+        aria-label={`Contact via email: ${EMAIL}`}>
+        <span class="cb-label">Connect</span>
+        <span class="cb-copied" aria-hidden="true">copied!</span>
+      </button>
+
+      <p class="c5-sub">Got an idea worth building? Let's turn it into reality.</p>
+    </div>
+
+    <!-- ================= aurora: white → black ================= -->
+    <div class="c5-aurora" aria-hidden="true"></div>
+
+    <!-- ================= BLACK footer ================= -->
+    <footer class="c5-footer">
+      <div class="foot-top">
+        <div class="foot-left">
+          <p class="foot-copy">© 2026 Saurabh. All rights reserved.</p>
+          <p class="foot-muted">made with love — or any line like this.</p>
+        </div>
+
+        <a class="foot-right" href="#hero" data-totop>
+          <span class="small">
+            wanna check what I <span class="wiggle w1">d</span>o<span class="wiggle w2">?</span>
+          </span>
+          <span class="big">
+            HERE<span class="chev c1">›</span><span class="chev c2">›</span><span class="chev c3">›</span>
+          </span>
+        </a>
       </div>
-      <a class="foot-right hover-fill" href="mailto:saurabhsharma090903@gmail.com">
-        <span class="small">what I do?</span>
-        <span class="big">HERE&nbsp;↗</span>
-      </a>
-    </div>
 
-    <div class="foot-name">
-      <span data-stretch>SAURABH</span>
-    </div>
-  </footer>
+      <!-- giant clipped name — letters glow gold near the cursor -->
+      <div class="foot-name" data-glow-zone>
+        <span class="name-row" data-stretch>
+          {LETTERS.map((ch) => <span class="ltr">{ch}</span>)}
+        </span>
+      </div>
+    </footer>
+  </div>
 </section>
 
 <style>
-  .connect { background: #faf6ef; color: #111; overflow: hidden; }
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
 
-  /* ---- upper CTA (light) ---- */
-  .connect__cta {
-    min-height: 62vh; display: grid; place-items: center; text-align: center;
-    padding: 10vh 5vw 6vh; gap: 26px;
+  /* professional white / black — fixed for this page (NOT the beige theme) */
+  .connect {
+    --c5-white: #fefefe;
+    --c5-black: #0b0b0d;
+    --c5-gold: #ffc93d;
+    background: var(--c5-white);
+    color: #131313;
+    overflow: hidden;
   }
-  .connect__kicker {
-    font-family: "JetBrains Mono", monospace; font-size: 13px;
-    letter-spacing: 0.32em; text-transform: uppercase; color: #9a968c; margin: 0;
-  }
-  .connect__sub { color: #6a6a66; font-size: clamp(14px, 1.4vw, 17px); margin: 0; max-width: 40ch; }
+  .c5-inner { will-change: transform; }
 
-  /* ---- THE hero glow: isometric Connect button ---- */
+  /* ---------------- upper portion ---------------- */
+  .c5-top {
+    min-height: 58vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 12vh 5vw 4vh; gap: 10px;
+  }
+  .c5-heading {
+    font-family: "Clash Display", "Space Grotesk", sans-serif;
+    font-weight: 700; font-size: clamp(2.4rem, 5.4vw, 4.6rem);
+    letter-spacing: -0.02em; color: #131313; margin: 0 0 18px;
+  }
+  /* the Figma grey pill riding under "connect", slightly rotated */
+  .c5-heading .pill {
+    display: inline-block;
+    background: #e9e9e9;
+    border-radius: 999px;
+    padding: 0.05em 0.55em 0.12em;
+    transform: rotate(-5deg) translateY(0.08em);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .c5-note {
+    font-family: "Caveat", cursive; font-size: 1.25rem; font-weight: 600;
+    color: #9a9a96; margin: 0 0 6px; transform: rotate(-3deg);
+  }
+
+  /* ---------------- the ISOMETRIC Connect button (clip 2) ----------------
+     dark pill + golden text, gentle halo (deliberately restrained), slight
+     3D tilt; pressing it sinks realistically. */
   .connect-btn {
     position: relative; border: none; cursor: pointer;
-    padding: clamp(16px, 2.2vw, 26px) clamp(44px, 6vw, 82px);
+    padding: clamp(18px, 2.4vw, 30px) clamp(52px, 6.5vw, 96px);
     border-radius: 999px;
     font-family: "Clash Display", "Space Grotesk", sans-serif;
-    font-weight: 700; font-size: clamp(1.4rem, 3vw, 2.6rem); letter-spacing: -0.01em;
-    color: #4a3800;
-    background: linear-gradient(180deg, #ffe98a 0%, #f5c518 58%, #e0a200 100%);
+    font-weight: 700; font-size: clamp(1.5rem, 3.2vw, 2.7rem);
+    letter-spacing: 0.01em;
+    color: var(--c5-gold);
+    background:
+      radial-gradient(120% 160% at 50% 0%, #2c2a24 0%, #191813 55%, #100f0c 100%);
+    transform: perspective(700px) rotateX(14deg);
     box-shadow:
-      0 7px 0 #b5860b,
-      0 12px 26px rgba(245, 197, 24, 0.30),
-      inset 0 2px 2px rgba(255, 255, 255, 0.75);
-    transition: transform 0.12s ease, box-shadow 0.32s ease, filter 0.32s ease;
+      0 10px 22px rgba(20, 18, 8, 0.35),
+      0 0 26px rgba(255, 201, 61, 0.22),
+      0 0 70px rgba(255, 201, 61, 0.12),
+      inset 0 1px 1px rgba(255, 230, 140, 0.25);
+    transition: box-shadow 0.35s ease, transform 0.16s ease, color 0.3s ease;
   }
   .connect-btn:hover {
-    filter: brightness(1.05);
     box-shadow:
-      0 7px 0 #b5860b,
-      0 0 44px rgba(245, 197, 24, 0.75),
-      0 16px 40px rgba(245, 197, 24, 0.55),
-      inset 0 2px 2px rgba(255, 255, 255, 0.85);
+      0 12px 26px rgba(20, 18, 8, 0.35),
+      0 0 38px rgba(255, 201, 61, 0.38),
+      0 0 100px rgba(255, 201, 61, 0.2),
+      inset 0 1px 1px rgba(255, 230, 140, 0.35);
   }
   .connect-btn:active {
-    transform: translateY(5px);
+    transform: perspective(700px) rotateX(20deg) translateY(7px) scale(0.985);
     box-shadow:
-      0 2px 0 #b5860b,
-      0 0 34px rgba(245, 197, 24, 0.65),
-      inset 0 2px 3px rgba(255, 255, 255, 0.7);
+      0 3px 10px rgba(20, 18, 8, 0.4),
+      0 0 30px rgba(255, 201, 61, 0.32),
+      inset 0 2px 6px rgba(0, 0, 0, 0.55);
+  }
+  .cb-label { display: inline-block; transition: opacity 0.25s ease; }
+  /* once revealed, the label IS the email → smaller so it fits the pill */
+  .connect-btn.revealed .cb-label {
+    font-size: clamp(0.85rem, 1.6vw, 1.35rem);
+    letter-spacing: 0.02em;
+    text-transform: lowercase;
+  }
+  .cb-copied {
+    position: absolute; left: 50%; top: -26px;
+    transform: translateX(-50%) translateY(6px);
+    font-family: "Caveat", cursive; font-size: 1.05rem; color: #b98f13;
+    opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+  }
+  .connect-btn.copied .cb-copied { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .c5-sub { color: #77756e; font-size: clamp(14px, 1.4vw, 17px); margin: 14px 0 0; max-width: 40ch; }
+
+  /* ---------------- aurora join: white → black (hiartem-style) ----------
+     horizontal hue variation via overlapping radials, vertically dissolving
+     from the white page into the black footer. Warm gold, kept quiet. */
+  .c5-aurora {
+    height: clamp(150px, 24vh, 260px);
+    background:
+      radial-gradient(55% 150% at 8% 112%,  rgba(214, 168, 50, 0.5) 0%, rgba(214, 168, 50, 0) 62%),
+      radial-gradient(68% 165% at 46% 118%, rgba(240, 205, 110, 0.42) 0%, rgba(240, 205, 110, 0) 64%),
+      radial-gradient(58% 150% at 90% 110%, rgba(180, 132, 32, 0.48) 0%, rgba(180, 132, 32, 0) 60%),
+      linear-gradient(to bottom, var(--c5-white) 0%, rgba(254, 254, 254, 0) 55%, var(--c5-black) 100%);
   }
 
-  /* ---- soft gradient joining light → dark ---- */
-  .connect__divider {
-    height: 24vh;
-    background: linear-gradient(to bottom, #faf6ef 0%, #efe9dd 40%, #0e0e10 100%);
-  }
-
-  /* ---- dark footer ---- */
-  .connect__footer { background: #0e0e10; color: #f5f2ea; padding-top: 3vh; }
+  /* ---------------- black footer ---------------- */
+  .c5-footer { background: var(--c5-black); color: #f4f4f2; }
   .foot-top {
     display: flex; justify-content: space-between; align-items: flex-start;
-    gap: 2rem; padding: 2vh 5vw 4vh; flex-wrap: wrap;
+    gap: 2rem; padding: 4vh 5vw 2vh; flex-wrap: wrap;
   }
-  .foot-copy { margin: 0 0 4px; font-size: 14px; font-weight: 500; }
-  .foot-muted { margin: 0; font-size: 13px; color: rgba(245, 242, 234, 0.45); }
+  .foot-copy { margin: 0 0 4px; font-size: 14.5px; font-weight: 600; }
+  .foot-muted { margin: 0; font-size: 13px; color: rgba(244, 244, 242, 0.42); }
 
-  /* subtle gold hover-fill (restrained, per plan) */
-  .foot-right { text-align: right; text-decoration: none; display: inline-flex; flex-direction: column; align-items: flex-end; }
-  .foot-right .small { font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(245, 242, 234, 0.5); }
+  /* "wanna check what I do? / HERE ››" */
+  .foot-right {
+    text-align: right; text-decoration: none;
+    display: inline-flex; flex-direction: column; align-items: flex-end; gap: 2px;
+    color: #f4f4f2;
+  }
+  .foot-right .small {
+    font-family: "Space Grotesk", sans-serif; font-size: 14px; font-weight: 600;
+    color: rgba(244, 244, 242, 0.65);
+  }
+  /* the "d" and "?" wiggle — subtle, intermittent, never carnival */
+  .wiggle { display: inline-block; animation: c5-wiggle 3.4s ease-in-out infinite; transform-origin: 60% 80%; }
+  .w2 { animation-delay: 0.35s; }
+  @keyframes c5-wiggle {
+    0%, 78%, 100% { transform: rotate(0deg); }
+    84%  { transform: rotate(10deg) translateY(-1px); }
+    90%  { transform: rotate(-8deg); }
+    95%  { transform: rotate(4deg); }
+  }
+
   .foot-right .big {
     font-family: "Clash Display", "Space Grotesk", sans-serif; font-weight: 700;
-    font-size: clamp(1.6rem, 3.2vw, 2.4rem); color: #f5f2ea;
-    transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease;
+    font-size: clamp(1.7rem, 3.4vw, 2.6rem); line-height: 1;
+    display: inline-flex; align-items: center;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
   }
-  .foot-right:hover .big { color: #ffd64a; text-shadow: 0 0 20px rgba(255, 214, 74, 0.45); transform: translateX(4px); }
+  .foot-right:hover .big {
+    color: var(--c5-gold);
+    text-shadow: 0 0 18px rgba(255, 201, 61, 0.35);
+  }
+  /* ›› race — chevrons sprint forward one after another */
+  .chev { display: inline-block; margin-left: 0.04em; animation: c5-race 1.5s ease-in-out infinite; }
+  .c2 { animation-delay: 0.12s; }
+  .c3 { animation-delay: 0.24s; }
+  @keyframes c5-race {
+    0%, 55%, 100% { transform: translateX(0); opacity: 1; }
+    25% { transform: translateX(0.28em); opacity: 0.35; }
+    40% { transform: translateX(0.12em); opacity: 1; }
+  }
 
-  /* ---- giant clipped name: compresses then stretches on scroll ---- */
-  .foot-name { overflow: hidden; line-height: 0.8; margin-top: -1vh; }
-  .foot-name span {
+  /* ---------------- giant clipped name (refs 1 + clip 1) ----------------
+     the bottom of the glyphs is CUT by the page edge → abstract signature */
+  .foot-name {
+    overflow: hidden;
+    height: clamp(4.6rem, 17.5vw, 20rem); /* shorter than the glyphs = clip */
+    margin-top: 1vh;
+  }
+  .name-row {
     display: block; text-align: center; white-space: nowrap;
     font-family: "Clash Display", "Space Grotesk", sans-serif; font-weight: 800;
-    font-size: clamp(7rem, 26vw, 30rem); letter-spacing: -0.02em;
-    color: #ffffff; margin-bottom: -0.1em;
-    transform: scaleX(0.85); transform-origin: center; will-change: transform;
+    font-size: clamp(7rem, 26vw, 30rem);
+    letter-spacing: -0.02em; line-height: 0.74; /* pushes glyph bottoms past the clip */
+    transform: scaleX(0.85); transform-origin: center bottom; will-change: transform;
+  }
+  .ltr {
+    /* --g (0..1) = cursor proximity, driven by JS */
+    --g: 0;
+    display: inline-block;
+    color: color-mix(in srgb, #ffffff calc((1 - var(--g)) * 100%), var(--c5-gold) calc(var(--g) * 100%));
+    text-shadow: 0 0 calc(var(--g) * 42px) rgba(255, 201, 61, calc(var(--g) * 0.55));
+    transition: color 0.18s linear, text-shadow 0.18s linear;
+  }
+  /* no-JS / touch fallback: whole-word hover glow */
+  @media (hover: hover) {
+    .foot-name:hover .ltr:hover { --g: 1; }
   }
 
   @media (max-width: 700px) {
@@ -129,22 +262,105 @@
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   gsap.registerPlugin(ScrollTrigger);
 
-  const section = document.querySelector("#connect");
-  const name = document.querySelector("#connect [data-stretch]");
+  const section = document.querySelector<HTMLElement>("#connect");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  if (name && section) {
-    if (reduce) {
-      (name as HTMLElement).style.transform = "scaleX(1)";
-    } else {
-      // compress (0.85) → stretch (1.3) as the section scrolls up through view
-      gsap.fromTo(name,
+  /* ---------- Connect button: press → email revealed + copied → mails ---------- */
+  const btn = section?.querySelector<HTMLButtonElement>(".connect-btn");
+  if (btn) {
+    const label = btn.querySelector<HTMLElement>(".cb-label")!;
+    const email = btn.dataset.email!;
+    let revealed = false;
+
+    btn.addEventListener("click", () => {
+      if (!revealed) {
+        revealed = true;
+        // swap the label to the email with a quick fade
+        label.style.opacity = "0";
+        setTimeout(() => {
+          label.textContent = email;
+          btn.classList.add("revealed");
+          label.style.opacity = "1";
+        }, 220);
+        // make it instantly usable: copy to clipboard
+        navigator.clipboard?.writeText(email).then(() => {
+          btn.classList.add("copied");
+          setTimeout(() => btn.classList.remove("copied"), 1800);
+        }).catch(() => {});
+      } else {
+        window.location.href = `mailto:${email}`;
+      }
+    });
+  }
+
+  /* ---------- HERE ›› → smooth-scroll back to the top ---------- */
+  section?.querySelector("[data-totop]")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    // @ts-ignore — Lenis is exposed by Base.astro when motion is allowed
+    const lenis = window.lenis;
+    if (lenis) lenis.scrollTo(0);
+    else window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+  });
+
+  /* ---------- cursor-proximity GOLD glow on the giant letters (clip 1) ---------- */
+  const zone = section?.querySelector<HTMLElement>("[data-glow-zone]");
+  const letters = zone ? Array.from(zone.querySelectorAll<HTMLElement>(".ltr")) : [];
+  if (zone && letters.length && !reduce && matchMedia("(hover: hover)").matches) {
+    let raf = 0, mx = 0, my = 0;
+
+    const paint = () => {
+      raf = 0;
+      for (const el of letters) {
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const d = Math.hypot(mx - cx, my - cy);
+        const reach = r.width * 1.6; // falloff scales with letter size
+        const g = Math.max(0, 1 - d / reach);
+        el.style.setProperty("--g", (g * g).toFixed(3)); // eased falloff
+      }
+    };
+    zone.addEventListener("pointermove", (e) => {
+      mx = e.clientX; my = e.clientY;
+      if (!raf) raf = requestAnimationFrame(paint);
+    });
+    zone.addEventListener("pointerleave", () => {
+      letters.forEach((el) => el.style.setProperty("--g", "0"));
+    });
+  }
+
+  /* ---------- transition in (clip 3) + name stretch (ref 1) ---------- */
+  const mm = gsap.matchMedia();
+  mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
+    const anims: gsap.core.Tween[] = [];
+
+    // the whole page slides up into place — a simple, smooth reveal
+    anims.push(
+      gsap.fromTo(".connect .c5-inner",
+        { yPercent: -14 },
+        {
+          yPercent: 0, ease: "none",
+          scrollTrigger: { trigger: "#connect", start: "top bottom", end: "top 15%", scrub: 0.5 },
+        }
+      )
+    );
+
+    // the clipped name un-squeezes as it arrives (compressed → stretched)
+    anims.push(
+      gsap.fromTo(".connect [data-stretch]",
         { scaleX: 0.85 },
         {
-          scaleX: 1.3, ease: "none",
-          scrollTrigger: { trigger: section, start: "top 80%", end: "bottom bottom", scrub: 0.6 },
+          scaleX: 1.12, ease: "none",
+          scrollTrigger: { trigger: "#connect", start: "top 70%", end: "bottom bottom", scrub: 0.6 },
         }
-      );
-    }
+      )
+    );
+
+    return () => anims.forEach((a) => a.scrollTrigger?.kill());
+  });
+
+  // reduced motion: everything rests in its final state
+  if (reduce) {
+    const row = section?.querySelector<HTMLElement>("[data-stretch]");
+    if (row) row.style.transform = "scaleX(1)";
   }
 </script>
