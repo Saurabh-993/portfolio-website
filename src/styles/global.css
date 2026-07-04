@@ -32,30 +32,32 @@ html[data-theme='light'] {
 }
 
 /* Dark: deep purple/violet, light text, glowing violet accent */
+/* Dark: deep graphite-blue (professional, neutral) with a teal accent —
+   replaces the old purple. High contrast: everything stays readable. */
 html[data-theme='dark'] {
-  --bg: #1a1030;               /* deep violet */
-  --bg-soft: #241745;
-  --text: #f1ecff;
-  --text-muted: rgba(241, 236, 255, 0.6);
-  --text-faint: rgba(241, 236, 255, 0.3);
+  --bg: #0f1519;               /* deep graphite */
+  --bg-soft: #172026;
+  --text: #eef4f4;
+  --text-muted: rgba(238, 244, 244, 0.62);
+  --text-faint: rgba(238, 244, 244, 0.32);
 
-  --accent: #a78bfa;           /* glowing violet */
-  --accent-soft: rgba(167, 139, 250, 0.18);
-  --accent-glow: rgba(167, 139, 250, 0.5);
+  --accent: #3fd6bd;           /* luminous teal */
+  --accent-soft: rgba(63, 214, 189, 0.16);
+  --accent-glow: rgba(63, 214, 189, 0.45);
 
-  --grid-line: rgba(241, 236, 255, 0.04);
+  --grid-line: rgba(238, 244, 244, 0.045);
 
-  --glass-bg: rgba(38, 24, 70, 0.5);
-  --glass-border: rgba(167, 139, 250, 0.25);
+  --glass-bg: rgba(23, 32, 38, 0.55);
+  --glass-border: rgba(63, 214, 189, 0.22);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
 
-  --ball-a: #c4b5fd;
-  --ball-b: #7c3aed;
+  --ball-a: #8ceede;
+  --ball-b: #178f7c;
 
-  --card-bg: rgba(38, 24, 70, 0.95);
+  --card-bg: rgba(23, 32, 38, 0.95);
 
-  --strip-bg: rgba(241, 236, 255, 0.05);  /* marquee band */
-  --strip-line: rgba(167, 139, 250, 0.22);
+  --strip-bg: rgba(238, 244, 244, 0.05);  /* marquee band */
+  --strip-line: rgba(63, 214, 189, 0.2);
 }
 
 /* ---------- Reset / base ------------------------------------------------ */

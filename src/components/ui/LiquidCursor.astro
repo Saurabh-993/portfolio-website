@@ -1,0 +1,180 @@
+---
+/**
+ * LiquidCursor.astro — buttery liquid blob trailing the mouse (v2).
+ *
+ * Matching the reference clip:
+ *   - LOW viscosity: a long 13-segment chain with loose follow constants →
+ *     the liquid stretches way out on fast moves and slowly pools back
+ *   - AMOUNT changes with speed: the whole body swells while the cursor
+ *     is moving fast and shrinks back when it rests
+ *   - SPLASHES: quick flicks shed little droplets that fly off, decelerate
+ *     and dissolve — all melted together by the goo filter
+ *   - sits at z-index:1 (above backgrounds, below content), never blocks
+ *
+ * Colors: orange-gold in light mode; bright aqua (bluish-green, deliberately
+ * NOT the theme teal so it stays visible on graphite) in dark mode.
+ */
+const DOTS = 13;
+const SPLASHES = 12;
+---
+
+<div class="liquid-cursor" aria-hidden="true">
+  <svg class="lc-defs" width="0" height="0" aria-hidden="true">
+    <filter id="lc-goo">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="16" result="blur" />
+      <feColorMatrix in="blur" mode="matrix"
+        values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -11" />
+    </filter>
+  </svg>
+  <div class="lc-field">
+    {Array.from({ length: DOTS }).map(() => <span class="lc-dot"></span>)}
+    {Array.from({ length: SPLASHES }).map(() => <span class="lc-splash"></span>)}
+  </div>
+</div>
+
+<style>
+  .liquid-cursor {
+    position: fixed;
+    inset: 0;
+    z-index: 1;              /* above bg/grid, below content (z ≥ 2) */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    /* LIGHT: orange-gold liquid */
+    --lc-color: rgba(255, 164, 36, 0.6);
+  }
+  /* DARK: bright aqua — bluish-green, intentionally NOT the theme teal,
+     so it reads clearly against the graphite background */
+  :global(html[data-theme='dark']) .liquid-cursor {
+    --lc-color: rgba(72, 205, 231, 0.48);
+  }
+  .liquid-cursor.on { opacity: 1; }
+
+  .lc-field {
+    position: absolute;
+    inset: 0;
+    filter: url(#lc-goo);
+  }
+  .lc-dot,
+  .lc-splash {
+    position: absolute;
+    top: 0; left: 0;
+    border-radius: 50%;
+    background: var(--lc-color);
+    transform: translate(-300px, -300px);
+    will-change: transform;
+  }
+
+  /* content lifts: wrappers that lacked a z-index stay above the liquid */
+  :global(.p2__inner) { z-index: 2 !important; }
+  :global(.c5-inner)  { position: relative; z-index: 2; }
+
+  @media (hover: none), (max-width: 1023px), (prefers-reduced-motion: reduce) {
+    .liquid-cursor { display: none; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>(".liquid-cursor");
+  const ok =
+    root &&
+    matchMedia("(hover: hover)").matches &&
+    matchMedia("(min-width: 1024px)").matches &&
+    !matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (ok) {
+    const dots = Array.from(root!.querySelectorAll<HTMLElement>(".lc-dot"));
+    const splashes = Array.from(root!.querySelectorAll<HTMLElement>(".lc-splash"));
+    const n = dots.length;
+
+    /* ============ FEEL KNOBS ============ */
+    const HEAD = 84;         // head diameter at rest, px (big, like the clip)
+    const TAPER = 5.4;       // px smaller per segment down the tail
+    const K_HEAD = 0.3;      // head chase strength
+    const K_TAIL = 0.24;     // segment follow (lower = soupier stretch)
+    const GROW_MAX = 1.7;    // how much the body swells at full speed
+    const SPLASH_AT = 26;    // px/frame speed that starts shedding droplets
+    /* ==================================== */
+
+    const size: number[] = [];
+    dots.forEach((d, i) => {
+      const s = Math.max(HEAD - i * TAPER, 14);
+      size[i] = s;
+      d.style.width = `${s}px`;
+      d.style.height = `${s}px`;
+      d.style.marginLeft = `${-s / 2}px`;
+      d.style.marginTop = `${-s / 2}px`;
+    });
+    splashes.forEach((d) => {
+      const s = 12 + Math.random() * 10;
+      d.style.width = `${s}px`;
+      d.style.height = `${s}px`;
+      d.style.marginLeft = `${-s / 2}px`;
+      d.style.marginTop = `${-s / 2}px`;
+    });
+
+    const pos = dots.map(() => ({ x: -300, y: -300 }));
+    /* splash droplets: recycled pool with velocity + life */
+    const drops = splashes.map(() => ({ x: 0, y: 0, vx: 0, vy: 0, life: 0 }));
+    let nextDrop = 0;
+
+    let mx = -300, my = -300, pmx = -300, pmy = -300;
+    let spd = 0;
+    let idleTimer: number | undefined;
+
+    window.addEventListener("pointermove", (e) => {
+      mx = e.clientX; my = e.clientY;
+      root!.classList.add("on");
+      clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(() => root!.classList.remove("on"), 2200);
+    });
+    document.documentElement.addEventListener("mouseleave", () => {
+      root!.classList.remove("on");
+    });
+
+    (function flow() {
+      requestAnimationFrame(flow);
+
+      /* smoothed cursor speed drives the liquid's AMOUNT */
+      const rawSpd = Math.hypot(mx - pmx, my - pmy);
+      pmx = mx; pmy = my;
+      spd += (rawSpd - spd) * 0.12;
+      const grow = 1 + Math.min(spd * 0.028, GROW_MAX - 1);
+
+      /* chain: head chases cursor, each segment chases the previous —
+         loose constants = buttery, low-viscosity stretch */
+      pos[0].x += (mx - pos[0].x) * K_HEAD;
+      pos[0].y += (my - pos[0].y) * K_HEAD;
+      for (let i = 1; i < n; i++) {
+        pos[i].x += (pos[i - 1].x - pos[i].x) * K_TAIL;
+        pos[i].y += (pos[i - 1].y - pos[i].y) * K_TAIL;
+      }
+      for (let i = 0; i < n; i++) {
+        // swell tapers down the tail → teardrop mass, not uniform balloon
+        const s = 1 + (grow - 1) * (1 - (i / n) * 0.75);
+        dots[i].style.transform = `translate(${pos[i].x}px, ${pos[i].y}px) scale(${s})`;
+      }
+
+      /* SPLASH: fast flicks shed droplets from the head */
+      if (spd > SPLASH_AT && Math.random() < 0.4) {
+        const d = drops[nextDrop];
+        nextDrop = (nextDrop + 1) % drops.length;
+        const a = Math.random() * 6.283;
+        const kick = 4 + Math.random() * 7 + spd * 0.15;
+        d.x = pos[0].x; d.y = pos[0].y;
+        d.vx = Math.cos(a) * kick;
+        d.vy = Math.sin(a) * kick - 2; // slight upward bias, like a real splash
+        d.life = 1;
+      }
+      for (let j = 0; j < drops.length; j++) {
+        const d = drops[j];
+        if (d.life <= 0) { splashes[j].style.transform = "translate(-300px,-300px)"; continue; }
+        d.x += d.vx; d.y += d.vy;
+        d.vx *= 0.9; d.vy = d.vy * 0.9 + 0.7; // drag + a touch of gravity
+        d.life -= 0.03;
+        splashes[j].style.transform =
+          `translate(${d.x}px, ${d.y}px) scale(${Math.max(d.life, 0)})`;
+      }
+    })();
+  }
+</script>

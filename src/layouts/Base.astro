@@ -7,6 +7,7 @@
  *  - Lenis smooth scroll + GSAP/ScrollTrigger wiring (skipped for reduced motion)
  */
 import '../styles/global.css';
+import LiquidCursor from '../components/ui/LiquidCursor.astro';
 
 interface Props {
   title?: string;
@@ -55,6 +56,9 @@ const {
 
   <body>
     <slot />
+
+    <!-- gooey liquid blob trailing the cursor — behind content, site-wide -->
+    <LiquidCursor />
 
     <!-- Lenis + GSAP global init -->
     <script>
