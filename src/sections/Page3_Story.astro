@@ -2,21 +2,29 @@
 /**
  * Page3_Story.astro — "Experience & Journey"
  * Atlassian-style pinned CAMERA FLY-THROUGH (2D DOM/SVG + GSAP — no WebGL).
- * A large "journey map" world is panned/zoomed by scroll: zoom into frame 1,
- * travel the connector line settling at each milestone, then zoom out to the
- * open "still learning / open to work" node. Progress bar + Skip, both themes.
- * Desktop+motion only; mobile / reduced-motion falls back to a vertical timeline.
  *
- * Copy is resume-accurate. Memes: drop a gif/mp4 path into `meme` per frame
- * (null = styled placeholder). Coordinates live in a 6400×2600 world.
+ * COMPOSITION (v2, per feedback):
+ *   - The LEFT caption is the HERO: era + big title + stat + narrative.
+ *     That is what a recruiter reads first.
+ *   - The in-world "frame" is now a SECONDARY playful polaroid sticker: a
+ *     small tilted reaction card (meme + handwritten line + a skill ribbon),
+ *     dressed with hand-drawn doodles so the scene never reads blank.
+ *   - Memes live in /public/memes as m1..m6.gif (graceful placeholder until
+ *     the files are dropped in).
+ *   - Bottom bar is a DRAGGABLE scrubber (both directions) + a "skip" button.
+ *   - Finale: a frosted glass veil fades in behind the "now" caption so it
+ *     reads cleanly over the zoomed-out scene.
+ *   - Dark mode uses a layered gradient/vignette (not a flat black) so the
+ *     hand-off from Page 2 has depth.
+ *   - Desktop + motion only; mobile / reduced-motion → vertical timeline.
  */
 const FRAMES = [
-  { id: 1, x: 560,  y: 1500, era: "2021 · the spark",        title: "Where it caught",           meta: "Class XII (CBSE) · 89%",              body: "KV Vigyan Vihar, Delhi. Solid marks, endless questions, and the first real itch to build things instead of just use them.", meme: null },
-  { id: 2, x: 1560, y: 980,  era: "2022–2026 · college",     title: "B.Tech IT — AI/ML",         meta: "MSIT, Delhi · CGPA 7.55/10",          body: "Maharaja Surajmal Institute of Technology, AI/ML specialisation — where “can I build that?” turned into a weekly reflex.", meme: null },
-  { id: 3, x: 2500, y: 1640, era: "the creative detour",     title: "Design & a channel",        meta: "2 videos · ~520 views · brand assets", body: "Ran a small YouTube channel and made design assets for others. Proof I care how things look — not only how they run.", meme: null },
-  { id: 4, x: 3450, y: 1000, era: "2024 · first internship", title: "Software Intern — CRIS",     meta: "Centre for Railway Information Systems", body: "Shipped responsive UI, flows and dashboards for the UTS platform in Flutter, Dart & Go Router — plus Excel/PDF export on Node.js + MySQL, Agile throughout.", meme: null },
-  { id: 5, x: 4400, y: 1620, era: "2025 · data at scale",    title: "Data Analyst — DMRC",       meta: "Delhi Metro · 66M+ transactions",     body: "Turned 66M+ metro transactions (256GB) into a Power BI dashboard, and built Python/Pandas ETL with tuned SQL. Big data → real decisions.", meme: null },
-  { id: 6, x: 5350, y: 980,  era: "always leveling up",      title: "Certified & curious",       meta: "AWS · IBM · Google · IT Audit",       body: "AWS Cloud Practitioner, IBM Data Fundamentals, Google Analytics, IT Audit — plus deep dives into RAG, agents and AI systems.", meme: null },
+  { id: 1, x: 560,  y: 1500, era: "2021 · the spark",        title: "Where it caught",      stat: "89%",     statlabel: "Class XII · CBSE", body: "KV Vigyan Vihar, Delhi. Solid marks, endless questions, and the first real itch to build things instead of just using them.",                                   meme: "/memes/m1.gif", memeCap: "let's get started.",       tag: "curiosity",        doodle: 0 },
+  { id: 2, x: 1560, y: 980,  era: "2022–2026 · college",     title: "B.Tech IT — AI/ML",    stat: "7.55",    statlabel: "CGPA · MSIT Delhi", body: "Maharaja Surajmal Institute of Technology, AI/ML specialisation — where “can I build that?” turned into a weekly reflex.",                                  meme: "/memes/m2.gif", memeCap: "me, learning to code",     tag: "Python · C++",     doodle: 1 },
+  { id: 3, x: 2500, y: 1640, era: "the creative detour",     title: "Design & a channel",   stat: "~520",    statlabel: "views · 2 videos",  body: "Ran a small YouTube channel and made design assets for others. Proof I care how things look — not only how they run.",                                             meme: "/memes/m3.gif", memeCap: "wait, people watched it?!", tag: "design + video",   doodle: 2 },
+  { id: 4, x: 3450, y: 1000, era: "2024 · first internship", title: "Software Intern — CRIS", stat: "UTS",   statlabel: "Railway platform",  body: "Shipped responsive UI, flows and dashboards for the UTS platform in Flutter, Dart & Go Router — plus Excel/PDF export on Node.js + MySQL, Agile throughout.",         meme: "/memes/m4.gif", memeCap: "first offer letter hits", tag: "Flutter · Go",     doodle: 3 },
+  { id: 5, x: 4400, y: 1620, era: "2025 · data at scale",    title: "Data Analyst — DMRC",  stat: "66M+",    statlabel: "transactions · 256GB", body: "Turned 66M+ metro transactions into a Power BI dashboard, and built Python/Pandas ETL with tuned SQL. Big data → real decisions.",                                meme: "/memes/m5.gif", memeCap: "66M rows, no problem",     tag: "Power BI · SQL",   doodle: 4 },
+  { id: 6, x: 5350, y: 980,  era: "always leveling up",      title: "Certified & curious",  stat: "4+",      statlabel: "certifications",    body: "AWS Cloud Practitioner, IBM Data Fundamentals, Google Analytics, IT Audit — plus deep dives into RAG, agents and AI systems.",                                     meme: "/memes/m6.gif", memeCap: "cert season chaos",       tag: "AWS · IBM",        doodle: 5 },
 ];
 const END = { x: 6050, y: 1480, title: "Currently building in AI — open to work", body: "Still learning, still shipping. Open to roles and collaborations where I can build things that feel alive." };
 
@@ -34,6 +42,16 @@ const SKILLS = [
 ];
 
 const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3160 1050 3450 1000 S 4110 1470 4400 1620 S 5060 1050 5350 980 S 5820 1330 6050 1480";
+
+// small hand-drawn doodle set (indexed by frame.doodle)
+const DOODLES = [
+  '<path d="M4 38 C 30 10 60 10 92 30" /><path d="M80 20 L94 32 L78 40" />',                 // arc arrow →
+  '<path d="M48 4 L58 34 L90 36 L64 56 L74 88 L48 68 L22 88 L32 56 L6 36 L38 34 Z" />',       // star
+  '<path d="M6 44 C 30 70 66 70 92 40" /><path d="M6 54 C 30 80 66 80 92 50" />',             // double underline
+  '<path d="M48 12 C 12 12 12 76 48 76 C 84 76 84 20 40 24" /><path d="M40 24 L52 12 L58 30" />', // loop arrow
+  '<path d="M6 60 L26 30 L46 60 L66 30 L86 60" />',                                            // zigzag spark
+  '<path d="M48 22 C 34 4 8 14 12 38 C 16 60 48 84 48 84 C 48 84 80 60 84 38 C 88 14 62 4 48 22 Z" />', // heart
+];
 ---
 
 <section class="p3 section" id="story">
@@ -52,20 +70,19 @@ const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3
 
       {FRAMES.map((f, i) => (
         <article class="p3-frame" data-frame={i} style={`left:${f.x}px; top:${f.y}px;`}>
-          <div class="pf-win">
-            <div class="pf-bar">
-              <span class="pf-dot"></span><span class="pf-dot"></span><span class="pf-dot"></span>
-              <span class="pf-title">{f.era}</span>
+          <svg class="pf-doodle" viewBox="0 0 96 96" aria-hidden="true" set:html={DOODLES[f.doodle]}></svg>
+
+          <div class="pf-card">
+            <div class="pf-media">
+              <img src={f.meme} alt="" loading="lazy" onerror="this.remove()" />
+              <span class="pf-media-ph">reaction loading…</span>
             </div>
-            <div class="pf-body">
-              <div class="pf-media">
-                {f.meme
-                  ? <img src={f.meme} alt="" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('empty')" />
-                  : null}
-                <span class="pf-media-tag">meme incoming ✦</span>
-              </div>
+            <div class="pf-foot">
+              <p class="pf-cap">{f.memeCap}</p>
+              <span class="pf-tag">{f.tag}</span>
             </div>
           </div>
+
           <span class="pf-node"></span>
         </article>
       ))}
@@ -77,28 +94,34 @@ const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3
     </div>
   </div>
 
-  <!-- fixed captions (one visible at a time) -->
+  <!-- frosted veil for the finale (behind the "now" caption) -->
+  <div class="p3-veil" data-veil aria-hidden="true"></div>
+
+  <!-- fixed captions (HERO — one visible at a time) -->
   <div class="p3-caps" data-caps>
     {FRAMES.map((f, i) => (
       <div class={`p3-cap${i === 0 ? " active" : ""}`} data-cap={i}>
-        <p class="pc-era">{f.era}</p>
+        <p class="pc-era"><span class="pc-idx">0{i + 1}</span>{f.era}</p>
         <h2 class="pc-title">{f.title}</h2>
-        <p class="pc-meta">{f.meta}</p>
+        <div class="pc-stat"><span class="pc-statnum">{f.stat}</span><span class="pc-statlab">{f.statlabel}</span></div>
         <p class="pc-body">{f.body}</p>
       </div>
     ))}
     <div class="p3-cap p3-cap--end" data-cap="end">
-      <p class="pc-era">2026 · now</p>
+      <p class="pc-era"><span class="pc-idx">✦</span>2026 · now</p>
       <h2 class="pc-title">{END.title}</h2>
       <p class="pc-body">{END.body}</p>
       <a class="pc-cta" href="#connect" data-p3-connect>Let's talk ↗</a>
     </div>
   </div>
 
-  <!-- HUD: progress + skip -->
-  <div class="p3-hud" aria-hidden="false">
-    <div class="p3-bar"><span data-progress></span></div>
-    <button class="p3-skip" type="button" data-skip>Skip to now →</button>
+  <!-- HUD: draggable scrubber + skip -->
+  <div class="p3-hud">
+    <div class="p3-bar" data-bar role="slider" tabindex="0" aria-label="Scrub the journey" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <span class="p3-fill" data-progress></span>
+      <span class="p3-knob" data-knob></span>
+    </div>
+    <button class="p3-skip" type="button" data-skip>skip →</button>
   </div>
 
   <!-- MOBILE / reduced-motion fallback: clean vertical timeline -->
@@ -109,7 +132,7 @@ const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3
         <li>
           <p class="fb-era">{f.era}</p>
           <h3>{f.title}</h3>
-          <p class="fb-meta">{f.meta}</p>
+          <p class="fb-meta">{f.stat} · {f.statlabel}</p>
           <p class="fb-body">{f.body}</p>
         </li>
       ))}
@@ -123,16 +146,31 @@ const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3
 </section>
 
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap');
+
   .p3 {
-    --p3-bg: #f4f5f7; --p3-grid: rgba(0,0,0,0.05); --p3-ink: #14161a; --p3-soft: #6a6f78;
-    --p3-line: rgba(30,120,255,0.28); --p3-live: #2f7bff; --p3-accent: #2f7bff;
-    --pf-bg: #ffffff; --pf-bar: linear-gradient(#f6f7f9,#eceef2); --pf-border: rgba(0,0,0,0.12);
-    position: relative; height: 100dvh; overflow: hidden; background: var(--p3-bg); color: var(--p3-ink);
+    --p3-ink: #14161a; --p3-soft: #5f646d;
+    --p3-grid: rgba(0,0,0,0.045);
+    --p3-line: rgba(30,120,255,0.26); --p3-live: #2f7bff; --p3-accent: #2f7bff;
+    --pf-bg: #ffffff; --pf-border: rgba(0,0,0,0.10);
+    --p3-doodle: rgba(255,150,40,0.85);
+    position: relative; height: 100dvh; overflow: hidden; color: var(--p3-ink);
+    /* light: soft layered wash, gives the plane depth */
+    background:
+      radial-gradient(130% 90% at 18% 0%, #ffffff 0%, #f2f4f8 52%, #e8ebf1 100%);
   }
   :global(html[data-theme='dark']) .p3 {
-    --p3-bg: #08090c; --p3-grid: rgba(255,255,255,0.06); --p3-ink: #eef1f6; --p3-soft: rgba(238,241,246,0.6);
-    --p3-line: rgba(90,170,255,0.30); --p3-live: #5aa2ff; --p3-accent: #5aa2ff;
-    --pf-bg: #12141a; --pf-bar: linear-gradient(#20242c,#171a20); --pf-border: rgba(255,255,255,0.12);
+    --p3-ink: #eef1f6; --p3-soft: rgba(238,241,246,0.62);
+    --p3-grid: rgba(120,170,255,0.06);
+    --p3-line: rgba(90,170,255,0.30); --p3-live: #5aa2ff; --p3-accent: #6fb0ff;
+    --pf-bg: #161a22; --pf-border: rgba(255,255,255,0.10);
+    --p3-doodle: rgba(120,190,255,0.9);
+    /* dark: deep blue-graphite gradient + top glow + vignette — not flat black.
+       Eases the hand-off from Page 2 with real depth. */
+    background:
+      radial-gradient(120% 70% at 78% -10%, rgba(60,120,230,0.16) 0%, transparent 55%),
+      radial-gradient(100% 80% at 15% 4%, rgba(40,90,180,0.14) 0%, transparent 50%),
+      linear-gradient(180deg, #0f131b 0%, #0b0e15 46%, #080a10 100%);
   }
 
   .p3-stage { position: absolute; inset: 0; overflow: hidden; }
@@ -143,35 +181,57 @@ const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3
     background-image:
       linear-gradient(to right, var(--p3-grid) 1px, transparent 1px),
       linear-gradient(to bottom, var(--p3-grid) 1px, transparent 1px);
-    background-size: 80px 80px; }
+    background-size: 88px 88px;
+    -webkit-mask-image: radial-gradient(120% 120% at 50% 40%, #000 55%, transparent 100%);
+            mask-image: radial-gradient(120% 120% at 50% 40%, #000 55%, transparent 100%); }
 
   .p3-links { position: absolute; top: 0; left: 0; width: 6400px; height: 2600px; overflow: visible; fill: none; }
-  .link-track { stroke: var(--p3-line); stroke-width: 4; stroke-linecap: round; }
+  .link-track { stroke: var(--p3-line); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 2 16; }
   .link-live  { stroke: var(--p3-live); stroke-width: 5; stroke-linecap: round; filter: drop-shadow(0 0 8px var(--p3-live)); }
 
-  /* frames (mac windows) */
-  .p3-frame { position: absolute; width: 520px; transform: translate(-50%, -50%); }
-  .pf-win { border-radius: 14px; overflow: hidden; background: var(--pf-bg);
-    border: 1px solid var(--pf-border); box-shadow: 0 30px 80px rgba(0,0,0,0.28); }
-  .pf-bar { height: 38px; display: flex; align-items: center; gap: 8px; padding: 0 14px; background: var(--pf-bar); border-bottom: 1px solid var(--pf-border); }
-  .pf-dot { width: 11px; height: 11px; border-radius: 50%; background: #cfd3da; }
-  .pf-dot:nth-child(1){ background:#ff5f56; } .pf-dot:nth-child(2){ background:#ffbd2e; } .pf-dot:nth-child(3){ background:#27c93f; }
-  .pf-title { margin-left: 8px; font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--p3-soft); }
-  .pf-body { padding: 16px; }
-  .pf-media { position: relative; aspect-ratio: 16/10; border-radius: 10px; overflow: hidden;
-    background: repeating-linear-gradient(45deg, rgba(47,123,255,0.10) 0 12px, rgba(47,123,255,0.04) 12px 24px);
+  /* ============ FRAME = secondary playful polaroid sticker ============ */
+  .p3-frame { position: absolute; width: 320px; transform: translate(-50%, -50%); }
+  .p3-frame:nth-child(odd)  .pf-card { transform: rotate(-2.4deg); }
+  .p3-frame:nth-child(even) .pf-card { transform: rotate(2.1deg); }
+
+  .pf-card { position: relative; padding: 12px 12px 10px; border-radius: 14px;
+    background: var(--pf-bg); border: 1px solid var(--pf-border);
+    box-shadow: 0 22px 55px rgba(0,0,0,0.22), 0 2px 0 rgba(0,0,0,0.04);
+    transition: transform 0.4s cubic-bezier(0.2,0.9,0.3,1.2); }
+
+  .pf-media { position: relative; aspect-ratio: 4/3; border-radius: 9px; overflow: hidden;
+    background:
+      repeating-linear-gradient(45deg, color-mix(in srgb, var(--p3-accent) 12%, transparent) 0 10px, transparent 10px 20px),
+      color-mix(in srgb, var(--pf-bg) 60%, #808a9c);
     display: grid; place-items: center; }
-  .pf-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .pf-media-tag { font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.1em; color: var(--p3-soft); }
-  .pf-media img + .pf-media-tag { display: none; }
-  .pf-node { position: absolute; left: 50%; bottom: -26px; transform: translateX(-50%); width: 16px; height: 16px; border-radius: 50%; background: var(--p3-live); box-shadow: 0 0 0 6px rgba(47,123,255,0.18), 0 0 18px var(--p3-live); }
+  .pf-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pf-media-ph { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--p3-soft); opacity: 0.8; }
+
+  .pf-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 3px 2px; }
+  .pf-cap { margin: 0; font-family: "Caveat", cursive; font-weight: 700; font-size: 21px; line-height: 1;
+    color: var(--p3-ink); }
+  .pf-tag { flex: none; font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.06em;
+    padding: 4px 8px; border-radius: 999px; white-space: nowrap;
+    color: var(--p3-accent); background: color-mix(in srgb, var(--p3-accent) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--p3-accent) 26%, transparent); }
+
+  .pf-doodle { position: absolute; width: 78px; height: 78px; top: -46px; right: -40px;
+    fill: none; stroke: var(--p3-doodle); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round;
+    opacity: 0.9; pointer-events: none;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12)); }
+  .p3-frame:nth-child(even) .pf-doodle { right: auto; left: -42px; top: auto; bottom: -40px; }
+
+  .pf-node { position: absolute; left: 50%; bottom: -30px; transform: translateX(-50%);
+    width: 15px; height: 15px; border-radius: 50%; background: var(--p3-live);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--p3-live) 18%, transparent), 0 0 18px var(--p3-live); }
 
   /* soft-skill nodes along the line */
   .p3-skill { position: absolute; transform: translate(-50%, -50%) scale(0.6); opacity: 0;
     padding: 9px 16px; border-radius: 999px; white-space: nowrap;
     font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 15px; color: var(--p3-ink);
-    background: color-mix(in srgb, var(--pf-bg) 82%, transparent);
-    border: 1px solid var(--pf-border); box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    background: color-mix(in srgb, var(--pf-bg) 84%, transparent);
+    border: 1px solid var(--pf-border); box-shadow: 0 8px 24px rgba(0,0,0,0.16);
     -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
     transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.2,0.9,0.3,1.3); }
   .p3-skill::before { content: "✦"; color: var(--p3-accent); margin-right: 7px; }
@@ -184,20 +244,39 @@ const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3
   @keyframes pe-ping { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(4.2); opacity: 0; } }
   .pe-label { position: absolute; top: 34px; white-space: nowrap; font-family: "JetBrains Mono", monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--p3-live); }
 
-  /* captions (fixed, left) */
-  .p3-caps { position: absolute; left: clamp(24px, 6vw, 96px); top: 0; bottom: 0; width: min(420px, 40vw); display: grid; align-content: center; pointer-events: none; z-index: 4; }
+  /* frosted veil during finale */
+  .p3-veil { position: absolute; inset: 0; z-index: 3; opacity: 0; pointer-events: none;
+    background: color-mix(in srgb, var(--pf-bg) 34%, transparent);
+    -webkit-backdrop-filter: blur(9px) saturate(1.05); backdrop-filter: blur(9px) saturate(1.05); }
+
+  /* captions (fixed, left) — the HERO */
+  .p3-caps { position: absolute; left: clamp(24px, 6vw, 96px); top: 0; bottom: 0; width: min(440px, 42vw); display: grid; align-content: center; pointer-events: none; z-index: 4; }
   .p3-cap { grid-area: 1/1; opacity: 0; transform: translateY(14px); transition: opacity 0.5s ease, transform 0.5s ease; pointer-events: none; }
   .p3-cap.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
-  .pc-era { margin: 0 0 10px; font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--p3-accent); }
-  .pc-title { margin: 0 0 10px; font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700; font-size: clamp(1.7rem, 3vw, 2.7rem); line-height: 1.08; letter-spacing: -0.02em; color: var(--p3-ink); }
-  .pc-meta { margin: 0 0 14px; font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--p3-soft); }
-  .pc-body { margin: 0; font-size: clamp(14px, 1.3vw, 16px); line-height: 1.6; color: var(--p3-soft); max-width: 42ch; }
+  .pc-era { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--p3-accent); }
+  .pc-idx { font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 6px; color: var(--pf-bg);
+    background: var(--p3-accent); letter-spacing: 0.08em; }
+  .pc-title { margin: 0 0 14px; font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700; font-size: clamp(1.8rem, 3.1vw, 2.8rem); line-height: 1.06; letter-spacing: -0.02em; color: var(--p3-ink); }
+  .pc-stat { display: flex; align-items: baseline; gap: 10px; margin: 0 0 16px; }
+  .pc-statnum { font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700; font-size: clamp(1.6rem, 2.6vw, 2.2rem); color: var(--p3-live); line-height: 1;
+    text-shadow: 0 0 22px color-mix(in srgb, var(--p3-live) 45%, transparent); }
+  .pc-statlab { font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--p3-soft); }
+  .pc-body { margin: 0; font-size: clamp(14px, 1.25vw, 16px); line-height: 1.62; color: var(--p3-soft); max-width: 42ch; }
   .pc-cta { display: inline-block; margin-top: 18px; font-family: "Space Grotesk",sans-serif; font-weight: 700; color: var(--p3-live); text-decoration: none; pointer-events: auto; }
+  .p3-cap--end .pc-title { max-width: 15ch; }
 
   /* HUD */
-  .p3-hud { position: absolute; left: 0; right: 0; bottom: 26px; display: flex; align-items: center; gap: 18px; padding: 0 clamp(24px, 6vw, 96px); z-index: 5; }
-  .p3-bar { flex: 1; height: 4px; border-radius: 4px; background: color-mix(in srgb, var(--p3-ink) 14%, transparent); overflow: hidden; }
-  .p3-bar span { display: block; height: 100%; width: 0%; background: var(--p3-live); box-shadow: 0 0 12px var(--p3-live); }
+  .p3-hud { position: absolute; left: 0; right: 0; bottom: 26px; display: flex; align-items: center; gap: 18px; padding: 0 clamp(24px, 6vw, 96px); z-index: 6; }
+  .p3-bar { position: relative; flex: 1; height: 22px; display: flex; align-items: center; cursor: grab; touch-action: none; }
+  .p3-bar::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+    height: 4px; border-radius: 4px; background: color-mix(in srgb, var(--p3-ink) 14%, transparent); }
+  .p3-bar:active { cursor: grabbing; }
+  .p3-fill { position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 4px; width: 0%; border-radius: 4px;
+    background: var(--p3-live); box-shadow: 0 0 12px var(--p3-live); pointer-events: none; }
+  .p3-knob { position: absolute; top: 50%; left: 0; width: 15px; height: 15px; border-radius: 50%;
+    transform: translate(-50%, -50%); background: var(--pf-bg); border: 3px solid var(--p3-live);
+    box-shadow: 0 0 14px var(--p3-live); pointer-events: none; transition: transform 0.15s ease; }
+  .p3-bar:hover .p3-knob { transform: translate(-50%, -50%) scale(1.18); }
   .p3-skip { flex: none; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--pf-border);
     background: color-mix(in srgb, var(--pf-bg) 70%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
     font-family: "Space Grotesk",sans-serif; font-weight: 600; font-size: 14px; color: var(--p3-ink); cursor: pointer;
@@ -209,7 +288,7 @@ const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3
 
   @media (max-width: 1023px), (prefers-reduced-motion: reduce) {
     .p3 { height: auto; min-height: 100dvh; }
-    .p3-stage, .p3-caps, .p3-hud { display: none; }
+    .p3-stage, .p3-caps, .p3-hud, .p3-veil { display: none; }
     .p3-fallback { display: block; max-width: 820px; margin: 0 auto; padding: 12vh 6vw; }
     .pf-heading { font-family: "Clash Display","Space Grotesk",sans-serif; font-size: clamp(1.8rem,7vw,2.6rem); margin: 0 0 6vh; }
     .p3-fallback ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 3rem; position: relative; }
@@ -233,6 +312,7 @@ const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3
     { x: 3450, y: 1000 }, { x: 4400, y: 1620 }, { x: 5350, y: 980 },
   ];
   const END = { x: 6050, y: 1480 };
+  const VEIL_START = 0.86; // finale begins around here → frosted veil fades in
 
   const mm = gsap.matchMedia();
   mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
@@ -240,6 +320,9 @@ const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3
     const world = document.querySelector<HTMLElement>("[data-world]");
     const link  = document.querySelector<SVGPathElement>("[data-link]");
     const bar   = document.querySelector<HTMLElement>("[data-progress]");
+    const knob  = document.querySelector<HTMLElement>("[data-knob]");
+    const barWrap = document.querySelector<HTMLElement>("[data-bar]");
+    const veil  = document.querySelector<HTMLElement>("[data-veil]");
     const caps  = Array.from(document.querySelectorAll<HTMLElement>(".p3-cap"));
     const skills = Array.from(document.querySelectorAll<HTMLElement>(".p3-skill"));
     if (!stage || !world || !link) return;
@@ -248,11 +331,12 @@ const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3
     link.style.strokeDasharray = `${len}`;
     link.style.strokeDashoffset = `${len}`;
 
+    // settle a touch lighter (1.05) so the polaroid reads as a garnish, not a wall
     const cam = { x: FRAMES[0].x, y: FRAMES[0].y, s: 0.62 };
     const apply = () => {
       const vw = stage.clientWidth, vh = stage.clientHeight;
-      // focus point sits at ~62% width so the left captions never overlap the frame
-      world.style.transform = `translate(${vw * 0.62 - cam.x * cam.s}px, ${vh / 2 - cam.y * cam.s}px) scale(${cam.s})`;
+      // focus point sits at ~64% width so the left hero captions never overlap
+      world.style.transform = `translate(${vw * 0.64 - cam.x * cam.s}px, ${vh / 2 - cam.y * cam.s}px) scale(${cam.s})`;
     };
     apply();
     window.addEventListener("resize", apply);
@@ -265,33 +349,63 @@ const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3
       scrollTrigger: {
         trigger: ".p3", start: "top top", end: "+=700%", pin: true, scrub: 0.7, anticipatePin: 1,
         onUpdate: (self) => {
-          if (bar) bar.style.width = `${(self.progress * 100).toFixed(2)}%`;
-          link.style.strokeDashoffset = `${len * (1 - Math.min(self.progress * 1.05, 1))}`;
           const p = self.progress;
+          if (bar)  bar.style.width = `${(p * 100).toFixed(2)}%`;
+          if (knob) knob.style.left = `${(p * 100).toFixed(2)}%`;
+          if (barWrap) barWrap.setAttribute("aria-valuenow", (p * 100).toFixed(0));
+          link.style.strokeDashoffset = `${len * (1 - Math.min(p * 1.05, 1))}`;
           skills.forEach((s) => s.classList.toggle("in", p >= parseFloat(s.dataset.reveal || "1")));
+          if (veil) veil.style.opacity = `${Math.min(Math.max((p - VEIL_START) / (1 - VEIL_START), 0), 1) * 0.92}`;
         },
       },
     });
 
-    // opening — zoom INTO frame 1
-    tl.to(cam, { s: 1.2, duration: 1, ease: "power2.inOut", onUpdate: apply, onStart: () => showCap(0) });
+    // opening — zoom INTO frame 1 (light settle)
+    tl.to(cam, { s: 1.05, duration: 1, ease: "power2.inOut", onUpdate: apply, onStart: () => showCap(0) });
     // travel + settle at each subsequent frame
     FRAMES.slice(1).forEach((f, idx) => {
       const i = idx + 1;
-      tl.to(cam, { x: f.x, y: f.y, s: 0.92, duration: 1.2, ease: "power1.inOut", onUpdate: apply, onStart: () => showCap(i) });
-      tl.to(cam, { s: 1.2, duration: 0.6, ease: "power2.out", onUpdate: apply });
+      tl.to(cam, { x: f.x, y: f.y, s: 0.85, duration: 1.2, ease: "power1.inOut", onUpdate: apply, onStart: () => showCap(i) });
+      tl.to(cam, { s: 1.05, duration: 0.6, ease: "power2.out", onUpdate: apply });
     });
     // finale — zoom OUT to reveal the whole path + open node
     tl.to(cam, { x: (FRAMES[0].x + END.x) / 2, y: 1360, s: 0.3, duration: 1.6, ease: "power2.inOut", onUpdate: apply, onStart: () => showCap("end") });
 
-    // Skip → jump to the end (open-to-work)
     const st = tl.scrollTrigger!;
+    // @ts-ignore
+    const lenis = window.lenis;
+
+    // Skip → jump to the end (open-to-work)
     document.querySelector("[data-skip]")?.addEventListener("click", () => {
-      // @ts-ignore
-      const lenis = window.lenis;
       const target = st.end - 2;
       if (lenis) lenis.scrollTo(target); else window.scrollTo({ top: target, behavior: "smooth" });
     });
+
+    // Draggable scrubber — grab the bar and slide either direction
+    if (barWrap) {
+      let dragging = false;
+      const scrubTo = (clientX: number) => {
+        const r = barWrap.getBoundingClientRect();
+        const ratio = Math.min(Math.max((clientX - r.left) / r.width, 0), 1);
+        const target = st.start + ratio * (st.end - st.start);
+        if (lenis) lenis.scrollTo(target, { immediate: false, duration: 0.25 });
+        else window.scrollTo({ top: target });
+      };
+      barWrap.addEventListener("pointerdown", (e) => {
+        dragging = true; barWrap.setPointerCapture(e.pointerId); scrubTo(e.clientX);
+      });
+      barWrap.addEventListener("pointermove", (e) => { if (dragging) scrubTo(e.clientX); });
+      const stop = () => { dragging = false; };
+      barWrap.addEventListener("pointerup", stop);
+      barWrap.addEventListener("pointercancel", stop);
+      barWrap.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+        e.preventDefault();
+        const step = (st.end - st.start) * 0.04 * (e.key === "ArrowRight" ? 1 : -1);
+        const target = Math.min(Math.max(window.scrollY + step, st.start), st.end);
+        if (lenis) lenis.scrollTo(target); else window.scrollTo({ top: target });
+      });
+    }
 
     return () => { window.removeEventListener("resize", apply); st.kill(); };
   });
