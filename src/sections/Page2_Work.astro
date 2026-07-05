@@ -284,17 +284,22 @@ const loop = [...tech, ...tech];
   }
   .p2-panel > .mac-window { max-width: 1500px; }
   @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    /* two panels side by side; the track slides left (parallax scale in JS) */
     .p2-track { flex-direction: row; width: 200%; }
     .p2-panel { width: 50%; }
   }
 
-  /* deck window header title */
+  /* deck window header title — bold + clearly visible, both themes */
   .deck-title {
-    font-family: "JetBrains Mono", monospace;
-    font-size: 11px;
-    letter-spacing: 0.18em;
+    font-family: "Space Grotesk", "JetBrains Mono", monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--mac-icon);
+    color: var(--text);
+  }
+  :global(html[data-theme='dark']) .deck-title {
+    text-shadow: 0 0 12px rgba(147, 197, 253, 0.28);
   }
 
   /* ---- "Tech Stack ›››" link (racing chevrons, like the footer HERE) ---- */
@@ -513,26 +518,30 @@ const loop = [...tech, ...tech];
       );
     }
 
-    /* ---- horizontal slide to the TECH DECK window ----
-       The section pins and the two-window track glides sideways as you
-       keep scrolling — window 2 arrives smoothly beside window 1. */
-    const track = document.querySelector('[data-p2-track]');
-    if (track) {
-      anims.push(
-        gsap.to(track, {
-          xPercent: -50,
-          ease: 'none',
-          scrollTrigger: {
-            id: 'p2deck',
-            trigger: '.p2',
-            start: 'top top',
-            end: '+=90%',
-            pin: true,
-            scrub: 0.6,
-            anticipatePin: 1,
-          },
-        })
-      );
+    /* ---- DEPTH transition to the TECH DECK ----
+       The section pins; slide 1 (bento) scales down & fades away while
+       slide 2 (deck) rises OVER it, from smaller to full size — then a
+       dwell so you rest on the deck before page 3. */
+    const track = document.querySelector<HTMLElement>('[data-p2-track]');
+    const panels = document.querySelectorAll<HTMLElement>('.p2 .p2-panel');
+    const bento = panels[0], deck = panels[1];
+    if (track && bento && deck) {
+      gsap.set(bento, { transformOrigin: '50% 50%' });
+      gsap.set(deck,  { scale: 0.9, transformOrigin: '50% 50%' });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          id: 'p2deck', trigger: '.p2', start: 'top top',
+          end: '+=200%', pin: true, scrub: 0.6, anticipatePin: 1,
+        },
+      });
+      // simple parallax slide: track glides left; slide 1 shrinks as it
+      // exits, slide 2 grows from 0.9 → 1 as it enters the viewport
+      tl.to(track, { xPercent: -50, ease: 'none', duration: 1 }, 0);
+      tl.to(bento, { scale: 0.9, ease: 'power1.inOut', duration: 1 }, 0);
+      tl.to(deck,  { scale: 1, ease: 'power1.inOut', duration: 1 }, 0);
+      tl.to({}, { duration: 0.9 });   // brief dwell on the deck before page 3
+      anims.push(tl as unknown as gsap.core.Tween);
     }
 
     return () => anims.forEach((a) => a.scrollTrigger?.kill());
@@ -543,11 +552,12 @@ const loop = [...tech, ...tech];
     e.preventDefault();
     const st = ScrollTrigger.getById('p2deck');
     if (st) {
-      // scroll to the end of the pin = track fully slid to window 2
+      // land just past the transition (deck fully arrived), leaving the dwell
+      const target = st.start + (st.end - st.start) * 0.55;
       // @ts-ignore — Lenis is exposed by Base.astro when motion is allowed
       const lenis = window.lenis;
-      if (lenis) lenis.scrollTo(st.end);
-      else window.scrollTo({ top: st.end, behavior: 'smooth' });
+      if (lenis) lenis.scrollTo(target);
+      else window.scrollTo({ top: target, behavior: 'smooth' });
     } else {
       // stacked layout (mobile / reduced motion): plain smooth scroll
       document.querySelector('#tech-deck')?.scrollIntoView({ behavior: 'smooth' });

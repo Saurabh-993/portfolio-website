@@ -68,6 +68,9 @@ const SPLASHES = 12;
   /* content lifts: keep the blob BEHIND every section's content site-wide.
      Section backgrounds (incl. .grid-bg) stay below the blob; content rises above it. */
   :global(.section > *:not(.grid-bg)) { position: relative; z-index: 2; }
+  /* page 2 becomes a stacking layer when pinned — lift the whole section
+     above the blob so the liquid never rides over the deck cards */
+  :global(.p2) { position: relative; z-index: 2; }
   :global(.p2__inner) { z-index: 2 !important; }
   :global(.c5-inner)  { position: relative; z-index: 2; }
 
@@ -92,8 +95,8 @@ const SPLASHES = 12;
     /* ============ FEEL KNOBS ============ */
     const HEAD = 84;         // head diameter at rest, px (big, like the clip)
     const TAPER = 5.4;       // px smaller per segment down the tail
-    const K_HEAD = 0.3;      // head chase strength
-    const K_TAIL = 0.24;     // segment follow (lower = soupier stretch)
+    const K_HEAD = 0.26;     // head chase strength (lower = smoother/floatier)
+    const K_TAIL = 0.19;     // segment follow (lower = soupier, more fluid stretch)
     const GROW_MAX = 1.7;    // how much the body swells at full speed
     const SPLASH_AT = 26;    // px/frame speed that starts shedding droplets
     /* ==================================== */
