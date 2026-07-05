@@ -40,13 +40,13 @@ const SPLASHES = 12;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.6s ease;
-    /* LIGHT: orange-gold liquid */
-    --lc-color: rgba(255, 164, 36, 0.6);
+    /* LIGHT: orange-gold liquid — softened so it reads bubbly, not blunt */
+    --lc-color: rgba(255, 168, 40, 0.40);
   }
   /* DARK: bright aqua — bluish-green, intentionally NOT the theme teal,
      so it reads clearly against the graphite background */
   :global(html[data-theme='dark']) .liquid-cursor {
-    --lc-color: rgba(72, 205, 231, 0.48);
+    --lc-color: rgba(72, 205, 231, 0.30);
   }
   .liquid-cursor.on { opacity: 1; }
 
@@ -65,7 +65,9 @@ const SPLASHES = 12;
     will-change: transform;
   }
 
-  /* content lifts: wrappers that lacked a z-index stay above the liquid */
+  /* content lifts: keep the blob BEHIND every section's content site-wide.
+     Section backgrounds (incl. .grid-bg) stay below the blob; content rises above it. */
+  :global(.section > *:not(.grid-bg)) { position: relative; z-index: 2; }
   :global(.p2__inner) { z-index: 2 !important; }
   :global(.c5-inner)  { position: relative; z-index: 2; }
 

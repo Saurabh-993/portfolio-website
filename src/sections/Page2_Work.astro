@@ -1,6 +1,7 @@
 ---
 // Page2_Work.astro — clean professional About/Skills bento section.
 import ParticleMorph from "../components/ui/ParticleMorph.astro";
+import TechDeck from "../components/ui/TechDeck.astro";
 
 const tech = [
   { label: "JavaScript", slug: "javascript" },
@@ -31,6 +32,9 @@ const loop = [...tech, ...tech];
   <div class="p2__glow" aria-hidden="true"></div>
 
   <div class="p2__inner">
+   <!-- horizontal track: window 1 (bento) · window 2 (tech deck) -->
+   <div class="p2-track" data-p2-track>
+   <div class="p2-panel">
    <div class="mac-window">
     <div class="mac-header">
       <div class="mac-buttons">
@@ -77,6 +81,11 @@ const loop = [...tech, ...tech];
               ))}
             </div>
           </div>
+
+          <!-- → slides over to the tech-deck window -->
+          <a class="deck-link" href="#tech-deck" data-to-deck>
+            Tech Stack<span class="dl-chev">›</span><span class="dl-chev dl-c2">›</span><span class="dl-chev dl-c3">›</span>
+          </a>
         </article>
 
         <article class="card play">
@@ -89,6 +98,29 @@ const loop = [...tech, ...tech];
       </div>
     </div>
    </div>
+   </div>
+
+   <!-- ============ WINDOW 2: the tech-stack deck (sideways) ============ -->
+   <div class="p2-panel" id="tech-deck">
+   <div class="mac-window">
+    <div class="mac-header">
+      <div class="mac-buttons">
+        <span class="mac-btn close"></span>
+        <span class="mac-btn minimize"></span>
+        <span class="mac-btn maximize"></span>
+      </div>
+      <div class="deck-title">what I actually work with</div>
+      <div class="mac-action">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 1V11M1 6H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+    <div class="mac-body">
+      <TechDeck />
+    </div>
+   </div>
+   </div>
+
+   </div><!-- /p2-track -->
   </div>
 </section>
 
@@ -227,14 +259,69 @@ const loop = [...tech, ...tech];
   .p2__inner {
     position: relative;
     z-index: 1;
-    max-width: 1500px; 
-    margin: 0 auto; 
-    padding: 7vh 5vw 8vh; 
-    width: 100%; 
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ---- horizontal track: two full-width panels side by side.
+     Desktop+motion: GSAP pins the section and slides the track -50%.
+     Otherwise the panels simply stack vertically. ---- */
+  .p2-track {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    will-change: transform;
+  }
+  .p2-panel {
+    flex-shrink: 0;
+    width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 7vh 5vw 8vh;
+  }
+  .p2-panel > .mac-window { max-width: 1500px; }
+  @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    .p2-track { flex-direction: row; width: 200%; }
+    .p2-panel { width: 50%; }
+  }
+
+  /* deck window header title */
+  .deck-title {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mac-icon);
+  }
+
+  /* ---- "Tech Stack ›››" link (racing chevrons, like the footer HERE) ---- */
+  .deck-link {
+    align-self: flex-start;
+    margin-top: 14px;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.03em;
+    color: var(--accent);
+    transition: text-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .deck-link:hover {
+    text-shadow: 0 0 16px var(--accent-glow);
+    transform: translateX(3px);
+  }
+  .dl-chev { display: inline-block; margin-left: 0.05em; animation: dl-race 1.5s ease-in-out infinite; }
+  .dl-c2 { animation-delay: 0.12s; }
+  .dl-c3 { animation-delay: 0.24s; }
+  @keyframes dl-race {
+    0%, 55%, 100% { transform: translateX(0); opacity: 1; }
+    25% { transform: translateX(0.3em); opacity: 0.35; }
+    40% { transform: translateX(0.12em); opacity: 1; }
   }
 
   .mac-window {
@@ -352,9 +439,17 @@ const loop = [...tech, ...tech];
     background: radial-gradient(120% 120% at 50% 0%, #101a2e 0%, #0a0f1c 60%, #070a12 100%);
     display: grid; place-items: center; position: relative; }
 
+  /* below the horizontal breakpoint (or with reduced motion) the two
+     windows stack vertically and the section grows to fit */
+  @media (max-width: 1023px), (prefers-reduced-motion: reduce) {
+    .p2 { height: auto; min-height: 100dvh; }
+    .p2__inner, .p2-track, .p2-panel { height: auto; }
+    .p2-panel { min-height: 100dvh; }
+  }
   @media (max-width: 900px) {
     .p2 { height: auto; min-height: 100dvh; display: block; }
-    .p2__inner { height: auto; padding: 12vh 4vw 6vh; display: block; }
+    .p2__inner { height: auto; display: block; }
+    .p2-panel { padding: 12vh 4vw 6vh; display: block; }
     .mac-window { height: auto; max-height: none; }
     .mac-body { padding: 16px; }
     .bento { grid-template-columns: 1fr; grid-template-rows: auto; }
@@ -418,6 +513,44 @@ const loop = [...tech, ...tech];
       );
     }
 
+    /* ---- horizontal slide to the TECH DECK window ----
+       The section pins and the two-window track glides sideways as you
+       keep scrolling — window 2 arrives smoothly beside window 1. */
+    const track = document.querySelector('[data-p2-track]');
+    if (track) {
+      anims.push(
+        gsap.to(track, {
+          xPercent: -50,
+          ease: 'none',
+          scrollTrigger: {
+            id: 'p2deck',
+            trigger: '.p2',
+            start: 'top top',
+            end: '+=90%',
+            pin: true,
+            scrub: 0.6,
+            anticipatePin: 1,
+          },
+        })
+      );
+    }
+
     return () => anims.forEach((a) => a.scrollTrigger?.kill());
+  });
+
+  /* "Tech Stack ›››" → glide to the deck (works in every mode) */
+  document.querySelector('[data-to-deck]')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const st = ScrollTrigger.getById('p2deck');
+    if (st) {
+      // scroll to the end of the pin = track fully slid to window 2
+      // @ts-ignore — Lenis is exposed by Base.astro when motion is allowed
+      const lenis = window.lenis;
+      if (lenis) lenis.scrollTo(st.end);
+      else window.scrollTo({ top: st.end, behavior: 'smooth' });
+    } else {
+      // stacked layout (mobile / reduced motion): plain smooth scroll
+      document.querySelector('#tech-deck')?.scrollIntoView({ behavior: 'smooth' });
+    }
   });
 </script>
