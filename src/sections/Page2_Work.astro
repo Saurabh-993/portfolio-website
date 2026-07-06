@@ -532,7 +532,7 @@ const loop = [...tech, ...tech];
       const tl = gsap.timeline({
         scrollTrigger: {
           id: 'p2deck', trigger: '.p2', start: 'top top',
-          end: '+=200%', pin: true, scrub: 0.6, anticipatePin: 1,
+          end: '+=118%', pin: true, scrub: 0.6, anticipatePin: 1,
         },
       });
       // simple parallax slide: track glides left; slide 1 shrinks as it
@@ -540,7 +540,7 @@ const loop = [...tech, ...tech];
       tl.to(track, { xPercent: -50, ease: 'none', duration: 1 }, 0);
       tl.to(bento, { scale: 0.9, ease: 'power1.inOut', duration: 1 }, 0);
       tl.to(deck,  { scale: 1, ease: 'power1.inOut', duration: 1 }, 0);
-      tl.to({}, { duration: 0.9 });   // brief dwell on the deck before page 3
+      tl.to({}, { duration: 0.12 });  // tiny settle, then straight to page 3
       anims.push(tl as unknown as gsap.core.Tween);
     }
 
@@ -552,8 +552,8 @@ const loop = [...tech, ...tech];
     e.preventDefault();
     const st = ScrollTrigger.getById('p2deck');
     if (st) {
-      // land just past the transition (deck fully arrived), leaving the dwell
-      const target = st.start + (st.end - st.start) * 0.55;
+      // land right as the deck has fully arrived
+      const target = st.start + (st.end - st.start) * 0.9;
       // @ts-ignore — Lenis is exposed by Base.astro when motion is allowed
       const lenis = window.lenis;
       if (lenis) lenis.scrollTo(target);

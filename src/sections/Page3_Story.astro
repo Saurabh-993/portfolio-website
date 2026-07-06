@@ -3,28 +3,24 @@
  * Page3_Story.astro — "Experience & Journey"
  * Atlassian-style pinned CAMERA FLY-THROUGH (2D DOM/SVG + GSAP — no WebGL).
  *
- * COMPOSITION (v2, per feedback):
- *   - The LEFT caption is the HERO: era + big title + stat + narrative.
- *     That is what a recruiter reads first.
- *   - The in-world "frame" is now a SECONDARY playful polaroid sticker: a
- *     small tilted reaction card (meme + handwritten line + a skill ribbon),
- *     dressed with hand-drawn doodles so the scene never reads blank.
- *   - Memes live in /public/memes as m1..m6.gif (graceful placeholder until
- *     the files are dropped in).
- *   - Bottom bar is a DRAGGABLE scrubber (both directions) + a "skip" button.
- *   - Finale: a frosted glass veil fades in behind the "now" caption so it
- *     reads cleanly over the zoomed-out scene.
- *   - Dark mode uses a layered gradient/vignette (not a flat black) so the
- *     hand-off from Page 2 has depth.
+ *   - LEFT caption is the HERO (era + big title + stat + narrative).
+ *   - In-world "frame" = secondary playful polaroid (meme + handwritten line
+ *     + skill ribbon), ringed by 4–5 hand-drawn SKETCH doodles that draw
+ *     themselves in when the card is focused (relevant to each milestone).
+ *   - The Page 2 → Page 3 boundary heartbeat lives in SeamPulse.astro (at the seam).
+ *   - Bottom bar is a DRAGGABLE scrubber + a "skip" button.
+ *   - Finale: frosted glass veil behind the "now" caption.
+ *   - Dark mode: layered gradient/vignette (not flat black).
+ *   - Memes live in /public/memes as m1..m6.gif.
  *   - Desktop + motion only; mobile / reduced-motion → vertical timeline.
  */
 const FRAMES = [
-  { id: 1, x: 560,  y: 1500, era: "2021 · the spark",        title: "Where it caught",      stat: "89%",     statlabel: "Class XII · CBSE", body: "KV Vigyan Vihar, Delhi. Solid marks, endless questions, and the first real itch to build things instead of just using them.",                                   meme: "/memes/m1.gif", memeCap: "let's get started.",       tag: "curiosity",        doodle: 0 },
-  { id: 2, x: 1560, y: 980,  era: "2022–2026 · college",     title: "B.Tech IT — AI/ML",    stat: "7.55",    statlabel: "CGPA · MSIT Delhi", body: "Maharaja Surajmal Institute of Technology, AI/ML specialisation — where “can I build that?” turned into a weekly reflex.",                                  meme: "/memes/m2.gif", memeCap: "me, learning to code",     tag: "Python · C++",     doodle: 1 },
-  { id: 3, x: 2500, y: 1640, era: "the creative detour",     title: "Design & a channel",   stat: "~520",    statlabel: "views · 2 videos",  body: "Ran a small YouTube channel and made design assets for others. Proof I care how things look — not only how they run.",                                             meme: "/memes/m3.gif", memeCap: "wait, people watched it?!", tag: "design + video",   doodle: 2 },
-  { id: 4, x: 3450, y: 1000, era: "2024 · first internship", title: "Software Intern — CRIS", stat: "UTS",   statlabel: "Railway platform",  body: "Shipped responsive UI, flows and dashboards for the UTS platform in Flutter, Dart & Go Router — plus Excel/PDF export on Node.js + MySQL, Agile throughout.",         meme: "/memes/m4.gif", memeCap: "first offer letter hits", tag: "Flutter · Go",     doodle: 3 },
-  { id: 5, x: 4400, y: 1620, era: "2025 · data at scale",    title: "Data Analyst — DMRC",  stat: "66M+",    statlabel: "transactions · 256GB", body: "Turned 66M+ metro transactions into a Power BI dashboard, and built Python/Pandas ETL with tuned SQL. Big data → real decisions.",                                meme: "/memes/m5.gif", memeCap: "66M rows, no problem",     tag: "Power BI · SQL",   doodle: 4 },
-  { id: 6, x: 5350, y: 980,  era: "always leveling up",      title: "Certified & curious",  stat: "4+",      statlabel: "certifications",    body: "AWS Cloud Practitioner, IBM Data Fundamentals, Google Analytics, IT Audit — plus deep dives into RAG, agents and AI systems.",                                     meme: "/memes/m6.gif", memeCap: "cert season chaos",       tag: "AWS · IBM",        doodle: 5 },
+  { id: 1, x: 560,  y: 1500, era: "2021 · the spark",        title: "Where it caught",       stat: "89%",  statlabel: "Class XII · CBSE",     body: "KV Vigyan Vihar, Delhi. Solid marks, endless questions, and the first real itch to build things instead of just using them.",                          meme: "/memes/m1.gif", memeCap: "let's get started.",        tag: "curiosity",      sketches: ["lightbulb","spark","arrow","exclaim","star"] },
+  { id: 2, x: 1560, y: 980,  era: "2022–2026 · college",     title: "B.Tech IT — AI/ML",     stat: "7.55", statlabel: "CGPA · MSIT Delhi",    body: "Maharaja Surajmal Institute of Technology, AI/ML specialisation — where “can I build that?” turned into a weekly reflex.",                           meme: "/memes/m2.gif", memeCap: "me, learning to code",      tag: "Python · C++",   sketches: ["code","coffee","star","squiggle","spark"] },
+  { id: 3, x: 2500, y: 1640, era: "the creative detour",     title: "Design & a channel",    stat: "~520", statlabel: "views · 2 videos",     body: "Ran a small YouTube channel and made design assets for others. Proof I care how things look — not only how they run.",                               meme: "/memes/m3.gif", memeCap: "wait, people watched it?!", tag: "design + video", sketches: ["play","heart","eye","underline","spark"] },
+  { id: 4, x: 3450, y: 1000, era: "2024 · first internship", title: "Software Intern — CRIS", stat: "UTS",  statlabel: "Railway platform",     body: "Shipped responsive UI, flows and dashboards for the UTS platform in Flutter, Dart & Go Router — plus Excel/PDF export on Node.js + MySQL, Agile throughout.", meme: "/memes/m4.gif", memeCap: "first offer letter hits",   tag: "Flutter · Go",   sketches: ["rocket","check","arrow","star","spark"] },
+  { id: 5, x: 4400, y: 1620, era: "2025 · data at scale",    title: "Data Analyst — DMRC",   stat: "66M+", statlabel: "transactions · 256GB", body: "Turned 66M+ metro transactions into a Power BI dashboard, and built Python/Pandas ETL with tuned SQL. Big data → real decisions.",                    meme: "/memes/m5.gif", memeCap: "66M rows, no problem",      tag: "Power BI · SQL", sketches: ["bars","uparrow","database","spark","star"] },
+  { id: 6, x: 5350, y: 980,  era: "always leveling up",      title: "Certified & curious",   stat: "4+",   statlabel: "certifications",       body: "AWS Cloud Practitioner, IBM Data Fundamentals, Google Analytics, IT Audit — plus deep dives into RAG, agents and AI systems.",                        meme: "/memes/m6.gif", memeCap: "cert season chaos",        tag: "AWS · IBM",      sketches: ["trophy","check","plus","star","spark"] },
 ];
 const END = { x: 6050, y: 1480, title: "Currently building in AI — open to work", body: "Still learning, still shipping. Open to roles and collaborations where I can build things that feel alive." };
 
@@ -43,14 +39,35 @@ const SKILLS = [
 
 const LINK = "M 560 1500 C 900 1180 1180 1000 1560 980 S 2200 1520 2500 1640 S 3160 1050 3450 1000 S 4110 1470 4400 1620 S 5060 1050 5350 980 S 5820 1330 6050 1480";
 
-// small hand-drawn doodle set (indexed by frame.doodle)
-const DOODLES = [
-  '<path d="M4 38 C 30 10 60 10 92 30" /><path d="M80 20 L94 32 L78 40" />',                 // arc arrow →
-  '<path d="M48 4 L58 34 L90 36 L64 56 L74 88 L48 68 L22 88 L32 56 L6 36 L38 34 Z" />',       // star
-  '<path d="M6 44 C 30 70 66 70 92 40" /><path d="M6 54 C 30 80 66 80 92 50" />',             // double underline
-  '<path d="M48 12 C 12 12 12 76 48 76 C 84 76 84 20 40 24" /><path d="M40 24 L52 12 L58 30" />', // loop arrow
-  '<path d="M6 60 L26 30 L46 60 L66 30 L86 60" />',                                            // zigzag spark
-  '<path d="M48 22 C 34 4 8 14 12 38 C 16 60 48 84 48 84 C 48 84 80 60 84 38 C 88 14 62 4 48 22 Z" />', // heart
+// hand-drawn sketch library (stroke-only single-path glyphs, pathLength=100)
+const SKETCH: Record<string, string> = {
+  lightbulb: "M50 12 C33 12 23 25 23 39 C23 51 33 57 35 66 L65 66 C67 57 77 51 77 39 C77 25 67 12 50 12 Z M40 74 L60 74 M43 82 L57 82",
+  spark:     "M50 14 L57 43 L86 50 L57 57 L50 86 L43 57 L14 50 L43 43 Z",
+  arrow:     "M14 68 C40 40 62 40 84 54 M84 54 L71 43 M84 54 L67 63",
+  exclaim:   "M50 16 L50 58 M50 72 L50 80",
+  star:      "M50 14 L61 40 L89 42 L67 61 L74 88 L50 72 L26 88 L33 61 L11 42 L39 40 Z",
+  code:      "M38 30 L18 50 L38 70 M62 30 L82 50 L62 70 M57 24 L43 76",
+  coffee:    "M28 42 L28 66 C28 76 72 76 72 66 L72 42 Z M72 48 C85 46 86 62 72 60 M40 22 C36 28 44 32 40 38 M54 22 C50 28 58 32 54 38",
+  squiggle:  "M14 58 C26 44 34 74 46 58 C58 42 66 72 78 58 C83 51 88 57 90 55",
+  play:      "M37 28 L74 50 L37 72 Z",
+  heart:     "M50 78 C12 53 24 20 50 38 C76 20 88 53 50 78 Z",
+  eye:       "M12 50 C32 27 68 27 88 50 C68 73 32 73 12 50 Z M39 50 A11 11 0 1 0 61 50 A11 11 0 1 0 39 50 Z",
+  underline: "M16 56 C40 70 60 70 84 54",
+  rocket:    "M50 14 C63 24 67 43 60 60 L40 60 C33 43 37 24 50 14 Z M40 60 L30 76 L42 68 M60 60 L70 76 L58 68 M43 40 A7 7 0 1 0 57 40 A7 7 0 1 0 43 40",
+  check:     "M20 52 L42 74 L82 28",
+  bars:      "M16 80 L86 80 M26 80 L26 56 M44 80 L44 40 M62 80 L62 50 M80 80 L80 26",
+  uparrow:   "M50 82 L50 22 M31 43 L50 20 L69 43",
+  database:  "M28 30 C28 22 72 22 72 30 L72 70 C72 78 28 78 28 70 Z M28 30 C28 38 72 38 72 30 M28 50 C28 58 72 58 72 50",
+  trophy:    "M33 24 L67 24 L65 45 C65 57 35 57 35 45 Z M33 30 C21 30 22 45 35 43 M67 30 C79 30 78 45 65 43 M50 57 L50 68 M38 78 L62 78 L58 68 L42 68 Z",
+  plus:      "M50 26 L50 74 M26 50 L74 50",
+};
+// 5 anchor positions ringing the card (px, relative to frame origin)
+const POS = [
+  { x: -80, y: -44, s: 66, r: -14, d: 0.00 },
+  { x: 286, y: -36, s: 60, r: 12,  d: 0.08 },
+  { x: 320, y: 150, s: 58, r: -8,  d: 0.16 },
+  { x: -72, y: 236, s: 62, r: 10,  d: 0.24 },
+  { x: 252, y: 292, s: 56, r: 16,  d: 0.32 },
 ];
 ---
 
@@ -70,7 +87,11 @@ const DOODLES = [
 
       {FRAMES.map((f, i) => (
         <article class="p3-frame" data-frame={i} style={`left:${f.x}px; top:${f.y}px;`}>
-          <svg class="pf-doodle" viewBox="0 0 96 96" aria-hidden="true" set:html={DOODLES[f.doodle]}></svg>
+          {f.sketches.map((k, j) => (
+            <span class="pf-sketch" style={`left:${POS[j].x}px; top:${POS[j].y}px; width:${POS[j].s}px; height:${POS[j].s}px; --r:${POS[j].r}deg; --d:${POS[j].d}s;`}>
+              <svg viewBox="0 0 100 100" aria-hidden="true"><path pathLength="100" d={SKETCH[k]} /></svg>
+            </span>
+          ))}
 
           <div class="pf-card">
             <div class="pf-media">
@@ -153,9 +174,8 @@ const DOODLES = [
     --p3-grid: rgba(0,0,0,0.045);
     --p3-line: rgba(30,120,255,0.26); --p3-live: #2f7bff; --p3-accent: #2f7bff;
     --pf-bg: #ffffff; --pf-border: rgba(0,0,0,0.10);
-    --p3-doodle: rgba(255,150,40,0.85);
+    --p3-doodle: rgba(255,150,40,0.9);
     position: relative; height: 100dvh; overflow: hidden; color: var(--p3-ink);
-    /* light: soft layered wash, gives the plane depth */
     background:
       radial-gradient(130% 90% at 18% 0%, #ffffff 0%, #f2f4f8 52%, #e8ebf1 100%);
   }
@@ -164,9 +184,7 @@ const DOODLES = [
     --p3-grid: rgba(120,170,255,0.06);
     --p3-line: rgba(90,170,255,0.30); --p3-live: #5aa2ff; --p3-accent: #6fb0ff;
     --pf-bg: #161a22; --pf-border: rgba(255,255,255,0.10);
-    --p3-doodle: rgba(120,190,255,0.9);
-    /* dark: deep blue-graphite gradient + top glow + vignette — not flat black.
-       Eases the hand-off from Page 2 with real depth. */
+    --p3-doodle: rgba(120,190,255,0.92);
     background:
       radial-gradient(120% 70% at 78% -10%, rgba(60,120,230,0.16) 0%, transparent 55%),
       radial-gradient(100% 80% at 15% 4%, rgba(40,90,180,0.14) 0%, transparent 50%),
@@ -175,7 +193,6 @@ const DOODLES = [
 
   .p3-stage { position: absolute; inset: 0; overflow: hidden; }
 
-  /* the big pannable/zoomable world */
   .p3-world { position: absolute; top: 0; left: 0; width: 6400px; height: 2600px; transform-origin: 0 0; will-change: transform; }
   .p3-grid { position: absolute; inset: 0;
     background-image:
@@ -189,12 +206,12 @@ const DOODLES = [
   .link-track { stroke: var(--p3-line); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 2 16; }
   .link-live  { stroke: var(--p3-live); stroke-width: 5; stroke-linecap: round; filter: drop-shadow(0 0 8px var(--p3-live)); }
 
-  /* ============ FRAME = secondary playful polaroid sticker ============ */
+  /* ============ FRAME = secondary playful polaroid ============ */
   .p3-frame { position: absolute; width: 320px; transform: translate(-50%, -50%); }
   .p3-frame:nth-child(odd)  .pf-card { transform: rotate(-2.4deg); }
   .p3-frame:nth-child(even) .pf-card { transform: rotate(2.1deg); }
 
-  .pf-card { position: relative; padding: 12px 12px 10px; border-radius: 14px;
+  .pf-card { position: relative; z-index: 2; padding: 12px 12px 10px; border-radius: 14px;
     background: var(--pf-bg); border: 1px solid var(--pf-border);
     box-shadow: 0 22px 55px rgba(0,0,0,0.22), 0 2px 0 rgba(0,0,0,0.04);
     transition: transform 0.4s cubic-bezier(0.2,0.9,0.3,1.2); }
@@ -209,18 +226,39 @@ const DOODLES = [
     text-transform: uppercase; color: var(--p3-soft); opacity: 0.8; }
 
   .pf-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 3px 2px; }
-  .pf-cap { margin: 0; font-family: "Caveat", cursive; font-weight: 700; font-size: 21px; line-height: 1;
-    color: var(--p3-ink); }
+  .pf-cap { margin: 0; font-family: "Caveat", cursive; font-weight: 700; font-size: 22px; line-height: 1; color: var(--p3-ink); }
+  /* dark: silver glow on the handwritten line, matching Page 2's headings */
+  :global(html[data-theme='dark']) .pf-cap {
+    color: #f2f6fc;
+    text-shadow: 0 0 10px rgba(255,255,255,0.45), 0 0 28px rgba(170,200,255,0.35); }
   .pf-tag { flex: none; font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.06em;
     padding: 4px 8px; border-radius: 999px; white-space: nowrap;
     color: var(--p3-accent); background: color-mix(in srgb, var(--p3-accent) 12%, transparent);
     border: 1px solid color-mix(in srgb, var(--p3-accent) 26%, transparent); }
 
-  .pf-doodle { position: absolute; width: 78px; height: 78px; top: -46px; right: -40px;
-    fill: none; stroke: var(--p3-doodle); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round;
-    opacity: 0.9; pointer-events: none;
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12)); }
-  .p3-frame:nth-child(even) .pf-doodle { right: auto; left: -42px; top: auto; bottom: -40px; }
+  /* ---- sketch doodles ringing the card ---- */
+  .pf-sketch { position: absolute; z-index: 1; pointer-events: none; opacity: 0;
+    transform: rotate(var(--r)) scale(0.1); }
+  .pf-sketch svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .pf-sketch path { fill: none; stroke: var(--p3-doodle); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset 0.7s ease var(--d);
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.12)); }
+  /* dark: a soft SILVER glow on the doodles — deliberately a touch lower
+     than the caption's glow under the card */
+  :global(html[data-theme='dark']) .pf-sketch path {
+    filter: drop-shadow(0 0 5px rgba(214,226,248,0.30)) drop-shadow(0 0 1px rgba(255,255,255,0.25)); }
+
+  /* on focus the doodles POP outward like a happy little burst, then settle */
+  .p3-frame.active .pf-sketch { animation: skPop 0.62s cubic-bezier(0.18,1.5,0.3,1) var(--d) both; }
+  .p3-frame.active .pf-sketch path { stroke-dashoffset: 0; }
+  .p3-frame.active .pf-sketch svg { animation: skFloat 4.6s ease-in-out infinite; animation-delay: calc(var(--d) + 0.6s); }
+  @keyframes skPop {
+    0%   { opacity: 0;    transform: rotate(var(--r)) scale(0.1); }
+    55%  { opacity: 1;    transform: rotate(var(--r)) scale(1.22); }
+    75%  {                transform: rotate(var(--r)) scale(0.94); }
+    100% { opacity: 0.94; transform: rotate(var(--r)) scale(1); }
+  }
+  @keyframes skFloat { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5px) rotate(1.5deg); } }
 
   .pf-node { position: absolute; left: 50%; bottom: -30px; transform: translateX(-50%);
     width: 15px; height: 15px; border-radius: 50%; background: var(--p3-live);
@@ -254,8 +292,7 @@ const DOODLES = [
   .p3-cap { grid-area: 1/1; opacity: 0; transform: translateY(14px); transition: opacity 0.5s ease, transform 0.5s ease; pointer-events: none; }
   .p3-cap.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
   .pc-era { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--p3-accent); }
-  .pc-idx { font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 6px; color: var(--pf-bg);
-    background: var(--p3-accent); letter-spacing: 0.08em; }
+  .pc-idx { font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 6px; color: var(--pf-bg); background: var(--p3-accent); letter-spacing: 0.08em; }
   .pc-title { margin: 0 0 14px; font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700; font-size: clamp(1.8rem, 3.1vw, 2.8rem); line-height: 1.06; letter-spacing: -0.02em; color: var(--p3-ink); }
   .pc-stat { display: flex; align-items: baseline; gap: 10px; margin: 0 0 16px; }
   .pc-statnum { font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700; font-size: clamp(1.6rem, 2.6vw, 2.2rem); color: var(--p3-live); line-height: 1;
@@ -283,7 +320,6 @@ const DOODLES = [
     transition: transform 0.2s ease, box-shadow 0.3s ease; }
   .p3-skip:hover { transform: translateX(3px); box-shadow: 0 0 20px var(--p3-line); }
 
-  /* fallback hidden on desktop-with-motion */
   .p3-fallback { display: none; }
 
   @media (max-width: 1023px), (prefers-reduced-motion: reduce) {
@@ -312,7 +348,7 @@ const DOODLES = [
     { x: 3450, y: 1000 }, { x: 4400, y: 1620 }, { x: 5350, y: 980 },
   ];
   const END = { x: 6050, y: 1480 };
-  const VEIL_START = 0.86; // finale begins around here → frosted veil fades in
+  const VEIL_START = 0.86;
 
   const mm = gsap.matchMedia();
   mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
@@ -324,6 +360,7 @@ const DOODLES = [
     const barWrap = document.querySelector<HTMLElement>("[data-bar]");
     const veil  = document.querySelector<HTMLElement>("[data-veil]");
     const caps  = Array.from(document.querySelectorAll<HTMLElement>(".p3-cap"));
+    const frames = Array.from(document.querySelectorAll<HTMLElement>(".p3-frame"));
     const skills = Array.from(document.querySelectorAll<HTMLElement>(".p3-skill"));
     if (!stage || !world || !link) return;
 
@@ -331,18 +368,18 @@ const DOODLES = [
     link.style.strokeDasharray = `${len}`;
     link.style.strokeDashoffset = `${len}`;
 
-    // settle a touch lighter (1.05) so the polaroid reads as a garnish, not a wall
     const cam = { x: FRAMES[0].x, y: FRAMES[0].y, s: 0.62 };
     const apply = () => {
       const vw = stage.clientWidth, vh = stage.clientHeight;
-      // focus point sits at ~64% width so the left hero captions never overlap
       world.style.transform = `translate(${vw * 0.64 - cam.x * cam.s}px, ${vh / 2 - cam.y * cam.s}px) scale(${cam.s})`;
     };
     apply();
     window.addEventListener("resize", apply);
 
-    const showCap = (key: number | "end") => {
+    // reveal one caption AND light up that frame's sketch doodles
+    const showFrame = (key: number | "end") => {
       caps.forEach((c) => c.classList.toggle("active", c.dataset.cap === String(key)));
+      frames.forEach((fr) => fr.classList.toggle("active", fr.dataset.frame === String(key)));
     };
 
     const tl = gsap.timeline({
@@ -360,28 +397,27 @@ const DOODLES = [
       },
     });
 
-    // opening — zoom INTO frame 1 (light settle)
-    tl.to(cam, { s: 1.05, duration: 1, ease: "power2.inOut", onUpdate: apply, onStart: () => showCap(0) });
+    // opening — zoom INTO frame 1
+    tl.to(cam, { s: 1.05, duration: 1, ease: "power2.inOut", onUpdate: apply, onStart: () => showFrame(0) });
     // travel + settle at each subsequent frame
     FRAMES.slice(1).forEach((f, idx) => {
       const i = idx + 1;
-      tl.to(cam, { x: f.x, y: f.y, s: 0.85, duration: 1.2, ease: "power1.inOut", onUpdate: apply, onStart: () => showCap(i) });
+      tl.to(cam, { x: f.x, y: f.y, s: 0.85, duration: 1.2, ease: "power1.inOut", onUpdate: apply, onStart: () => showFrame(i) });
       tl.to(cam, { s: 1.05, duration: 0.6, ease: "power2.out", onUpdate: apply });
     });
     // finale — zoom OUT to reveal the whole path + open node
-    tl.to(cam, { x: (FRAMES[0].x + END.x) / 2, y: 1360, s: 0.3, duration: 1.6, ease: "power2.inOut", onUpdate: apply, onStart: () => showCap("end") });
+    tl.to(cam, { x: (FRAMES[0].x + END.x) / 2, y: 1360, s: 0.3, duration: 1.6, ease: "power2.inOut", onUpdate: apply, onStart: () => showFrame("end") });
 
     const st = tl.scrollTrigger!;
     // @ts-ignore
     const lenis = window.lenis;
 
-    // Skip → jump to the end (open-to-work)
     document.querySelector("[data-skip]")?.addEventListener("click", () => {
       const target = st.end - 2;
       if (lenis) lenis.scrollTo(target); else window.scrollTo({ top: target, behavior: "smooth" });
     });
 
-    // Draggable scrubber — grab the bar and slide either direction
+    // Draggable scrubber
     if (barWrap) {
       let dragging = false;
       const scrubTo = (clientX: number) => {
@@ -391,9 +427,7 @@ const DOODLES = [
         if (lenis) lenis.scrollTo(target, { immediate: false, duration: 0.25 });
         else window.scrollTo({ top: target });
       };
-      barWrap.addEventListener("pointerdown", (e) => {
-        dragging = true; barWrap.setPointerCapture(e.pointerId); scrubTo(e.clientX);
-      });
+      barWrap.addEventListener("pointerdown", (e) => { dragging = true; barWrap.setPointerCapture(e.pointerId); scrubTo(e.clientX); });
       barWrap.addEventListener("pointermove", (e) => { if (dragging) scrubTo(e.clientX); });
       const stop = () => { dragging = false; };
       barWrap.addEventListener("pointerup", stop);
