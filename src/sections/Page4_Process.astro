@@ -1,22 +1,326 @@
 ---
 /**
- * Page4_Process.astro — placeholder scroll section (100dvh).
- * TODO: how I work / process breakdown.
+ * Page4_Process.astro — "My Projects"
+ * Cinematic, hover-lit projects list (reference: the "It's not a deal with the
+ * devil" section — but recoloured and with an ORGANIC glow, not a fill).
+ *
+ *   - INTRO beat: a "What I built" pill with a cycling pixel-avatar of me, the
+ *     big "My Projects" headline + a silver-glowing subline. On scroll it lifts,
+ *     fades and blurs upward (feathered bottom mask) so the projects rise out
+ *     from under it — a smooth, organic hand-off, no blunt cut.
+ *   - LIST: three headliner projects, details always readable. On HOVER a row
+ *     blooms with a SOFT DEEP GLOW that spills outside its bounds (no bounce),
+ *     the heading lights up, tech chips warm, and a rounded/tilted preview
+ *     slides in on the right.
+ *   - Palette: golden/amber in light, blue-violet in dark (glow only, never a
+ *     hard fill).
+ *   - FOOT: [nn/nn] counter + "more projects" (unfolds extras inline).
+ *   - Desktop hover; mobile/touch → clean stacked list (previews inline).
+ *
+ * Avatars: /public/avatars/a1..a7.png   Previews: /public/projects/p1..p3.png
  */
+const AVATARS = 7;
+
+const SUBLINE = "Not demos. Things I built because they needed to exist.";
+// alts:  "Real problems, solved end to end."  ·  "I build what I wish existed."
+
+const PROJECTS = [
+  {
+    id: 1, name: "CareerPilot AI", kicker: "AI Résumé Coach & Interview-Prep Platform",
+    about: "A full-stack AI platform that parses your résumé, embeds it into a vector store, and lets you chat with it through RAG.",
+    problem: "Kills blind job-hunting — ATS scoring against a job description, skill-gap detection, and a tailored learning roadmap.",
+    stack: [
+      { t: "React", s: "react" }, { t: "Node", s: "nodedotjs" }, { t: "Express", s: "express" },
+      { t: "MongoDB", s: "mongodb" }, { t: "LangChain", s: "langchain" }, { t: "LangGraph" },
+      { t: "Qdrant" }, { t: "RAG" },
+    ],
+    metric: "Résumé-aware RAG · ATS score · skill-gap roadmap",
+    repo: "https://github.com/Saurabh-993/Career-Pilot-AI",
+    preview: "/projects/p1.png",
+  },
+  {
+    id: 2, name: "Finance Manager AI", kicker: "Conversational Market-Forecasting Engine",
+    about: "A forecasting engine that moved from LSTM to a Transformer to beat vanishing gradients on long market sequences.",
+    problem: "Turns 5 years of market data into a real-time, conversational tool you can actually ask questions.",
+    stack: [
+      { t: "Python", s: "python" }, { t: "FastAPI", s: "fastapi" }, { t: "TensorFlow", s: "tensorflow" },
+      { t: "Transformer" }, { t: "Embeddings" }, { t: "React", s: "react" }, { t: "yFinance" },
+    ],
+    metric: "5 yrs market data · Transformer > LSTM",
+    repo: "https://github.com/Saurabh-993/Finance-Manager-AI",
+    preview: "/projects/p2.png",
+  },
+  {
+    id: 3, name: "ATS Analytics Dashboard", kicker: "Delhi Metro · Big-Data BI",
+    about: "An interactive Power BI dashboard over 66M+ metro transactions — revenue, passenger type and station-to-station flows.",
+    problem: "Turns a 256GB dataset into fast, accurate KPIs that decision-makers can actually act on.",
+    stack: [
+      { t: "Power BI" }, { t: "PostgreSQL", s: "postgresql" }, { t: "Python", s: "python" },
+      { t: "SQL" }, { t: "Pandas", s: "pandas" },
+    ],
+    metric: "66M+ rows · 256GB · sub-second KPIs",
+    repo: "https://github.com/Saurabh-993/dmrc-ats-powerbi-dashboard",
+    preview: "/projects/p3.png",
+  },
+];
+const TOTAL = PROJECTS.length;
 ---
 
-<section class="section placeholder" id="process">
-  <p class="label serif">Process — coming soon</p>
+<section class="p4 section" id="projects">
+  <!-- ============ INTRO BEAT (lifts + fades + blurs on scroll) ============ -->
+  <div class="p4-intro">
+    <div class="p4-intro-inner" data-intro>
+      <div class="p4-pill">
+        <span class="pill-face" data-face>
+          {Array.from({ length: AVATARS }).map((_, i) => (
+            <img src={`/avatars/a${i + 1}.png`} alt="" class={i === 0 ? "on" : ""} data-fi={i} loading="lazy" />
+          ))}
+        </span>
+        <span class="pill-txt">What I built</span>
+      </div>
+      <h2 class="p4-head">My Projects</h2>
+      <p class="p4-sub">{SUBLINE}</p>
+      <p class="p4-micro">hover any project to look inside · 01 — 0{TOTAL}</p>
+    </div>
+  </div>
+
+  <!-- ============ PROJECT LIST (hover-lit, organic glow) ============ -->
+  <div class="p4-list" data-list>
+    {PROJECTS.map((p, i) => (
+      <article class="p4-row" data-row={i}>
+        <span class="row-glow" aria-hidden="true"></span>
+
+        <div class="row-inner">
+          <div class="row-lead">
+            <span class="row-idx">0{i + 1}</span>
+            <div class="row-head">
+              <h3 class="row-name">{p.name}</h3>
+              <span class="row-kicker">{p.kicker}</span>
+            </div>
+          </div>
+
+          <p class="row-about">{p.about}</p>
+          <p class="row-problem"><span>Solves ·</span> {p.problem}</p>
+
+          <div class="row-chips">
+            {p.stack.map((c) => (
+              <span class="chip">
+                {c.s && <img src={`https://cdn.simpleicons.org/${c.s}`} alt="" width="14" height="14" loading="lazy" onerror="this.remove()" />}
+                {c.t}
+              </span>
+            ))}
+          </div>
+
+          <div class="row-foot">
+            <span class="row-metric">{p.metric}</span>
+            <div class="row-links">
+              <a class="row-link soon" href="#" data-soon>Live<span>soon</span></a>
+              <a class="row-link" href={p.repo} target="_blank" rel="noopener noreferrer">Code<span>↗</span></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- rounded, tilted preview — reveals on hover -->
+        <div class="row-preview">
+          <img src={p.preview} alt={`${p.name} preview`} loading="lazy" />
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <!-- ============ FOOT: counter + more ============ -->
+  <div class="p4-foot">
+    <span class="foot-count">[ {String(TOTAL).padStart(2, "0")} / {String(TOTAL).padStart(2, "0")} ]</span>
+    <span class="foot-label">selected work</span>
+    <button class="foot-more" type="button" data-more>more projects <span>↓</span></button>
+  </div>
 </section>
 
 <style>
-  .placeholder {
-    display: grid;
-    place-items: center;
+  .p4 {
+    --p4-bg: #f3f4f7; --p4-ink: #14161a; --p4-soft: #6a6f78;
+    --p4-ghost: rgba(10,12,16,0.22); --p4-rule: rgba(10,12,16,0.12);
+    --p4-chip: rgba(10,12,16,0.045); --p4-chip-bd: rgba(10,12,16,0.12);
+    /* light: golden / amber */
+    --p4-accent: #ef8a17; --p4-accent2: #ff6a1f; --p4-glow: rgba(255,150,30,0.45);
+    --p4-pill: #d9761a;      /* a deeper shade of the accent for the pill */
+    position: relative; min-height: 100dvh; background: var(--p4-bg); color: var(--p4-ink);
+    overflow: hidden; display: flex; flex-direction: column;
   }
-  .label {
-    font-size: clamp(1.2rem, 2.5vw, 2rem);
-    color: var(--text-faint);
-    font-style: italic;
+  :global(html[data-theme='dark']) .p4 {
+    --p4-bg: #08080c; --p4-ink: #eef1f6; --p4-soft: rgba(238,241,246,0.6);
+    --p4-ghost: rgba(255,255,255,0.15); --p4-rule: rgba(255,255,255,0.10);
+    --p4-chip: rgba(255,255,255,0.05); --p4-chip-bd: rgba(255,255,255,0.12);
+    /* dark: blue → violet */
+    --p4-accent: #7f8cff; --p4-accent2: #9a6cff; --p4-glow: rgba(124,140,255,0.5);
+    --p4-pill: #4b56e8;      /* deeper blue-violet for the pill */
+    background:
+      radial-gradient(120% 80% at 80% -10%, rgba(90,80,220,0.16) 0%, transparent 55%),
+      linear-gradient(180deg, #0a0a10 0%, #08080c 100%);
+  }
+
+  /* ---------- intro beat ---------- */
+  .p4-intro { min-height: 100dvh; display: grid; align-items: center; }
+  .p4-intro-inner { position: relative; padding: 0 clamp(24px, 7vw, 120px); display: flex;
+    flex-direction: column; gap: 16px; will-change: transform, opacity, filter;
+    /* feather the bottom so it melts away as it lifts */
+    -webkit-mask-image: linear-gradient(to bottom, #000 74%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 74%, transparent 100%); }
+
+  .p4-pill { display: inline-flex; align-items: center; gap: 12px; align-self: flex-start;
+    padding: 8px 20px 8px 8px; border-radius: 999px; background: var(--p4-pill);
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--p4-pill) 45%, transparent); }
+  .pill-face { position: relative; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex: none;
+    background: #111; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3); }
+  .pill-face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    opacity: 0; transition: opacity 0.35s ease; image-rendering: pixelated; }
+  .pill-face img.on { opacity: 1; }
+  .pill-txt { font-family: "JetBrains Mono", monospace; font-size: 13.5px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase; color: #fff; }
+
+  .p4-head { margin: 6px 0 0; font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700;
+    font-size: clamp(3rem, 11vw, 9rem); line-height: 0.92; letter-spacing: -0.03em; color: var(--p4-ink); }
+  .p4-sub { margin: 4px 0 0; max-width: 22ch; font-family: "Clash Display","Space Grotesk",sans-serif;
+    font-weight: 500; font-size: clamp(1.35rem, 3.2vw, 2.5rem); line-height: 1.1; letter-spacing: -0.01em;
+    color: var(--p4-ink); }
+  /* silver glow, matching the P3 meme caption ("first offer letter hits") */
+  :global(html[data-theme='dark']) .p4-sub {
+    color: #f2f6fc; text-shadow: 0 0 10px rgba(255,255,255,0.45), 0 0 28px rgba(170,200,255,0.35); }
+  .p4-micro { position: absolute; right: clamp(24px, 7vw, 120px); top: 50%; transform: translateY(-50%);
+    writing-mode: vertical-rl; font-family: "JetBrains Mono", monospace; font-size: 11px;
+    letter-spacing: 0.24em; text-transform: uppercase; color: var(--p4-soft); }
+
+  /* ---------- project list ---------- */
+  .p4-list { display: flex; flex-direction: column; border-top: 1px solid var(--p4-rule); }
+  .p4-row { position: relative; min-height: clamp(210px, 30vh, 300px); display: flex; align-items: center;
+    padding: 30px clamp(24px, 7vw, 120px); border-bottom: 1px solid var(--p4-rule);
+    overflow: visible; transition: border-color 0.4s ease; }
+  .p4-row:hover { border-color: color-mix(in srgb, var(--p4-accent) 40%, transparent); }
+
+  /* soft deep glow that BLEEDS outside the row (no fill, no bounce) */
+  .row-glow { position: absolute; inset: -34% -6%; z-index: 0; opacity: 0; pointer-events: none;
+    background: radial-gradient(46% 130% at 32% 50%, var(--p4-glow) 0%, transparent 70%);
+    filter: blur(34px); transition: opacity 0.6s ease; }
+  .p4-row:hover .row-glow { opacity: 1; }
+
+  .row-inner { position: relative; z-index: 1; width: min(680px, 60%); display: flex; flex-direction: column; gap: 9px; }
+
+  .row-lead { display: flex; align-items: baseline; gap: 16px; }
+  .row-idx { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700; color: var(--p4-accent); }
+  .row-head { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; min-width: 0; }
+  .row-name { margin: 0; font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700;
+    font-size: clamp(2rem, 5.2vw, 4.2rem); line-height: 1; letter-spacing: -0.02em;
+    color: var(--p4-ghost); transition: color 0.45s ease, text-shadow 0.45s ease; }
+  .p4-row:hover .row-name { color: var(--p4-ink); text-shadow: 0 0 34px var(--p4-glow); }
+  .row-kicker { font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--p4-soft); }
+
+  .row-about { margin: 2px 0 0; font-size: clamp(14px, 1.3vw, 16px); line-height: 1.5; color: var(--p4-ink); font-weight: 500; }
+  .row-problem { margin: 0; font-size: clamp(13px, 1.2vw, 15px); line-height: 1.5; color: var(--p4-soft); }
+  .row-problem span { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--p4-accent); }
+
+  .row-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 3px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px;
+    font-family: "JetBrains Mono", monospace; font-size: 11px; white-space: nowrap;
+    color: var(--p4-soft); background: var(--p4-chip); border: 1px solid var(--p4-chip-bd);
+    transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.2s ease; }
+  .chip img { display: block; }
+  .p4-row:hover .chip { color: var(--p4-ink); border-color: color-mix(in srgb, var(--p4-accent) 38%, transparent); }
+  .chip:hover { background: color-mix(in srgb, var(--p4-accent) 18%, transparent); transform: translateY(-2px); }
+
+  .row-foot { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 6px; }
+  .row-metric { font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+    color: var(--p4-accent); }
+  .row-links { display: flex; gap: 8px; }
+  .row-link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; border-radius: 8px;
+    text-decoration: none; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 12px;
+    color: var(--p4-ink); background: var(--p4-chip); border: 1px solid var(--p4-chip-bd);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease; }
+  .row-link span { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--p4-soft); }
+  .row-link:not(.soon):hover { border-color: var(--p4-accent); box-shadow: 0 0 18px var(--p4-glow); transform: translateY(-2px); }
+  .row-link.soon { opacity: 0.6; cursor: default; }
+
+  /* tilted preview card, right side, revealed on hover */
+  .row-preview { position: absolute; right: clamp(24px, 7vw, 120px); top: 50%; z-index: 2;
+    width: clamp(220px, 24vw, 340px); aspect-ratio: 16/10; border-radius: 16px; overflow: hidden;
+    background: #111; border: 4px solid #fff; box-shadow: 0 30px 70px rgba(0,0,0,0.42);
+    transform: translate(40px, -46%) rotate(6deg) scale(0.92); opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.2,0.9,0.3,1.12); }
+  .p4-row:hover .row-preview { opacity: 1; transform: translate(0, -50%) rotate(-5deg) scale(1); }
+  .row-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  :global(html[data-theme='dark']) .row-preview { border-color: #e7ebf2; }
+
+  /* ---------- foot ---------- */
+  .p4-foot { display: flex; align-items: center; gap: 20px; flex: none;
+    padding: 20px clamp(24px, 7vw, 120px); border-top: 1px solid var(--p4-rule); }
+  .foot-count { font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.14em; color: var(--p4-soft); }
+  .foot-label { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.24em;
+    text-transform: uppercase; color: var(--p4-soft); }
+  .foot-more { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    padding: 9px 18px; border-radius: 999px; border: 1px solid var(--p4-chip-bd); background: var(--p4-chip);
+    font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 13px; color: var(--p4-ink);
+    transition: transform 0.2s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
+  .foot-more span { transition: transform 0.3s ease; }
+  .foot-more:hover { border-color: var(--p4-accent); box-shadow: 0 0 22px var(--p4-glow); }
+  .foot-more:hover span { transform: translateY(3px); }
+
+  /* ---------- mobile / touch: clean stacked list, previews inline ---------- */
+  @media (hover: none), (max-width: 900px) {
+    .p4-micro { display: none; }
+    .p4-intro-inner { -webkit-mask-image: none; mask-image: none; }
+    .p4-row { flex-direction: column; align-items: stretch; min-height: 0; padding: 30px clamp(20px,6vw,40px); }
+    .row-inner { width: 100%; }
+    .row-name { color: var(--p4-ink); font-size: clamp(1.8rem, 8vw, 2.6rem); }
+    .row-glow { opacity: 0.5; }
+    .row-preview { position: relative; right: auto; top: auto; transform: none; opacity: 1;
+      width: 100%; margin-top: 18px; border-width: 3px; }
   }
 </style>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* cycle the pixel-avatar faces in the intro pill */
+  const faces = Array.from(document.querySelectorAll<HTMLImageElement>(".pill-face img"));
+  if (faces.length > 1) {
+    let fi = 0;
+    setInterval(() => {
+      faces[fi].classList.remove("on");
+      fi = (fi + 1) % faces.length;
+      faces[fi].classList.add("on");
+    }, 900);
+  }
+
+  /* organic hand-off: the intro lifts, fades and blurs upward as you scroll,
+     so the projects rise out from under its feathered bottom edge */
+  const mm = gsap.matchMedia();
+  mm.add("(min-width: 901px) and (prefers-reduced-motion: no-preference)", () => {
+    const intro = document.querySelector<HTMLElement>("[data-intro]");
+    if (!intro) return;
+    const t = gsap.to(intro, {
+      yPercent: -42, opacity: 0, filter: "blur(8px)", ease: "none",
+      scrollTrigger: { trigger: ".p4", start: "top top", end: "+=75%", scrub: 0.6 },
+    });
+    return () => { t.scrollTrigger?.kill(); t.kill(); };
+  });
+
+  /* "more projects" — unfold any extra rows inline (same design) */
+  document.querySelector("[data-more]")?.addEventListener("click", () => {
+    const extras = document.querySelectorAll<HTMLElement>(".p4-row[data-extra]");
+    if (extras.length) {
+      extras.forEach((r) => r.classList.add("show"));
+      (document.querySelector("[data-more]") as HTMLElement).style.display = "none";
+    } else {
+      document.querySelector("#projects .p4-list")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+
+  /* placeholder "Live" links stay inert until real URLs exist */
+  document.querySelectorAll<HTMLAnchorElement>("[data-soon]").forEach((a) =>
+    a.addEventListener("click", (e) => e.preventDefault())
+  );
+</script>
