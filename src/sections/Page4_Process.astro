@@ -1,98 +1,164 @@
 ---
 /**
- * Page4_Process.astro — "My Projects"
- * Cinematic, hover-lit projects list (reference: the "It's not a deal with the
- * devil" section — but recoloured and with an ORGANIC glow, not a fill).
+ * Page4_Process.astro - "My Projects"
  *
- *   - INTRO beat: a "What I built" pill with a cycling pixel-avatar of me, the
- *     big "My Projects" headline + a silver-glowing subline. On scroll it lifts,
- *     fades and blurs upward (feathered bottom mask) so the projects rise out
- *     from under it — a smooth, organic hand-off, no blunt cut.
- *   - LIST: three headliner projects, details always readable. On HOVER a row
- *     blooms with a SOFT DEEP GLOW that spills outside its bounds (no bounce),
- *     the heading lights up, tech chips warm, and a rounded/tilted preview
- *     slides in on the right.
- *   - Palette: golden/amber in light, blue-violet in dark (glow only, never a
- *     hard fill).
- *   - FOOT: [nn/nn] counter + "more projects" (unfolds extras inline).
- *   - Desktop hover; mobile/touch → clean stacked list (previews inline).
- *
- * Avatars: /public/avatars/a1..a7.png   Previews: /public/projects/p1..p3.png
+ * MODAL POLISH (modal only):
+ * 1. Corner brackets pushed OUT with a real gap from the text-card border.
+ * 2. Brackets: rich solid niche color in light, glowing niche color in dark.
+ * 3. X close button restyled: clean circular aesthetic button.
+ * 4. Modal typography switched to Inter (neat, clean, reference-like).
+ * 5. Image radial flare made more visible.
  */
+
 const AVATARS = 7;
 
 const SUBLINE = "Not demos. Things I built because they needed to exist.";
-// alts:  "Real problems, solved end to end."  ·  "I build what I wish existed."
+const SIDE_LABEL = "hover any project to look inside · 01 / 03";
+
+const TABS = [
+  { key: "genesis",     label: "Genesis",     hint: "the origin",     dot: "#f2743a" },
+  { key: "faculties",   label: "Faculties",   hint: "what it does",   dot: "#e6b422" },
+  { key: "substratum",  label: "Substratum",  hint: "how it's built", dot: "#8bd450" },
+  { key: "culmination", label: "Culmination", hint: "the impact",     dot: "#3fd6bd" },
+];
 
 const PROJECTS = [
   {
-    id: 1, name: "CareerPilot AI", kicker: "AI Résumé Coach & Interview-Prep Platform",
-    about: "A full-stack AI platform that parses your résumé, embeds it into a vector store, and lets you chat with it through RAG.",
-    problem: "Kills blind job-hunting — ATS scoring against a job description, skill-gap detection, and a tailored learning roadmap.",
+    id: 1,
+    name: "CareerPilot AI",
+    kicker: "AI Résumé Coach & Interview-Prep Platform",
+    about:
+      "A full-stack AI platform that parses your résumé, embeds it into a vector store, and lets you chat with it through RAG.",
+    problem:
+      "Kills blind job-hunting: ATS scoring against a job description, skill-gap detection, and a tailored learning roadmap.",
     stack: [
-      { t: "React", s: "react" }, { t: "Node", s: "nodedotjs" }, { t: "Express", s: "express" },
-      { t: "MongoDB", s: "mongodb" }, { t: "LangChain", s: "langchain" }, { t: "LangGraph" },
-      { t: "Qdrant" }, { t: "RAG" },
+      { t: "React", s: "react" },
+      { t: "Node", s: "nodedotjs" },
+      { t: "Express", s: "express" },
+      { t: "MongoDB", s: "mongodb" },
+      { t: "LangChain", s: "langchain" },
+      { t: "LangGraph" },
+      { t: "Qdrant" },
+      { t: "RAG" },
     ],
     metric: "Résumé-aware RAG · ATS score · skill-gap roadmap",
     repo: "https://github.com/Saurabh-993/Career-Pilot-AI",
     preview: "/projects/p1.png",
+    modal: {
+      genesis:
+        "Job-hunting is mostly guesswork: you fire résumés into the void and hope. CareerPilot turns that fog into a conversation, parsing your own résumé into something you can actually interrogate and improve.",
+      faculties:
+        "Chat with your résumé through RAG, score it against any job description with ATS-style grading, surface the exact skills you're missing, and get a tailored roadmap back that tells you what to learn next.",
+      substratum:
+        "A React front end over a Node and Express API, résumé text embedded into a Qdrant vector store, and a LangChain and LangGraph pipeline orchestrating retrieval and multi-step reasoning on top of MongoDB.",
+      culmination:
+        "Blind applications become deliberate ones. Every résumé arrives aware of the role it's targeting, gap-checked and roadmap-backed, so the effort lands where it counts.",
+    },
   },
   {
-    id: 2, name: "Finance Manager AI", kicker: "Conversational Market-Forecasting Engine",
-    about: "A forecasting engine that moved from LSTM to a Transformer to beat vanishing gradients on long market sequences.",
-    problem: "Turns 5 years of market data into a real-time, conversational tool you can actually ask questions.",
+    id: 2,
+    name: "Finance Manager AI",
+    kicker: "Conversational Market-Forecasting Engine",
+    about:
+      "A forecasting engine that moved from LSTM to a Transformer to beat vanishing gradients on long market sequences.",
+    problem:
+      "Turns 5 years of market data into a real-time, conversational tool you can actually ask questions.",
     stack: [
-      { t: "Python", s: "python" }, { t: "FastAPI", s: "fastapi" }, { t: "TensorFlow", s: "tensorflow" },
-      { t: "Transformer" }, { t: "Embeddings" }, { t: "React", s: "react" }, { t: "yFinance" },
+      { t: "Python", s: "python" },
+      { t: "FastAPI", s: "fastapi" },
+      { t: "TensorFlow", s: "tensorflow" },
+      { t: "Transformer" },
+      { t: "Embeddings" },
+      { t: "React", s: "react" },
+      { t: "yFinance" },
     ],
     metric: "5 yrs market data · Transformer > LSTM",
     repo: "https://github.com/Saurabh-993/Finance-Manager-AI",
     preview: "/projects/p2.png",
+    modal: {
+      genesis:
+        "Market data is long, noisy and unforgiving. This began as an LSTM experiment and became a study in doing sequence modelling properly, where memory over long horizons is the whole game.",
+      faculties:
+        "Ask the market questions in plain language and get grounded, real-time answers built on five years of history, with forecasts you can probe rather than blindly trust.",
+      substratum:
+        "A Transformer replaced the LSTM to defeat vanishing gradients across long sequences, served through a FastAPI backend with a React client and live data pulled via yFinance.",
+      culmination:
+        "Half a decade of raw prices becomes a tool you can hold a conversation with. The Transformer's edge over the LSTM is the quiet proof that the architecture choice was the right one.",
+    },
   },
   {
-    id: 3, name: "ATS Analytics Dashboard", kicker: "Delhi Metro · Big-Data BI",
-    about: "An interactive Power BI dashboard over 66M+ metro transactions — revenue, passenger type and station-to-station flows.",
-    problem: "Turns a 256GB dataset into fast, accurate KPIs that decision-makers can actually act on.",
+    id: 3,
+    name: "ATS Analytics Dashboard",
+    kicker: "Delhi Metro · Big-Data BI",
+    about:
+      "An interactive Power BI dashboard over 66M+ metro transactions: revenue, passenger type and station-to-station flows.",
+    problem:
+      "Turns a 256GB dataset into fast, accurate KPIs that decision-makers can actually act on.",
     stack: [
-      { t: "Power BI" }, { t: "PostgreSQL", s: "postgresql" }, { t: "Python", s: "python" },
-      { t: "SQL" }, { t: "Pandas", s: "pandas" },
+      { t: "Power BI" },
+      { t: "PostgreSQL", s: "postgresql" },
+      { t: "Python", s: "python" },
+      { t: "SQL" },
+      { t: "Pandas", s: "pandas" },
     ],
     metric: "66M+ rows · 256GB · sub-second KPIs",
     repo: "https://github.com/Saurabh-993/dmrc-ats-powerbi-dashboard",
     preview: "/projects/p3.png",
+    modal: {
+      genesis:
+        "Sixty-six million metro transactions is not a spreadsheet, it's a city breathing. The task was to make that scale legible: revenue, riders and routes, without drowning the people who need to decide.",
+      faculties:
+        "Explore revenue, passenger type and station-to-station flows interactively, with KPIs that answer in under a second instead of making an analyst wait.",
+      substratum:
+        "A 256GB dataset wrangled through Python and Pandas ETL into a tuned PostgreSQL and SQL layer, surfaced as an interactive Power BI model built for speed.",
+      culmination:
+        "A quarter-terabyte of raw movement becomes decisions leadership can act on the same morning. Scale stopped being a wall and became a lens.",
+    },
   },
 ];
+
 const TOTAL = PROJECTS.length;
 ---
 
 <section class="p4 section" id="projects">
-  <!-- ============ INTRO BEAT (lifts + fades + blurs on scroll) ============ -->
   <div class="p4-intro">
     <div class="p4-intro-inner" data-intro>
       <div class="p4-pill">
         <span class="pill-face" data-face>
           {Array.from({ length: AVATARS }).map((_, i) => (
-            <img src={`/avatars/a${i + 1}.png`} alt="" class={i === 0 ? "on" : ""} data-fi={i} loading="lazy" />
+            <img
+              src={`/avatars/a${i + 1}.png`}
+              alt=""
+              class={i === 0 ? "on" : ""}
+              data-fi={i}
+              loading="lazy"
+            />
           ))}
         </span>
         <span class="pill-txt">What I built</span>
       </div>
+
       <h2 class="p4-head">My Projects</h2>
       <p class="p4-sub">{SUBLINE}</p>
-      <p class="p4-micro">hover any project to look inside · 01 — 0{TOTAL}</p>
     </div>
+
+    <p class="p4-micro" data-intro aria-label={SIDE_LABEL}>
+      {SIDE_LABEL.split("").map((ch, i) => (
+        <span class="ch" style={`--i:${i}`}>{ch === " " ? "\u00A0" : ch}</span>
+      ))}
+    </p>
   </div>
 
-  <!-- ============ PROJECT LIST (hover-lit, organic glow) ============ -->
   <div class="p4-list" data-list>
     {PROJECTS.map((p, i) => (
-      <article class="p4-row" data-row={i}>
+      <article class="p4-row" data-row={i} data-open={i} role="button" tabindex="0"
+        aria-label={`Open ${p.name} details`}>
         <span class="row-glow" aria-hidden="true"></span>
 
         <div class="row-inner">
           <div class="row-lead">
             <span class="row-idx">0{i + 1}</span>
+
             <div class="row-head">
               <h3 class="row-name">{p.name}</h3>
               <span class="row-kicker">{p.kicker}</span>
@@ -105,7 +171,16 @@ const TOTAL = PROJECTS.length;
           <div class="row-chips">
             {p.stack.map((c) => (
               <span class="chip">
-                {c.s && <img src={`https://cdn.simpleicons.org/${c.s}`} alt="" width="14" height="14" loading="lazy" onerror="this.remove()" />}
+                {c.s && (
+                  <img
+                    src={`https://cdn.simpleicons.org/${c.s}`}
+                    alt=""
+                    width="14"
+                    height="14"
+                    loading="lazy"
+                    onerror="this.remove()"
+                  />
+                )}
                 {c.t}
               </span>
             ))}
@@ -113,14 +188,18 @@ const TOTAL = PROJECTS.length;
 
           <div class="row-foot">
             <span class="row-metric">{p.metric}</span>
+
             <div class="row-links">
-              <a class="row-link soon" href="#" data-soon>Live<span>soon</span></a>
-              <a class="row-link" href={p.repo} target="_blank" rel="noopener noreferrer">Code<span>↗</span></a>
+              <a class="row-link soon" href="#" data-soon>
+                Live<span>soon</span>
+              </a>
+              <a class="row-link" href={p.repo} target="_blank" rel="noopener noreferrer">
+                Code<span>↗</span>
+              </a>
             </div>
           </div>
         </div>
 
-        <!-- rounded, tilted preview — reveals on hover -->
         <div class="row-preview">
           <img src={p.preview} alt={`${p.name} preview`} loading="lazy" />
         </div>
@@ -128,154 +207,361 @@ const TOTAL = PROJECTS.length;
     ))}
   </div>
 
-  <!-- ============ FOOT: counter + more ============ -->
   <div class="p4-foot">
-    <span class="foot-count">[ {String(TOTAL).padStart(2, "0")} / {String(TOTAL).padStart(2, "0")} ]</span>
+    <span class="foot-count">
+      [ {String(TOTAL).padStart(2, "0")} / {String(TOTAL).padStart(2, "0")} ]
+    </span>
     <span class="foot-label">selected work</span>
-    <button class="foot-more" type="button" data-more>more projects <span>↓</span></button>
+    <button class="foot-more" type="button" data-more>
+      more projects <span>↓</span>
+    </button>
+  </div>
+
+  <!-- ============ PROJECT MODAL ============ -->
+  <div class="pm" data-modal hidden>
+    <div class="pm-scrim" data-close></div>
+
+    <div class="pm-shell" role="dialog" aria-modal="true" aria-label="Project details">
+      <aside class="pm-side">
+        <div class="pm-brand">
+          <span class="pm-brand-name" data-m-name>Project</span>
+          <button class="pm-x" type="button" data-close aria-label="Close">
+            <span class="pm-x-glyph"></span>
+          </button>
+        </div>
+
+        <nav class="pm-nav" data-tabs>
+          {TABS.map((t, i) => (
+            <button class={`pm-tab${i === 0 ? " active" : ""}`} type="button" data-tab={t.key}
+              style={`--dot:${t.dot}`}>
+              <span class="pm-dot"></span>
+              <span class="pm-tab-txt">
+                <span class="pm-tab-label">{t.label}</span>
+                <span class="pm-tab-hint">{t.hint}</span>
+              </span>
+            </button>
+          ))}
+        </nav>
+
+        <p class="pm-kicker" data-m-kicker></p>
+      </aside>
+
+      <div class="pm-main">
+        <div class="pm-card">
+          <span class="pm-corner tl"></span>
+          <span class="pm-corner tr"></span>
+          <span class="pm-corner bl"></span>
+          <span class="pm-corner br"></span>
+
+          <h3 class="pm-title" data-m-title>01. Genesis</h3>
+          <p class="pm-body" data-m-body></p>
+        </div>
+
+        <div class="pm-figure">
+          <div class="pm-figure-glow" aria-hidden="true"></div>
+          <div class="pm-figure-inner">
+            <img data-m-img alt="" hidden />
+            <span class="pm-figure-ph" data-m-ph>preview coming soon</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
+<script type="application/json" data-modal-json set:html={JSON.stringify(
+  PROJECTS.map((p, i) => ({ i, name: p.name, kicker: p.kicker, preview: p.preview, modal: p.modal }))
+)}></script>
+
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
   .p4 {
-    --p4-bg: #f3f4f7; --p4-ink: #14161a; --p4-soft: #6a6f78;
-    --p4-ghost: rgba(10,12,16,0.22); --p4-rule: rgba(10,12,16,0.12);
-    --p4-chip: rgba(10,12,16,0.045); --p4-chip-bd: rgba(10,12,16,0.12);
-    /* light: golden / amber */
-    --p4-accent: #ef8a17; --p4-accent2: #ff6a1f; --p4-glow: rgba(255,150,30,0.45);
-    --p4-pill: #d9761a;      /* a deeper shade of the accent for the pill */
-    position: relative; min-height: 100dvh; background: var(--p4-bg); color: var(--p4-ink);
-    overflow: hidden; display: flex; flex-direction: column;
+    --p4-bg: #f3f4f7;
+    --p4-ink: #14161a;
+    --p4-soft: #6a6f78;
+    --p4-ghost: rgba(10, 12, 16, 0.2);
+    --p4-rule: rgba(10, 12, 16, 0.12);
+    --p4-chip: rgba(10, 12, 16, 0.045);
+    --p4-chip-bd: rgba(10, 12, 16, 0.12);
+    --p4-pill: #d9761a;
+
+    --pm-scrim: rgba(20, 18, 24, 0.42);
+    --pm-shell: #eef0f3;
+    --pm-box: #ffffff;
+    --pm-border: rgba(10, 12, 16, 0.12);
+    --pm-card: #f6f7f9;
+    --pm-fig-bg: #eceef1;
+    --pm-fig-ink: #9aa0aa;
+    --pm-ink: #14161a;
+    --pm-soft: #6a6f78;
+    --pm-hover: rgba(10, 12, 16, 0.05);
+
+    position: relative;
+    min-height: 100dvh;
+    background: var(--p4-bg);
+    color: var(--p4-ink);
+    overflow-x: clip;
+    display: flex;
+    flex-direction: column;
   }
+
   :global(html[data-theme='dark']) .p4 {
-    --p4-bg: #08080c; --p4-ink: #eef1f6; --p4-soft: rgba(238,241,246,0.6);
-    --p4-ghost: rgba(255,255,255,0.15); --p4-rule: rgba(255,255,255,0.10);
-    --p4-chip: rgba(255,255,255,0.05); --p4-chip-bd: rgba(255,255,255,0.12);
-    /* dark: blue → violet */
-    --p4-accent: #7f8cff; --p4-accent2: #9a6cff; --p4-glow: rgba(124,140,255,0.5);
-    --p4-pill: #4b56e8;      /* deeper blue-violet for the pill */
+    --p4-bg: #08080c;
+    --p4-ink: #eef1f6;
+    --p4-soft: rgba(238, 241, 246, 0.62);
+    --p4-ghost: rgba(255, 255, 255, 0.16);
+    --p4-rule: rgba(255, 255, 255, 0.1);
+    --p4-chip: rgba(255, 255, 255, 0.05);
+    --p4-chip-bd: rgba(255, 255, 255, 0.12);
+    --p4-pill: #178f7c;
+
+    --pm-scrim: rgba(0, 0, 0, 0.72);
+    --pm-shell: #060608;
+    --pm-box: #0d0e11;
+    --pm-border: rgba(255, 255, 255, 0.09);
+    --pm-card: #15171c;
+    --pm-fig-bg: #050506;
+    --pm-fig-ink: rgba(238, 241, 246, 0.4);
+    --pm-ink: #f1f4f8;
+    --pm-soft: rgba(238, 241, 246, 0.6);
+    --pm-hover: rgba(255, 255, 255, 0.05);
+
     background:
-      radial-gradient(120% 80% at 80% -10%, rgba(90,80,220,0.16) 0%, transparent 55%),
-      linear-gradient(180deg, #0a0a10 0%, #08080c 100%);
+      radial-gradient(120% 80% at 80% -10%, rgba(63, 214, 189, 0.12) 0%, transparent 55%),
+      linear-gradient(180deg, #0a0f12 0%, #080c0e 100%);
   }
 
-  /* ---------- intro beat ---------- */
-  .p4-intro { min-height: 100dvh; display: grid; align-items: center; }
-  .p4-intro-inner { position: relative; padding: 0 clamp(24px, 7vw, 120px); display: flex;
-    flex-direction: column; gap: 16px; will-change: transform, opacity, filter;
-    /* feather the bottom so it melts away as it lifts */
-    -webkit-mask-image: linear-gradient(to bottom, #000 74%, transparent 100%);
-            mask-image: linear-gradient(to bottom, #000 74%, transparent 100%); }
+  /* ===== niche palettes (unchanged) ===== */
+  .p4-row:nth-child(1) {
+    --row-fill: #f2743a; --row-core: #ffb583;
+    --row-accent: #5a1c00; --row-accent-ink: #5a1c00; --row-accent-soft: rgba(90, 28, 0, 0.4);
+    --row-glow-strong: rgba(242, 116, 58, 0.5); --row-glow-mid: rgba(242, 116, 58, 0.24); --row-glow-soft: rgba(242, 116, 58, 0.09);
+    --row-text: #2e0f02; --row-text-soft: rgba(46, 15, 2, 0.72);
+    --niche: #d9761a;
+  }
+  .p4-row:nth-child(2) {
+    --row-fill: #ffc93c; --row-core: #ffe88c;
+    --row-accent: #6b5100; --row-accent-ink: #6b5100; --row-accent-soft: rgba(107, 81, 0, 0.42);
+    --row-glow-strong: rgba(255, 196, 54, 0.5); --row-glow-mid: rgba(255, 196, 54, 0.24); --row-glow-soft: rgba(255, 196, 54, 0.09);
+    --row-text: #2a2100; --row-text-soft: rgba(42, 33, 0, 0.72);
+    --niche: #c99500;
+  }
+  .p4-row:nth-child(3) {
+    --row-fill: #ff6f8b; --row-core: #ffb1c0;
+    --row-accent: #7a1030; --row-accent-ink: #7a1030; --row-accent-soft: rgba(122, 16, 48, 0.4);
+    --row-glow-strong: rgba(255, 111, 139, 0.5); --row-glow-mid: rgba(255, 111, 139, 0.24); --row-glow-soft: rgba(255, 111, 139, 0.09);
+    --row-text: #350913; --row-text-soft: rgba(53, 9, 19, 0.72);
+    --niche: #e0416a;
+  }
+  :global(html[data-theme='dark']) .p4-row:nth-child(1) {
+    --row-fill: #16d6b0; --row-core: #63f2d6;
+    --row-accent: #4ff0d0; --row-accent-ink: #05463a; --row-accent-soft: rgba(4, 58, 48, 0.45);
+    --row-glow-strong: rgba(30, 224, 190, 0.62); --row-glow-mid: rgba(30, 224, 190, 0.34); --row-glow-soft: rgba(30, 224, 190, 0.13);
+    --row-text: #032620; --row-text-soft: rgba(3, 38, 32, 0.74);
+    --niche: #16d6b0;
+  }
+  :global(html[data-theme='dark']) .p4-row:nth-child(2) {
+    --row-fill: #59d94a; --row-core: #94f088;
+    --row-accent: #93f087; --row-accent-ink: #0b3d09; --row-accent-soft: rgba(11, 61, 9, 0.45);
+    --row-glow-strong: rgba(96, 224, 74, 0.6); --row-glow-mid: rgba(96, 224, 74, 0.32); --row-glow-soft: rgba(96, 224, 74, 0.13);
+    --row-text: #072b05; --row-text-soft: rgba(7, 43, 5, 0.74);
+    --niche: #59d94a;
+  }
+  :global(html[data-theme='dark']) .p4-row:nth-child(3) {
+    --row-fill: #ff5c9d; --row-core: #ff9ec4;
+    --row-accent: #ff9ec4; --row-accent-ink: #5a0f34; --row-accent-soft: rgba(90, 15, 52, 0.45);
+    --row-glow-strong: rgba(255, 92, 157, 0.6); --row-glow-mid: rgba(255, 92, 157, 0.32); --row-glow-soft: rgba(255, 92, 157, 0.13);
+    --row-text: #35061f; --row-text-soft: rgba(53, 6, 31, 0.74);
+    --niche: #ff5c9d;
+  }
 
-  .p4-pill { display: inline-flex; align-items: center; gap: 12px; align-self: flex-start;
-    padding: 8px 20px 8px 8px; border-radius: 999px; background: var(--p4-pill);
-    box-shadow: 0 10px 30px color-mix(in srgb, var(--p4-pill) 45%, transparent); }
-  .pill-face { position: relative; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex: none;
-    background: #111; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3); }
-  .pill-face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-    opacity: 0; transition: opacity 0.35s ease; image-rendering: pixelated; }
+  /* ---------- intro ---------- */
+  .p4-intro { position: sticky; top: 0; min-height: 100dvh; display: grid; align-items: center; z-index: 0; }
+  .p4-intro-inner { position: relative; padding: 0 clamp(24px, 7vw, 120px); display: flex; flex-direction: column; gap: 16px; will-change: transform, opacity, filter; }
+  .p4-pill { display: inline-flex; align-items: center; gap: 12px; align-self: flex-start; padding: 8px 20px 8px 8px; border-radius: 999px; background: var(--p4-pill); box-shadow: 0 10px 30px color-mix(in srgb, var(--p4-pill) 45%, transparent); }
+  .pill-face { position: relative; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex: none; background: #111; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3); }
+  .pill-face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.35s ease; image-rendering: pixelated; }
   .pill-face img.on { opacity: 1; }
-  .pill-txt { font-family: "JetBrains Mono", monospace; font-size: 13.5px; font-weight: 700;
-    letter-spacing: 0.16em; text-transform: uppercase; color: #fff; }
+  .pill-txt { font-family: "JetBrains Mono", monospace; font-size: 13.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #fff; }
+  .p4-head { margin: 6px 0 0; font-family: "Clash Display", "Space Grotesk", sans-serif; font-weight: 700; font-size: clamp(3rem, 11vw, 9rem); line-height: 0.92; letter-spacing: -0.03em; color: var(--p4-ink); text-wrap: balance; }
+  .p4-sub { margin: 4px 0 0; max-width: 22ch; font-family: "Clash Display", "Space Grotesk", sans-serif; font-weight: 500; font-size: clamp(1.35rem, 3.2vw, 2.5rem); line-height: 1.1; letter-spacing: -0.01em; color: var(--p4-ink); text-wrap: balance; }
+  :global(html[data-theme='dark']) .p4-sub { color: #f2f6fc; text-shadow: 0 0 10px rgba(255, 255, 255, 0.45), 0 0 28px rgba(170, 200, 255, 0.35); }
+  .p4-micro { position: absolute; right: clamp(18px, 4vw, 74px); top: 50%; transform: translateY(-50%); margin: 0; writing-mode: vertical-rl; text-orientation: mixed; white-space: nowrap; line-height: 1; font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--p4-soft); will-change: opacity, transform; }
+  .p4-micro .ch { display: inline-block; animation: labelWave 2.8s ease-in-out infinite; animation-delay: calc(var(--i) * 0.07s); }
+  @keyframes labelWave { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
+  @media (prefers-reduced-motion: reduce) { .p4-micro .ch { animation: none; } }
 
-  .p4-head { margin: 6px 0 0; font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700;
-    font-size: clamp(3rem, 11vw, 9rem); line-height: 0.92; letter-spacing: -0.03em; color: var(--p4-ink); }
-  .p4-sub { margin: 4px 0 0; max-width: 22ch; font-family: "Clash Display","Space Grotesk",sans-serif;
-    font-weight: 500; font-size: clamp(1.35rem, 3.2vw, 2.5rem); line-height: 1.1; letter-spacing: -0.01em;
-    color: var(--p4-ink); }
-  /* silver glow, matching the P3 meme caption ("first offer letter hits") */
-  :global(html[data-theme='dark']) .p4-sub {
-    color: #f2f6fc; text-shadow: 0 0 10px rgba(255,255,255,0.45), 0 0 28px rgba(170,200,255,0.35); }
-  .p4-micro { position: absolute; right: clamp(24px, 7vw, 120px); top: 50%; transform: translateY(-50%);
-    writing-mode: vertical-rl; font-family: "JetBrains Mono", monospace; font-size: 11px;
-    letter-spacing: 0.24em; text-transform: uppercase; color: var(--p4-soft); }
-
-  /* ---------- project list ---------- */
-  .p4-list { display: flex; flex-direction: column; border-top: 1px solid var(--p4-rule); }
-  .p4-row { position: relative; min-height: clamp(210px, 30vh, 300px); display: flex; align-items: center;
-    padding: 30px clamp(24px, 7vw, 120px); border-bottom: 1px solid var(--p4-rule);
-    overflow: visible; transition: border-color 0.4s ease; }
-  .p4-row:hover { border-color: color-mix(in srgb, var(--p4-accent) 40%, transparent); }
-
-  /* soft deep glow that BLEEDS outside the row (no fill, no bounce) */
-  .row-glow { position: absolute; inset: -34% -6%; z-index: 0; opacity: 0; pointer-events: none;
-    background: radial-gradient(46% 130% at 32% 50%, var(--p4-glow) 0%, transparent 70%);
-    filter: blur(34px); transition: opacity 0.6s ease; }
-  .p4-row:hover .row-glow { opacity: 1; }
-
-  .row-inner { position: relative; z-index: 1; width: min(680px, 60%); display: flex; flex-direction: column; gap: 9px; }
-
+  /* ---------- list ---------- */
+  .p4-list { display: flex; flex-direction: column; border-top: 1px solid var(--p4-rule); position: relative; z-index: 2; background: var(--p4-bg); }
+  .p4-row { position: relative; min-height: clamp(220px, 31vh, 310px); display: flex; align-items: center; padding: 30px clamp(24px, 7vw, 120px); border-bottom: 1px solid var(--p4-rule); overflow: visible; isolation: isolate; cursor: pointer; transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+  .row-glow { position: absolute; inset: -40% -3%; z-index: -1; opacity: 0; pointer-events: none; background: linear-gradient(to bottom, transparent 0%, var(--row-glow-soft) 16%, var(--row-glow-mid) 36%, var(--row-glow-strong) 50%, var(--row-glow-mid) 64%, var(--row-glow-soft) 84%, transparent 100%), radial-gradient(78% 90% at 50% 50%, var(--row-glow-mid) 0%, transparent 72%); filter: blur(46px); transform: scaleY(0.95); transition: opacity 0.52s cubic-bezier(0.16, 1, 0.3, 1), transform 0.52s cubic-bezier(0.16, 1, 0.3, 1), filter 0.52s cubic-bezier(0.16, 1, 0.3, 1); }
+  .p4-row::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0; background: radial-gradient(135% 165% at 50% 50%, var(--row-core) 0%, var(--row-fill) 74%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32); transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+  .p4-row::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0; border-top: 1px solid var(--row-accent-soft); border-bottom: 1px solid var(--row-accent-soft); box-shadow: 0 -16px 44px var(--row-glow-mid), 0 16px 48px var(--row-glow-mid); transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+  .p4-row:hover { border-color: transparent; }
+  .p4-row:hover .row-glow { opacity: 0.85; transform: scaleY(1); filter: blur(50px); }
+  .p4-row:hover::after { opacity: 1; }
+  .p4-row:hover::before { opacity: 1; }
+  :global(html[data-theme='dark']) .p4-row:hover .row-glow { opacity: 0.98; filter: blur(56px); }
+  :global(html[data-theme='dark']) .p4-row:hover::before { box-shadow: 0 -28px 74px var(--row-glow-strong), 0 28px 84px var(--row-glow-strong), 0 0 70px var(--row-glow-mid); }
+  .p4-row:focus-visible { outline: 2px solid var(--niche); outline-offset: -6px; }
+  .row-inner { position: relative; z-index: 2; width: min(680px, 60%); display: flex; flex-direction: column; gap: 9px; }
   .row-lead { display: flex; align-items: baseline; gap: 16px; }
-  .row-idx { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700; color: var(--p4-accent); }
+  .row-idx { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700; color: var(--row-accent); transition: color 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
+  .p4-row:hover .row-idx { color: var(--row-accent-ink); }
   .row-head { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; min-width: 0; }
-  .row-name { margin: 0; font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700;
-    font-size: clamp(2rem, 5.2vw, 4.2rem); line-height: 1; letter-spacing: -0.02em;
-    color: var(--p4-ghost); transition: color 0.45s ease, text-shadow 0.45s ease; }
-  .p4-row:hover .row-name { color: var(--p4-ink); text-shadow: 0 0 34px var(--p4-glow); }
-  .row-kicker { font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--p4-soft); }
-
-  .row-about { margin: 2px 0 0; font-size: clamp(14px, 1.3vw, 16px); line-height: 1.5; color: var(--p4-ink); font-weight: 500; }
-  .row-problem { margin: 0; font-size: clamp(13px, 1.2vw, 15px); line-height: 1.5; color: var(--p4-soft); }
-  .row-problem span { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--p4-accent); }
-
+  .row-name { margin: 0; font-family: "Clash Display", "Space Grotesk", sans-serif; font-weight: 700; font-size: clamp(2rem, 5.2vw, 4.2rem); line-height: 1; letter-spacing: -0.02em; color: var(--p4-ghost); transition: color 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
+  .p4-row:hover .row-name { color: var(--row-text); }
+  .row-kicker { font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--p4-soft); transition: color 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
+  .p4-row:hover .row-kicker { color: var(--row-text-soft); }
+  .row-about { margin: 2px 0 0; font-size: clamp(14px, 1.3vw, 16px); line-height: 1.5; color: var(--p4-ink); font-weight: 500; transition: color 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
+  .p4-row:hover .row-about { color: var(--row-text); }
+  .row-problem { margin: 0; font-size: clamp(13px, 1.2vw, 15px); line-height: 1.5; color: var(--p4-soft); transition: color 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
+  .p4-row:hover .row-problem { color: var(--row-text-soft); }
+  .row-problem span { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--row-accent); transition: color 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
+  .p4-row:hover .row-problem span { color: var(--row-accent-ink); }
   .row-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 3px; }
-  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px;
-    font-family: "JetBrains Mono", monospace; font-size: 11px; white-space: nowrap;
-    color: var(--p4-soft); background: var(--p4-chip); border: 1px solid var(--p4-chip-bd);
-    transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.2s ease; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; font-family: "JetBrains Mono", monospace; font-size: 11px; white-space: nowrap; color: var(--p4-soft); background: var(--p4-chip); border: 1px solid var(--p4-chip-bd); transition: background 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
   .chip img { display: block; }
-  .p4-row:hover .chip { color: var(--p4-ink); border-color: color-mix(in srgb, var(--p4-accent) 38%, transparent); }
-  .chip:hover { background: color-mix(in srgb, var(--p4-accent) 18%, transparent); transform: translateY(-2px); }
-
+  .p4-row:hover .chip { color: #f4f6f8; background: rgba(12, 12, 14, 0.82); border-color: rgba(255, 255, 255, 0.14); }
+  .chip:hover { background: rgba(12, 12, 14, 0.92); transform: translateY(-2px); }
   .row-foot { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 6px; }
-  .row-metric { font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
-    color: var(--p4-accent); }
+  .row-metric { font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.02em; color: var(--row-accent); transition: color 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
+  .p4-row:hover .row-metric { color: var(--row-accent-ink); }
   .row-links { display: flex; gap: 8px; }
-  .row-link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; border-radius: 8px;
-    text-decoration: none; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 12px;
-    color: var(--p4-ink); background: var(--p4-chip); border: 1px solid var(--p4-chip-bd);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease; }
-  .row-link span { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--p4-soft); }
-  .row-link:not(.soon):hover { border-color: var(--p4-accent); box-shadow: 0 0 18px var(--p4-glow); transform: translateY(-2px); }
+  .row-link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; border-radius: 8px; text-decoration: none; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 12px; color: var(--p4-ink); background: var(--p4-chip); border: 1px solid var(--p4-chip-bd); transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+  .p4-row:hover .row-link { color: #f4f6f8; background: rgba(12, 12, 14, 0.82); border-color: rgba(255, 255, 255, 0.14); }
+  .row-link span { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p4-soft); transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .p4-row:hover .row-link span { color: rgba(244, 246, 248, 0.7); }
+  .row-link:not(.soon):hover { border-color: #fff; box-shadow: 0 0 18px var(--row-glow-soft); transform: translateY(-2px); }
   .row-link.soon { opacity: 0.6; cursor: default; }
-
-  /* tilted preview card, right side, revealed on hover */
-  .row-preview { position: absolute; right: clamp(24px, 7vw, 120px); top: 50%; z-index: 2;
-    width: clamp(220px, 24vw, 340px); aspect-ratio: 16/10; border-radius: 16px; overflow: hidden;
-    background: #111; border: 4px solid #fff; box-shadow: 0 30px 70px rgba(0,0,0,0.42);
-    transform: translate(40px, -46%) rotate(6deg) scale(0.92); opacity: 0; pointer-events: none;
-    transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.2,0.9,0.3,1.12); }
+  .row-preview { position: absolute; right: clamp(24px, 7vw, 120px); top: 50%; z-index: 3; width: clamp(220px, 24vw, 340px); aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden; background: #111; border: 4px solid #fff; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.42); transform: translate(40px, -46%) rotate(6deg) scale(0.92); opacity: 0; pointer-events: none; transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
   .p4-row:hover .row-preview { opacity: 1; transform: translate(0, -50%) rotate(-5deg) scale(1); }
   .row-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
   :global(html[data-theme='dark']) .row-preview { border-color: #e7ebf2; }
-
-  /* ---------- foot ---------- */
-  .p4-foot { display: flex; align-items: center; gap: 20px; flex: none;
-    padding: 20px clamp(24px, 7vw, 120px); border-top: 1px solid var(--p4-rule); }
+  .p4-foot { display: flex; align-items: center; gap: 20px; flex: none; padding: 20px clamp(24px, 7vw, 120px); border-top: 1px solid var(--p4-rule); position: relative; z-index: 2; background: var(--p4-bg); }
   .foot-count { font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.14em; color: var(--p4-soft); }
-  .foot-label { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.24em;
-    text-transform: uppercase; color: var(--p4-soft); }
-  .foot-more { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
-    padding: 9px 18px; border-radius: 999px; border: 1px solid var(--p4-chip-bd); background: var(--p4-chip);
-    font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 13px; color: var(--p4-ink);
-    transition: transform 0.2s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
-  .foot-more span { transition: transform 0.3s ease; }
-  .foot-more:hover { border-color: var(--p4-accent); box-shadow: 0 0 22px var(--p4-glow); }
+  .foot-label { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--p4-soft); }
+  .foot-more { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--p4-chip-bd); background: var(--p4-chip); font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 13px; color: var(--p4-ink); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .foot-more span { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .foot-more:hover { border-color: var(--p4-pill); box-shadow: 0 0 22px color-mix(in srgb, var(--p4-pill) 38%, transparent); }
   .foot-more:hover span { transform: translateY(3px); }
 
-  /* ---------- mobile / touch: clean stacked list, previews inline ---------- */
+  /* =========================================================
+     MODAL
+     ========================================================= */
+  .pm { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: clamp(14px, 2.2vw, 28px);
+    font-family: "Inter", system-ui, -apple-system, sans-serif; }
+  .pm[hidden] { display: none; }
+
+  .pm-scrim { position: absolute; inset: 0; background: var(--pm-scrim); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
+  .pm.open .pm-scrim { opacity: 1; }
+
+  .pm-shell {
+    position: relative; width: min(1400px, 92vw); height: min(860px, 88vh);
+    display: grid; grid-template-columns: minmax(280px, 340px) 1fr; gap: 14px; padding: 14px;
+    background: var(--pm-shell); border: 1px solid var(--pm-border); border-radius: 22px;
+    box-shadow: 0 50px 130px rgba(0, 0, 0, 0.5);
+    opacity: 0; transform: translateY(14px) scale(0.986);
+    transition: opacity 0.34s cubic-bezier(0.16, 1, 0.3, 1), transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .pm.open .pm-shell { opacity: 1; transform: translateY(0) scale(1); }
+
+  /* sidebar box */
+  .pm-side { background: var(--pm-box); border: 1px solid var(--pm-border); border-radius: 16px; padding: 30px 26px; display: flex; flex-direction: column; gap: 30px; }
+  .pm-brand { display: flex; align-items: center; justify-content: space-between; }
+  .pm-brand-name { font-family: "Inter", sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.01em; color: var(--pm-ink); }
+
+  /* clean circular close button */
+  .pm-x {
+    position: relative; display: grid; place-items: center;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--pm-hover); border: 1px solid var(--pm-border);
+    color: var(--pm-soft); cursor: pointer;
+    transition: background 0.24s ease, color 0.24s ease, border-color 0.24s ease, transform 0.24s ease;
+  }
+  .pm-x-glyph { position: relative; width: 13px; height: 13px; }
+  .pm-x-glyph::before, .pm-x-glyph::after {
+    content: ""; position: absolute; top: 50%; left: 0; width: 100%; height: 1.6px;
+    border-radius: 2px; background: currentColor;
+  }
+  .pm-x-glyph::before { transform: translateY(-50%) rotate(45deg); }
+  .pm-x-glyph::after { transform: translateY(-50%) rotate(-45deg); }
+  .pm-x:hover { color: var(--niche); border-color: var(--niche); transform: rotate(90deg); }
+
+  .pm-nav { display: flex; flex-direction: column; gap: 12px; }
+  .pm-tab { display: flex; align-items: center; gap: 14px; padding: 15px 16px; border-radius: 13px; background: transparent; border: 1px solid transparent; cursor: pointer; text-align: left; width: 100%; font-family: "Inter", sans-serif; transition: background 0.22s ease, border-color 0.22s ease; }
+  .pm-tab:hover { background: var(--pm-hover); }
+  .pm-tab.active { background: var(--pm-hover); border-color: var(--pm-border); }
+  .pm-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; background: var(--dot); opacity: 0.45; transition: opacity 0.22s ease, box-shadow 0.22s ease; }
+  .pm-tab.active .pm-dot { opacity: 1; box-shadow: 0 0 12px var(--dot); }
+  .pm-tab-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .pm-tab-label { font-family: "Inter", sans-serif; font-weight: 600; font-size: 15px; color: var(--pm-soft); transition: color 0.22s ease; }
+  .pm-tab.active .pm-tab-label { color: var(--pm-ink); }
+  .pm-tab-hint { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pm-soft); opacity: 0.7; }
+
+  .pm-kicker { margin: auto 0 0; font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pm-soft); line-height: 1.6; }
+
+  /* content box */
+  .pm-main { background: var(--pm-box); border: 1px solid var(--pm-border); border-radius: 16px; padding: clamp(34px, 4vw, 60px); display: flex; flex-direction: column; gap: clamp(30px, 4vh, 50px); overflow-y: auto; }
+
+  /* text card: extra margin so the pushed-out brackets have room */
+  .pm-card { position: relative; margin: 18px; padding: 32px 36px; border-radius: 14px; background: var(--pm-card); border: 1px solid var(--pm-border); }
+
+  /* CORNER BRACKETS: pushed OUT (-18px) so there's a clear gap from the
+     card border. Rich solid niche color in light; glowing in dark. */
+  .pm-corner { position: absolute; width: 22px; height: 22px; border-color: var(--niche); }
+  .pm-corner.tl { top: -18px; left: -18px; border-top: 2.5px solid; border-left: 2.5px solid; border-top-left-radius: 6px; }
+  .pm-corner.tr { top: -18px; right: -18px; border-top: 2.5px solid; border-right: 2.5px solid; border-top-right-radius: 6px; }
+  .pm-corner.bl { bottom: -18px; left: -18px; border-bottom: 2.5px solid; border-left: 2.5px solid; border-bottom-left-radius: 6px; }
+  .pm-corner.br { bottom: -18px; right: -18px; border-bottom: 2.5px solid; border-right: 2.5px solid; border-bottom-right-radius: 6px; }
+  /* dark = glowing brackets */
+  :global(html[data-theme='dark']) .pm-corner {
+    filter: drop-shadow(0 0 6px var(--niche)) drop-shadow(0 0 12px var(--niche));
+  }
+
+  .pm-title { margin: 0 0 16px; font-family: "Inter", sans-serif; font-weight: 700; font-size: clamp(1.55rem, 2.4vw, 2.05rem); letter-spacing: -0.015em; color: var(--pm-ink); }
+  .pm-body { margin: 0; font-family: "Inter", sans-serif; font-size: 15px; font-weight: 400; line-height: 1.72; letter-spacing: 0; color: var(--pm-soft); }
+
+  .pm-figure { position: relative; flex: 1; min-height: 300px; border-radius: 14px; display: grid; place-items: center; }
+  /* flare: more visible now */
+  .pm-figure-glow {
+    position: absolute; inset: -4%; border-radius: 20px; pointer-events: none;
+    background: radial-gradient(58% 60% at 50% 52%, color-mix(in srgb, var(--niche) 78%, transparent) 0%, color-mix(in srgb, var(--niche) 30%, transparent) 34%, transparent 72%);
+    filter: blur(26px); opacity: 0.9;
+  }
+  :global(html[data-theme='dark']) .pm-figure-glow { opacity: 1; }
+  .pm-figure-inner { position: relative; width: min(600px, 100%); aspect-ratio: 3 / 2; border-radius: 12px; overflow: hidden; display: grid; place-items: center; background: var(--pm-fig-bg); border: 1px solid var(--pm-border); }
+  .pm-figure-inner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pm-figure-ph { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--pm-fig-ink); }
+
+  .pm-swap { animation: pmSwap 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes pmSwap { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .pm-swap { animation: none; } }
+
+  @media (max-width: 900px) {
+    .pm-shell { grid-template-columns: 1fr; height: min(90vh, 820px); overflow-y: auto; }
+    .pm-nav { flex-direction: row; flex-wrap: wrap; }
+    .pm-tab { flex: 1 1 44%; }
+    .pm-kicker { display: none; }
+  }
+
   @media (hover: none), (max-width: 900px) {
     .p4-micro { display: none; }
-    .p4-intro-inner { -webkit-mask-image: none; mask-image: none; }
-    .p4-row { flex-direction: column; align-items: stretch; min-height: 0; padding: 30px clamp(20px,6vw,40px); }
+    .p4-intro { position: static; min-height: auto; padding: 14vh 0 8vh; }
+    .p4-row { flex-direction: column; align-items: stretch; min-height: 0; padding: 30px clamp(20px, 6vw, 40px); }
     .row-inner { width: 100%; }
-    .row-name { color: var(--p4-ink); font-size: clamp(1.8rem, 8vw, 2.6rem); }
-    .row-glow { opacity: 0.5; }
-    .row-preview { position: relative; right: auto; top: auto; transform: none; opacity: 1;
-      width: 100%; margin-top: 18px; border-width: 3px; }
+    .row-name { color: var(--row-text); font-size: clamp(1.8rem, 8vw, 2.6rem); }
+    .row-about { color: var(--row-text); }
+    .row-kicker, .row-problem { color: var(--row-text-soft); }
+    .row-idx, .row-metric, .row-problem span { color: var(--row-accent-ink); }
+    .p4-row::after { opacity: 1; }
+    .p4-row::before { opacity: 1; }
+    .row-glow { opacity: 0.6; filter: blur(46px); }
+    .p4-row .chip { color: #f4f6f8; background: rgba(12, 12, 14, 0.82); border-color: rgba(255, 255, 255, 0.14); }
+    .p4-row .row-link { color: #f4f6f8; background: rgba(12, 12, 14, 0.82); border-color: rgba(255, 255, 255, 0.14); }
+    .row-preview { position: relative; right: auto; top: auto; transform: none; opacity: 1; width: 100%; margin-top: 18px; border-width: 3px; }
+    .p4-row:hover .row-preview { transform: none; }
   }
 </style>
 
@@ -284,7 +570,6 @@ const TOTAL = PROJECTS.length;
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   gsap.registerPlugin(ScrollTrigger);
 
-  /* cycle the pixel-avatar faces in the intro pill */
   const faces = Array.from(document.querySelectorAll<HTMLImageElement>(".pill-face img"));
   if (faces.length > 1) {
     let fi = 0;
@@ -295,32 +580,109 @@ const TOTAL = PROJECTS.length;
     }, 900);
   }
 
-  /* organic hand-off: the intro lifts, fades and blurs upward as you scroll,
-     so the projects rise out from under its feathered bottom edge */
   const mm = gsap.matchMedia();
   mm.add("(min-width: 901px) and (prefers-reduced-motion: no-preference)", () => {
-    const intro = document.querySelector<HTMLElement>("[data-intro]");
-    if (!intro) return;
-    const t = gsap.to(intro, {
-      yPercent: -42, opacity: 0, filter: "blur(8px)", ease: "none",
-      scrollTrigger: { trigger: ".p4", start: "top top", end: "+=75%", scrub: 0.6 },
+    const introEls = gsap.utils.toArray<HTMLElement>("[data-intro]");
+    const introWrap = document.querySelector<HTMLElement>(".p4-intro");
+    if (!introWrap || !introEls.length) return;
+    const introTween = gsap.to(introEls, {
+      yPercent: -12, opacity: 0, filter: "blur(9px)", ease: "none",
+      scrollTrigger: { trigger: introWrap, start: "top top", end: "bottom 62%", scrub: 0.5 },
     });
-    return () => { t.scrollTrigger?.kill(); t.kill(); };
+    return () => { introTween.scrollTrigger?.kill(); introTween.kill(); gsap.set(introEls, { clearProps: "all" }); };
   });
 
-  /* "more projects" — unfold any extra rows inline (same design) */
   document.querySelector("[data-more]")?.addEventListener("click", () => {
-    const extras = document.querySelectorAll<HTMLElement>(".p4-row[data-extra]");
-    if (extras.length) {
-      extras.forEach((r) => r.classList.add("show"));
-      (document.querySelector("[data-more]") as HTMLElement).style.display = "none";
-    } else {
-      document.querySelector("#projects .p4-list")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    document.querySelector("#projects .p4-list")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
-
-  /* placeholder "Live" links stay inert until real URLs exist */
   document.querySelectorAll<HTMLAnchorElement>("[data-soon]").forEach((a) =>
     a.addEventListener("click", (e) => e.preventDefault())
   );
+
+  /* ---------------- MODAL ---------------- */
+  const DATA = JSON.parse(document.querySelector("[data-modal-json]")?.textContent || "[]");
+  const TAB_TITLES: Record<string, string> = {
+    genesis: "01. Genesis", faculties: "02. Faculties",
+    substratum: "03. Substratum", culmination: "04. Culmination",
+  };
+
+  const modal = document.querySelector<HTMLElement>("[data-modal]");
+  const shell = modal?.querySelector<HTMLElement>(".pm-shell");
+  const tabsWrap = modal?.querySelector<HTMLElement>("[data-tabs]");
+  const elName = modal?.querySelector<HTMLElement>("[data-m-name]");
+  const elKicker = modal?.querySelector<HTMLElement>("[data-m-kicker]");
+  const elTitle = modal?.querySelector<HTMLElement>("[data-m-title]");
+  const elBody = modal?.querySelector<HTMLElement>("[data-m-body]");
+  const elImg = modal?.querySelector<HTMLImageElement>("[data-m-img]");
+  const elPh = modal?.querySelector<HTMLElement>("[data-m-ph]");
+
+  let current = 0;
+  let lastFocus: HTMLElement | null = null;
+
+  const applyNiche = (rowEl: HTMLElement) => {
+    const niche = getComputedStyle(rowEl).getPropertyValue("--niche").trim();
+    if (shell && niche) shell.style.setProperty("--niche", niche);
+  };
+
+  const renderTab = (key: string) => {
+    const p = DATA[current];
+    if (!p) return;
+    if (elTitle) elTitle.textContent = TAB_TITLES[key] || "";
+    if (elBody) elBody.textContent = p.modal[key] || "";
+    if (elImg && elPh) { elImg.hidden = true; elPh.hidden = false; }
+    [elTitle, elBody].forEach((el) => {
+      if (!el) return;
+      el.classList.remove("pm-swap"); void el.offsetWidth; el.classList.add("pm-swap");
+    });
+  };
+
+  const setActiveTab = (key: string) => {
+    tabsWrap?.querySelectorAll<HTMLElement>(".pm-tab").forEach((b) =>
+      b.classList.toggle("active", b.dataset.tab === key)
+    );
+    renderTab(key);
+  };
+
+  const open = (index: number, rowEl: HTMLElement) => {
+    if (!modal) return;
+    current = index;
+    const p = DATA[index];
+    lastFocus = document.activeElement as HTMLElement;
+    applyNiche(rowEl);
+    if (elName) elName.textContent = p.name;
+    if (elKicker) elKicker.textContent = p.kicker;
+    setActiveTab("genesis");
+    modal.hidden = false;
+    requestAnimationFrame(() => modal.classList.add("open"));
+    document.body.style.overflow = "hidden";
+    modal.querySelector<HTMLElement>(".pm-tab.active")?.focus();
+  };
+
+  const close = () => {
+    if (!modal) return;
+    modal.classList.remove("open");
+    document.body.style.overflow = "";
+    setTimeout(() => { modal.hidden = true; lastFocus?.focus(); }, 320);
+  };
+
+  document.querySelectorAll<HTMLElement>("[data-open]").forEach((row) => {
+    const idx = Number(row.dataset.open);
+    row.addEventListener("click", (e) => {
+      if ((e.target as HTMLElement).closest("a")) return;
+      open(idx, row);
+    });
+    row.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(idx, row); }
+    });
+  });
+
+  tabsWrap?.querySelectorAll<HTMLElement>(".pm-tab").forEach((b) =>
+    b.addEventListener("click", () => setActiveTab(b.dataset.tab!))
+  );
+  modal?.querySelectorAll<HTMLElement>("[data-close]").forEach((el) =>
+    el.addEventListener("click", close)
+  );
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal && !modal.hidden) close();
+  });
 </script>
