@@ -13,19 +13,20 @@
  */
 import profile from '../../assets/images/profile-placeholder.svg';
 
-const IMG1 = profile.src; // TODO: replace with stylized/bw photo (img1)
-const IMG2 = profile.src; // TODO: replace with real color photo (img2)
+const PLACEHOLDER = profile.src;
+const IMG1 = '/profile/img1.jpg'; // default (shown grayscale); falls back to placeholder
+const IMG2 = '/profile/img2.jpg'; // revealed on hover / open (colour)
 
 const RESUME_URL = '/resume.pdf'; // served from public/
-const LINKEDIN_URL = 'https://www.linkedin.com/in/your-handle'; // TODO
-const GITHUB_URL = 'https://github.com/your-handle'; // TODO
+const LINKEDIN_URL = 'https://www.linkedin.com/in/saurabh-sharma-375393336';
+const GITHUB_URL = 'https://github.com/Saurabh-993';
 ---
 
 <div class="profile-badge" id="profile-badge">
   <button class="badge-btn glass" aria-label="Profile — quick links" aria-expanded="false">
     <!-- img1 under, img2 over; opacity crossfade on hover / open -->
-    <img class="photo photo-img1" src={IMG1} alt="" width="52" height="52" />
-    <img class="photo photo-img2" src={IMG2} alt="Saurabh" width="52" height="52" />
+    <img class="photo photo-img1" src={IMG1} alt="" width="52" height="52" onerror={`this.onerror=null;this.src='${PLACEHOLDER}'`} />
+    <img class="photo photo-img2" src={IMG2} alt="Saurabh" width="52" height="52" onerror={`this.onerror=null;this.src='${PLACEHOLDER}'`} />
   </button>
 
   <!-- sketchy "look here" hint -->
@@ -84,9 +85,9 @@ const GITHUB_URL = 'https://github.com/your-handle'; // TODO
     object-fit: cover;
   }
 
-  /* IMG1 base (grayscaled placeholder stand-in), IMG2 crossfades over on
-     hover (desktop) or whenever the card is open (any device) */
-  .photo-img1 { filter: grayscale(1) contrast(1.1); }
+  /* IMG1 base (full colour, centered, crisp pixels for a pixel-avatar),
+     IMG2 crossfades over on hover (desktop) or whenever the card is open */
+  .photo-img1 { object-position: center; image-rendering: pixelated; }
   .photo-img2 { opacity: 0; transition: opacity 0.35s ease; }
   @media (hover: hover) and (min-width: 1024px) {
     .badge-btn:hover .photo-img2 { opacity: 1; }

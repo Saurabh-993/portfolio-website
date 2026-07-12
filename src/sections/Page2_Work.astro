@@ -50,27 +50,26 @@ const loop = [...tech, ...tech];
       <div class="bento">
 
         <article class="card about">
-          <div class="label"><span class="dot"></span>ABOUT</div>
+          <div class="label"><span class="dot"></span>ABOUT ME</div>
           <div class="about__head">
             <div class="avatar">S</div>
             <h2>Hi, I'm Saurabh.</h2>
           </div>
-          <p class="bio">I build at the intersection of engineering and design — interfaces that feel
-            alive, systems that stay simple underneath, and the kind of polish people only notice when
-            it's missing.</p>
+          <p class="bio">An AI engineer who turns fuzzy ideas into intelligent products — LLMs and RAG
+            in clean React + Node full-stack.</p>
           <dl class="facts">
-            <div><dt>Currently</dt><dd>creative frontend &amp; real-time graphics</dd></div>
-            <div><dt>Focus</dt><dd>engineering &times; design, built end to end</dd></div>
-            <div><dt>Edge</dt><dd>AI-augmented — I can learn, build &amp; research almost anything</dd></div>
+            <div><dt>Currently</dt><dd>Building AI products — LLMs, RAG &amp; LangChain</dd></div>
+            <div><dt>Focused</dt><dd>GenAI woven into clean full-stack apps</dd></div>
+            <div><dt>Edge</dt><dd>Full-stack + data analytics, shipped end to end</dd></div>
           </dl>
         </article>
 
         <article class="card tech">
           <div class="label"><span class="dot"></span>STACK</div>
           <h2>Tech I build with</h2>
-          <p class="bio">The stack I've gone deep on — what I reach for when an idea has to become real
-            software, from interface to API to database. And with AI in the loop, I can pick up whatever
-            a problem demands and ship it.</p>
+          <p class="bio">The toolkit I reach for to turn ideas into shipping software — React up front,
+            Node and databases behind, and LLMs woven through the middle. Deep where it counts, quick to
+            learn whatever the problem demands.</p>
           <div class="marquee">
             <div class="marquee__track">
               {loop.map((t) => (
@@ -443,18 +442,19 @@ const loop = [...tech, ...tech];
   .dot--blue { background: #3b82f6; }
 
   h2 { font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700;
-       font-size: clamp(1.4rem, 2.2vw, 2.1rem); margin: 0; letter-spacing: -0.01em; color: var(--text); flex-shrink: 0; }
+       font-size: clamp(1.4rem, 2.2vw, 2.1rem); margin: 0; letter-spacing: 0; word-spacing: 0.08em;
+       line-height: 1.12; color: var(--text); flex-shrink: 0; }
 
   .about__head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-shrink: 0; }
   .avatar { width: 48px; height: 48px; border-radius: 50%; flex: none;
     background: linear-gradient(135deg, var(--ball-b), var(--ball-a)); color: #fff;
     display: grid; place-items: center; font-weight: 700; font-family: "Space Grotesk",sans-serif; font-size: 1.1rem; }
 
-  .bio { color: var(--text-muted); line-height: 1.5; font-size: 15px; margin: 0 0 24px; max-width: 48ch; flex-shrink: 0; }
+  .bio { color: var(--text-muted); line-height: 1.5; font-size: 15px; margin: 0 0 14px; max-width: 48ch; flex-shrink: 0; }
 
   .facts { margin: auto 0 0; display: grid; gap: 0; flex: 1; align-content: end; }
   .facts > div { display: grid; grid-template-columns: 120px 1fr; gap: 16px;
-    padding: 12px 0; border-top: 1px solid var(--grid-line); align-items: baseline; }
+    padding: 9px 0; border-top: 1px solid var(--grid-line); align-items: baseline; }
   .facts dt { font-family: "JetBrains Mono", monospace; font-size: 11px;
     letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-faint); margin: 0; }
   .facts dd { margin: 0; font-size: 13.5px; color: var(--text); }

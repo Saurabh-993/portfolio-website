@@ -1,0 +1,399 @@
+---
+/**
+ * Page4b_Journey.astro — interstitial journey between Projects and Connect.
+ *
+ * LIGHT THEME (this pass): a cool DAY SKY you fly through — clouds are
+ * painted PROCEDURALLY on canvas (clusters of soft radial puffs, no PNGs),
+ * with fine dust specks for atmosphere.
+ *   BEAT 1 · RECEIPTS © — all four certifications rise together in one
+ *     staggered breath; ALL visible on screen at once; quick, glanceable.
+ *   BEAT 2 · ARETE ©    — the camera accelerates THROUGH the clouds
+ *     (3D fly-through), capability cards settle around the electric-blue
+ *     word; headings clearly readable.
+ *   EXIT — the sky itself ends in pure white + a dawn veil → the handoff
+ *     into Let's Connect has no visible line.
+ *
+ * DARK THEME: starfield untouched; only ARETE recolours to ember orange.
+ * Cards: chunky 4:5 premium glass, AFTER//HONEY-style info (heading +
+ * [index] + mono body), gradient sheen + lift on hover. No cert links.
+ * Reduced-motion / mobile → clean static list.
+ */
+const CERTS = [
+  {
+    name: "Agentic AI — Certified Foundations Associate", issuer: "Oracle", slug: "oracle", year: "2026",
+    body: "AI agents from first principles — planning, tool use, multi-agent orchestration, and the patterns for deploying agentic workflows in production.",
+    x: 15, y: 34,
+  },
+  {
+    name: "Data Fundamentals", issuer: "IBM", slug: "ibm", year: "",
+    body: "The full data lifecycle — collecting, cleaning, querying and visualising, with the working vocabulary of pipelines, warehouses and governance.",
+    x: 38.5, y: 60,
+  },
+  {
+    name: "Cloud Practitioner Esse", issuer: "Amazon Web Services", slug: "amazonwebservices", year: "",
+    body: "AWS from orbit — core services across compute, storage and networking, the shared-responsibility security model, pricing and architecture basics.",
+    x: 62, y: 32,
+  },
+  {
+    name: "Google Analytics", issuer: "Google", slug: "google", year: "",
+    body: "Behavioural measurement with GA4 — events, conversions, audiences, and reading user journeys well enough to actually act on them.",
+    x: 85.5, y: 58,
+  },
+];
+
+const CAPS = [
+  { q: "BUILD ANYTHING.", body: "Give me a fuzzy idea and I'll take it the whole way — interface, API, data model, and the AI reasoning in between. No hand-offs, no “not my part.” It gets built end to end, and it ships.", x: 30, y: 50 },
+  { q: "SIMPLIFY RUTHLESSLY.", body: "The hard part isn't adding features — it's removing everything that isn't the point. I obsess over the flow that feels obvious and the polish nobody notices, until it's missing. Simple is the hardest thing to build.", x: 68, y: 50 },
+  { q: "EXPLORE FRONTIERS.", body: "What pulls me in is systems that feel alive: RAG pipelines, autonomous agents, real-time graphics — the messy edge where AI meets craft. If it's new and just out of reach, that's where I want to be.", x: 32, y: 50 },
+  { q: "OWN OUTCOMES.", body: "Point me at a problem and consider it mine. Fast to learn, full ownership from first commit to production — someone who'd rather build the thing tonight than book a meeting about building it.", x: 70, y: 50 },
+];
+---
+
+<section class="jr section" id="journey">
+  <div class="jr-stage">
+    <!-- LIGHT: real-photo sky as a MULTIPLANE camera — far bg stays, nearer
+         cloud planes scale + drift faster, so you pass THROUGH the clouds -->
+    <div class="jr-sky jr-sky--far" data-sky-far aria-hidden="true"></div>
+    <div class="jr-sky jr-sky--mid" data-sky-mid aria-hidden="true"></div>
+    <div class="jr-sky jr-sky--near" data-sky-near aria-hidden="true"></div>
+    <canvas class="jr-canvas" data-jr-canvas aria-hidden="true"></canvas>
+    <div class="jr-toplend" aria-hidden="true"></div>
+
+    <p class="jr-tag"><span class="jr-tag-c" data-tag-c>01 / 02</span><span class="jr-tag-t" data-tag-t>proof</span></p>
+
+    <div class="jr-words" aria-hidden="true">
+      <span class="jr-word on" data-word="receipts">RECEIPTS<sup>©</sup></span>
+      <span class="jr-word arete" data-word="arete">ARETE<sup>©</sup></span>
+    </div>
+
+    <div class="jr-cards">
+      {CERTS.map((c, i) => (
+        <article class="jr-card jr-cert" data-beat="0" data-i={i} style={`left:${c.x}%; top:${c.y}%;`}>
+          <div class="jc-in">
+            <div class="jc-head"><span class="jc-kind">Certification</span><span class="jc-idx">[0{i + 1}]</span></div>
+            <div class="jc-brand">
+              {c.slug && <img class="jc-logo" src={`https://cdn.simpleicons.org/${c.slug}`} alt="" width="20" height="20" loading="lazy" onerror="this.remove()" />}
+              <span class="jc-issuer">{c.issuer}</span>
+              {c.year && <span class="jc-year">· {c.year}</span>}
+            </div>
+            <h3 class="jc-name">{c.name}</h3>
+            <p class="jc-body">{c.body}</p>
+          </div>
+        </article>
+      ))}
+      {CAPS.map((c, i) => (
+        <article class="jr-card jr-cap" data-beat="1" data-i={i} style={`left:${c.x}%; top:${c.y}%;`}>
+          <div class="jc-in">
+            <div class="jc-caphead"><h3 class="jc-q">{c.q}</h3><span class="jc-idx">[0{i + 1}]</span></div>
+            <p class="jc-body">{c.body}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <div class="jr-dawn" aria-hidden="true"></div>
+  </div>
+
+  <!-- reduced-motion / mobile fallback -->
+  <div class="jr-fallback">
+    <h2 class="jf-h">Proof &amp; beyond</h2>
+    <p class="jf-sub">Receipts — and what comes after them.</p>
+    <div class="jf-grid">
+      {CERTS.map((c) => (
+        <div class="jf-cert"><span class="jf-iss">{c.issuer}{c.year ? ` · ${c.year}` : ""}</span><h3>{c.name}</h3><p>{c.body}</p></div>
+      ))}
+    </div>
+    <div class="jf-caps">
+      {CAPS.map((c) => (<div class="jf-cap"><span>{c.q}</span><p>{c.body}</p></div>))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .jr {
+    --jc-glass: rgba(255,255,255,0.55); --jc-bd: rgba(255,255,255,0.85); --jc-bd2: rgba(60,90,140,0.14);
+    --jc-ink: #2a2233; --jc-soft: #6a5a6e; --jc-accent: #1c6dff;
+    --jr-ghost: rgba(74,56,92,0.32); /* dusky plum ghost — reads on the bright sky */
+    --jr-arete: #1c6dff;
+    position: relative; height: 100dvh; overflow: hidden; color: var(--jc-ink);
+    /* LIGHT: GOLDEN HOUR — lilac/rose up top → peach → warm gold low → white
+       at the very bottom so the handoff into Connect has no line at all */
+    background: linear-gradient(180deg,
+      #b9a7dd 0%, #cbb0dd 15%, #e7b6c9 33%, #f6c19f 52%,
+      #f9d29a 68%, #ffe6c2 84%, #fff6ec 94%, #ffffff 100%);
+  }
+  :global(html[data-theme='dark']) .jr {
+    --jc-glass: rgba(255,255,255,0.06); --jc-bd: rgba(255,255,255,0.14); --jc-bd2: rgba(255,255,255,0.06);
+    --jc-ink: #eef1f6; --jc-soft: rgba(238,241,246,0.62); --jc-accent: #93a3ba; /* neutral steel — certs, NO orange */
+    --jr-ghost: rgba(200,206,218,0.68); /* flat silver RECEIPTS, like BEFORE//HONEY */
+    --jr-arete: #ff7a1f; /* ember orange — dark ARETE + capability cards only */
+    background: radial-gradient(120% 90% at 50% 0%, #0b0e16 0%, #06070c 60%, #05060a 100%);
+  }
+
+  .jr-stage { position: absolute; inset: 0; overflow: hidden; }
+  .jr-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  /* real-photo sky (LIGHT only) — MULTIPLANE: far bg + nearer, faster, blurrier
+     cloud planes = you fly through the clouds */
+  .jr-sky { position: absolute; inset: -12%; background-image: url('/sky/sky.webp');
+    background-repeat: no-repeat; background-size: cover; background-position: center 46%;
+    transform-origin: 50% 42%; will-change: transform, opacity; display: none; }
+  :global(html:not([data-theme='dark'])) .jr-sky { display: block; }
+  .jr-sky--mid  { opacity: 0.55; filter: blur(3px) saturate(1.05); }
+  .jr-sky--near { opacity: 0; filter: blur(9px) saturate(1.08); background-position: center 66%; }
+  /* ease the seam coming in from Page 4 */
+  .jr-toplend { position: absolute; top: 0; left: 0; right: 0; height: 16%; z-index: 1; pointer-events: none;
+    background: linear-gradient(to bottom, #f3f4f7 0%, rgba(243,244,247,0) 100%); }
+  :global(html[data-theme='dark']) .jr-toplend { background: linear-gradient(to bottom, #08080c 0%, rgba(8,8,12,0) 100%); }
+
+  .jr-tag { position: absolute; top: 24px; left: clamp(20px, 6vw, 90px); margin: 0; z-index: 5;
+    display: flex; gap: 20px; font-family: "JetBrains Mono", monospace; font-size: 11px;
+    letter-spacing: 0.24em; text-transform: uppercase; color: var(--jc-ink); opacity: 0.75; }
+
+  /* big ghost words */
+  .jr-words { position: absolute; inset: 0; display: grid; place-items: center; z-index: 2; }
+  .jr-word { grid-area: 1/1; font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700;
+    font-size: clamp(3rem, 13vw, 12rem); line-height: 0.9; letter-spacing: -0.04em; color: var(--jr-ghost);
+    opacity: 0; user-select: none; white-space: nowrap; }
+  .jr-word sup { font-size: 0.28em; vertical-align: super; }
+  .jr-word.arete { color: var(--jr-arete);
+    text-shadow: 0 0 46px color-mix(in srgb, var(--jr-arete) 55%, transparent),
+                 0 0 110px color-mix(in srgb, var(--jr-arete) 25%, transparent); }
+
+  /* ================= cards: chunky 4:5 premium glass ================= */
+  .jr-cards { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+  .jr-card { position: absolute; width: clamp(232px, 21.5vw, 316px); aspect-ratio: 4 / 5;
+    opacity: 0; pointer-events: auto; will-change: transform, opacity; }
+
+  .jc-in {
+    position: absolute; inset: 0; padding: 22px 24px;
+    display: flex; flex-direction: column; border-radius: 22px;
+    background: var(--jc-glass);
+    border: 1px solid var(--jc-bd);
+    -webkit-backdrop-filter: blur(18px) saturate(1.25); backdrop-filter: blur(18px) saturate(1.25);
+    box-shadow: 0 26px 60px rgba(30, 50, 90, 0.2),
+      inset 0 1px 0 rgba(255,255,255,0.6), 0 0 0 1px var(--jc-bd2);
+    overflow: hidden;
+    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  }
+  /* gradient sheen that sweeps across on hover */
+  .jc-in::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(115deg,
+      transparent 30%, rgba(255,255,255,0.38) 48%, rgba(255,255,255,0.12) 55%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.7s ease;
+  }
+  .jr-card:hover .jc-in {
+    transform: translateY(-5px);
+    border-color: color-mix(in srgb, var(--jc-accent) 45%, var(--jc-bd));
+    box-shadow: 0 34px 74px rgba(30, 50, 90, 0.26),
+      0 0 26px color-mix(in srgb, var(--jc-accent) 22%, transparent),
+      inset 0 1px 0 rgba(255,255,255,0.6), 0 0 0 1px var(--jc-bd2);
+  }
+  .jr-card:hover .jc-in::after { transform: translateX(120%); }
+
+  .jc-head { display: flex; align-items: center; justify-content: space-between; }
+  .jc-kind { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--jc-accent); }
+  .jc-idx { font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 700; color: var(--jc-accent); }
+
+  .jc-brand { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+  .jc-logo { display: block; }
+  .jc-issuer { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 15.5px; letter-spacing: -0.01em; color: var(--jc-ink); }
+  .jc-year { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--jc-soft); }
+
+  /* headings: big, high-contrast, ALWAYS readable */
+  .jc-name { margin: 10px 0 0; font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700;
+    font-size: clamp(1.2rem, 1.55vw, 1.5rem); line-height: 1.08; letter-spacing: -0.015em; color: var(--jc-ink); }
+  /* capability heading sits on the top row with its [index], reference-style */
+  .jc-caphead { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+  .jr-cap .jc-q { margin: 0; font-family: "Space Grotesk","Clash Display",sans-serif; font-weight: 700;
+    font-size: clamp(1.15rem, 1.55vw, 1.5rem); line-height: 1.04; letter-spacing: -0.01em;
+    text-transform: uppercase; color: var(--jc-ink); }
+  .jc-caphead .jc-idx { flex: none; margin-top: 3px; }
+
+  /* DARK cert cards: neutral glass — NO orange border/index/glow */
+  :global(html[data-theme='dark']) .jr-cert .jc-in {
+    border-color: var(--jc-bd);
+    box-shadow: 0 26px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07), 0 0 0 1px rgba(255,255,255,0.05); }
+  :global(html[data-theme='dark']) .jr-cert:hover .jc-in {
+    border-color: rgba(255,255,255,0.28);
+    box-shadow: 0 34px 78px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.07), 0 0 0 1px rgba(255,255,255,0.12); }
+  /* DARK capability cards: ember-orange edge glow + orange index */
+  :global(html[data-theme='dark']) .jr-cap .jc-idx { color: var(--jr-arete); }
+  :global(html[data-theme='dark']) .jr-cap .jc-in {
+    border-color: color-mix(in srgb, var(--jr-arete) 30%, var(--jc-bd));
+    box-shadow: 0 26px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07),
+      0 0 24px color-mix(in srgb, var(--jr-arete) 16%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--jr-arete) 24%, transparent); }
+  :global(html[data-theme='dark']) .jr-cap:hover .jc-in {
+    border-color: color-mix(in srgb, var(--jr-arete) 55%, var(--jc-bd));
+    box-shadow: 0 34px 78px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.07),
+      0 0 36px color-mix(in srgb, var(--jr-arete) 30%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--jr-arete) 42%, transparent); }
+  :global(html[data-theme='dark']) .jc-in::after {
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.14) 48%, rgba(255,255,255,0.05) 55%, transparent 70%); }
+
+  /* capability cards size to their content — no blank space inside */
+  .jr-cap { width: clamp(290px, 26vw, 380px); aspect-ratio: auto; }
+  .jr-cap .jc-in { position: relative; inset: auto; height: auto; padding: 22px 24px 24px; }
+
+  /* mono body, AFTER//HONEY style */
+  .jc-body { margin: 14px 0 0; font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px; line-height: 1.62; color: var(--jc-soft); }
+
+  /* dawn → seamless into Connect (light: pure white, taller, earlier) */
+  .jr-dawn { position: absolute; left: 0; right: 0; bottom: 0; height: 52%; z-index: 4; opacity: 0; pointer-events: none;
+    background: linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.85) 55%, #ffffff 100%); }
+  :global(html[data-theme='dark']) .jr-dawn {
+    background: linear-gradient(to bottom, transparent 0%, rgba(12,44,42,0.5) 55%, rgba(52,120,104,0.55) 100%); }
+
+  .jr-fallback { display: none; }
+  @media (hover: none), (max-width: 900px), (prefers-reduced-motion: reduce) {
+    .jr { height: auto; min-height: 100dvh; }
+    .jr-stage { display: none; }
+    .jr-fallback { display: block; max-width: 940px; margin: 0 auto; padding: 12vh 6vw; }
+    .jf-h { font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700; font-size: clamp(2rem,8vw,3rem); margin: 0; }
+    .jf-sub { margin: 8px 0 6vh; color: var(--jc-soft); }
+    .jf-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 14px; margin-bottom: 6vh; }
+    .jf-cert { padding: 20px; border-radius: 16px; background: var(--jc-glass); border: 1px solid var(--jc-bd); }
+    .jf-iss { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--jc-accent); }
+    .jf-cert h3 { margin: 6px 0 4px; font-family: "Clash Display","Space Grotesk",sans-serif; font-size: 1.15rem; }
+    .jf-cert p { margin: 0; color: var(--jc-soft); font-size: 13px; line-height: 1.5; }
+    .jf-caps { display: grid; gap: 18px; }
+    .jf-cap span { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--jr-arete); }
+    .jf-cap p { margin: 6px 0 0; font-size: 1.05rem; line-height: 1.5; }
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+
+  const clamp = (v: number, a = 0, b = 1) => Math.min(Math.max(v, a), b);
+  const smooth = (v: number, a: number, b: number) => clamp((v - a) / (b - a));
+
+  const mm = gsap.matchMedia();
+  mm.add("(min-width: 901px) and (prefers-reduced-motion: no-preference)", () => {
+    const section = document.querySelector<HTMLElement>(".jr");
+    const canvas = document.querySelector<HTMLCanvasElement>("[data-jr-canvas]");
+    const cards = Array.from(document.querySelectorAll<HTMLElement>(".jr-card"));
+    const words = Array.from(document.querySelectorAll<HTMLElement>(".jr-word"));
+    const dawn = document.querySelector<HTMLElement>(".jr-dawn");
+    const skyFar = document.querySelector<HTMLElement>("[data-sky-far]");
+    const skyMid = document.querySelector<HTMLElement>("[data-sky-mid]");
+    const skyNear = document.querySelector<HTMLElement>("[data-sky-near]");
+    const tagC = document.querySelector<HTMLElement>("[data-tag-c]");
+    const tagT = document.querySelector<HTMLElement>("[data-tag-t]");
+    if (!section || !canvas) return;
+
+    const ctx = canvas.getContext("2d")!;
+    let W = 0, H = 0, cx = 0, cy = 0, dpr = 1, warp = 0, prog = 0, running = true;
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = canvas.clientWidth; H = canvas.clientHeight;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); cx = W / 2; cy = H / 2;
+    };
+    resize(); window.addEventListener("resize", resize);
+
+    const rand = (a: number, b: number) => a + Math.random() * (b - a);
+
+    /* ---------- lit cloud sprites (golden-hour PNGs) ---------- */
+    const CLOUD_N = 5;
+    const cloudImgs = Array.from({ length: CLOUD_N }, (_, i) => {
+      const im = new Image(); im.src = `/sky/cloud${i + 1}.png`; return im;
+    });
+
+    const clouds = Array.from({ length: 10 }, () => ({
+      x: rand(-1.1, 1.1), y: rand(-1.35, 1.35), d: rand(0.3, 1), v: (Math.random() * CLOUD_N) | 0,
+    }));
+    /* fine dust specks — quiet atmosphere, like the reference */
+    const specks = Array.from({ length: 46 }, () => ({
+      x: rand(-1, 1), y: rand(-1, 1), z: rand(0.15, 1),
+    }));
+    const stars = Array.from({ length: 380 }, () => ({ x: rand(-1, 1), y: rand(-1, 1), z: rand(0.1, 1), pz: 0 }));
+
+    const frame = () => {
+      if (!running) return;
+      requestAnimationFrame(frame);
+      const dark = document.documentElement.getAttribute("data-theme") === "dark";
+      ctx.clearRect(0, 0, W, H);
+      warp *= 0.93;
+
+      if (dark) {
+        /* starfield — untouched */
+        const speed = 0.0016 + warp * 0.02, scale = Math.min(W, H) * 0.9, streak = warp > 0.05;
+        for (const s of stars) {
+          s.pz = s.z; s.z -= speed;
+          if (s.z <= 0.05) { s.x = rand(-1, 1); s.y = rand(-1, 1); s.z = 1; s.pz = 1; }
+          const sx = cx + (s.x / s.z) * scale, sy = cy + (s.y / s.z) * scale, d = 1 - s.z, sz = Math.max(d * 2.3, 0.75);
+          const a = Math.min(d * 1.25, 1) * 0.95;
+          ctx.fillStyle = ctx.strokeStyle = `rgba(228,234,246,${a})`;
+          if (streak) { const px = cx + (s.x / s.pz) * scale, py = cy + (s.y / s.pz) * scale; ctx.lineWidth = Math.max(sz * 0.7, 0.6); ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(sx, sy); ctx.stroke(); }
+          else { ctx.beginPath(); ctx.arc(sx, sy, sz, 0, 6.283); ctx.fill(); }
+        }
+      }
+      /* LIGHT: the real-photo sky layers ([data-sky-*]) handle the visuals,
+         driven by the scroll camera-push in place(); nothing on canvas. */
+    };
+    requestAnimationFrame(frame);
+    const io = new IntersectionObserver((es) => es.forEach((e) => { running = e.isIntersecting; if (running) requestAnimationFrame(frame); }), { threshold: 0 });
+    io.observe(section);
+
+    /* ---------- scroll choreography ----------
+       Beat 1 is QUICK: all four certs rise together (tiny stagger), hold
+       fully visible as a group, leave together. Beat 2 gets the space. */
+    const place = (p: number) => {
+      cards.forEach((el) => {
+        const beat = el.dataset.beat, i = +(el.dataset.i || 0);
+        if (beat === "0") {
+          // certs: rise together, quick glance, leave together — no drop on exit
+          const enter = smooth(p, 0.03 + i * 0.02, 0.11 + i * 0.02);
+          const exit = smooth(p, 0.26, 0.35);
+          const op = enter * (1 - exit);
+          el.style.opacity = `${op}`;
+          el.style.visibility = op < 0.01 ? "hidden" : "visible";
+          el.style.transform = `translate(-50%,-50%) translateY(${(1 - enter) * 44}px) scale(${0.96 + enter * 0.04})`;
+        } else {
+          // capabilities: each card SCROLLS UP through the frame, one by one
+          const start = 0.38 + i * 0.09, dur = 0.30;
+          const t = (p - start) / dur;
+          const y = (0.5 - t) * 150;                  // +75vh (below) → -75vh (above)
+          const op = smooth(t, 0, 0.16) * (1 - smooth(t, 0.82, 1));
+          el.style.opacity = `${op}`;
+          el.style.visibility = op < 0.01 ? "hidden" : "visible";
+          el.style.transform = `translate(-50%,-50%) translateY(${y}vh) scale(${0.97 + smooth(t, 0, 0.3) * 0.03})`;
+        }
+      });
+      words.forEach((w) => {
+        const o = w.dataset.word === "receipts" ? (1 - smooth(p, 0.30, 0.40)) : smooth(p, 0.36, 0.46);
+        w.style.opacity = `${o}`;
+        w.style.transform = `translateY(${(0.5 - p) * 6}vh)`;
+      });
+      // MULTIPLANE CAMERA push — slow drift in beat 1, faster sweep in beat 2.
+      // Each plane scales/drifts faster than the last → parallax "through" clouds.
+      const push = smooth(p, 0, 0.4) * 0.14 + smooth(p, 0.4, 1) * 0.5;
+      if (skyFar)  skyFar.style.transform  = `scale(${1.05 + push})`;
+      if (skyMid)  skyMid.style.transform  = `scale(${1.28 + push * 1.7}) translateY(${-push * 12}vh)`;
+      if (skyNear) {
+        skyNear.style.transform = `scale(${1.6 + push * 3.1}) translateY(${-push * 40}vh)`;
+        // the nearest cloud only sweeps in during the fast beat-2 push
+        skyNear.style.opacity = `${clamp(smooth(p, 0.38, 0.52) * 0.55 * (1 - smooth(p, 0.9, 1)), 0, 0.55)}`;
+      }
+      if (tagC) tagC.textContent = p < 0.39 ? "01 / 02" : "02 / 02";
+      if (tagT) tagT.textContent = p < 0.39 ? "proof" : "beyond";
+      if (dawn) dawn.style.opacity = `${smooth(p, 0.95, 1)}`;
+    };
+    place(0);
+
+    const trig = ScrollTrigger.create({
+      id: "jr", trigger: section, start: "top top", end: "+=320%", pin: true, scrub: 0.6, anticipatePin: 1,
+      onUpdate: (self) => { prog = self.progress; place(prog); warp = clamp(Math.abs(self.getVelocity()) / 2600, 0, 1); },
+    });
+
+    return () => { running = false; io.disconnect(); window.removeEventListener("resize", resize); trig.kill(); };
+  });
+</script>

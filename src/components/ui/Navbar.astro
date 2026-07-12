@@ -9,10 +9,10 @@
 import ThemeToggle from './ThemeToggle.astro';
 
 const links = [
+  { label: 'Home', href: '#hero' },
   { label: 'Skills', href: '#work' },
   { label: 'Story', href: '#story' },
   { label: 'Projects', href: '#projects' },
-  { label: 'Connect', href: '#connect' },
 ];
 ---
 
@@ -27,9 +27,7 @@ const links = [
       ))}
     </ul>
 
-    <a class="cta" href="mailto:saurabhsharma090903@gmail.com?subject=Project%20inquiry">
-      Start project
-    </a>
+    <a class="cta" href="#connect">Let's connect</a>
 
     <!-- Hamburger (mobile only) -->
     <button class="hamburger" aria-label="Open menu" aria-expanded="false">
@@ -42,9 +40,7 @@ const links = [
     {links.map((l) => (
       <a class="panel-link" href={l.href}>{l.label}</a>
     ))}
-    <a class="cta panel-cta" href="mailto:saurabhsharma090903@gmail.com?subject=Project%20inquiry">
-      Start project
-    </a>
+    <a class="cta panel-cta" href="#connect">Let's connect</a>
   </div>
 </header>
 
