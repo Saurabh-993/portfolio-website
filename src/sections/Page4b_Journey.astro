@@ -103,6 +103,7 @@ const CAPS = [
         <div class="jf-cert"><span class="jf-iss">{c.issuer}{c.year ? ` · ${c.year}` : ""}</span><h3>{c.name}</h3><p>{c.body}</p></div>
       ))}
     </div>
+    <h2 class="jf-h2">What I bring</h2>
     <div class="jf-caps">
       {CAPS.map((c) => (<div class="jf-cap"><span>{c.q}</span><p>{c.body}</p></div>))}
     </div>
@@ -261,9 +262,23 @@ const CAPS = [
     .jf-iss { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--jc-accent); }
     .jf-cert h3 { margin: 6px 0 4px; font-family: "Clash Display","Space Grotesk",sans-serif; font-size: 1.15rem; }
     .jf-cert p { margin: 0; color: var(--jc-soft); font-size: 13px; line-height: 1.5; }
-    .jf-caps { display: grid; gap: 18px; }
-    .jf-cap span { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--jr-arete); }
-    .jf-cap p { margin: 6px 0 0; font-size: 1.05rem; line-height: 1.5; }
+    .jf-h2 { font-family: "Clash Display","Space Grotesk",sans-serif; font-weight: 700;
+      font-size: clamp(1.5rem, 6vw, 2.1rem); letter-spacing: -0.01em; color: var(--jc-ink); margin: 0 0 3.4vh; }
+    .jf-caps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+    .jf-cap {
+      padding: 18px 20px 20px; border-radius: 16px;
+      background: var(--jc-glass); border: 1px solid var(--jc-bd);
+      -webkit-backdrop-filter: blur(12px) saturate(1.2); backdrop-filter: blur(12px) saturate(1.2);
+      box-shadow: 0 12px 30px rgba(20, 20, 40, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+    .jf-cap span {
+      display: block; margin-bottom: 7px;
+      font-family: "Space Grotesk", "JetBrains Mono", sans-serif; font-weight: 700;
+      font-size: 0.98rem; letter-spacing: 0.02em; text-transform: uppercase;
+      color: var(--jr-arete);
+      text-shadow: 0 0 16px color-mix(in srgb, var(--jr-arete) 50%, transparent);
+    }
+    .jf-cap p { margin: 0; font-size: 0.98rem; line-height: 1.5; color: var(--jc-soft); }
   }
 </style>
 

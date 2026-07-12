@@ -52,6 +52,21 @@ const stripWords = [
     <div class="hero-center" style="position:relative; display:grid; place-items:center;">
       <FlowingWords />
       <LiquidBall />
+      <!-- lightweight revolving orb — mobile stand-in for the 3D ball -->
+      <svg class="hero-orb" viewBox="0 0 220 220" aria-hidden="true">
+        <defs>
+          <radialGradient id="orb-core-grad" cx="42%" cy="38%" r="66%">
+            <stop class="cs0" offset="0%" />
+            <stop class="cs1" offset="48%" />
+            <stop class="cs2" offset="100%" />
+          </radialGradient>
+        </defs>
+        <circle class="orb-core" cx="110" cy="110" r="46" fill="url(#orb-core-grad)" />
+        <circle class="orb-ring ring1" cx="110" cy="110" r="66" />
+        <circle class="orb-ring ring2" cx="110" cy="110" r="88" />
+        <g class="orb-orbit orb-o1"><circle class="orb-dot" cx="110" cy="22" r="5" /></g>
+        <g class="orb-orbit orb-o2"><circle class="orb-dot" cx="110" cy="200" r="4" /></g>
+      </svg>
     </div>
 
     <!-- 7. signature name -->
@@ -148,14 +163,23 @@ const stripWords = [
   }
   @media (prefers-reduced-motion: reduce) { .open-dot { animation: none; } }
 
-  /* Ball floats in the middle band; flex keeps headline/name dominant */
-  .ball-wrap {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-  }
+  /* ---- mobile revolving orb (stand-in for the 3D ball) ---- */
+  .hero-orb { display: none; width: min(320px, 82vw); height: auto; grid-area: 1 / 1; }
+  .hero-orb .cs0 { stop-color: #ffffff; stop-opacity: 0.92; }
+  .hero-orb .cs1 { stop-color: var(--accent); stop-opacity: 0.5; }
+  .hero-orb .cs2 { stop-color: var(--accent); stop-opacity: 0.06; }
+  .orb-core { transform-box: view-box; transform-origin: 110px 110px; animation: orb-breath 4.2s ease-in-out infinite; }
+  .orb-ring { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0.5;
+    transform-box: view-box; transform-origin: 110px 110px; }
+  .ring1 { stroke-dasharray: 11 15; animation: orb-spin 15s linear infinite; }
+  .ring2 { stroke-dasharray: 4 18; opacity: 0.3; animation: orb-spin 22s linear infinite reverse; }
+  .orb-orbit { transform-box: view-box; transform-origin: 110px 110px; }
+  .orb-o1 { animation: orb-spin 8s linear infinite; }
+  .orb-o2 { animation: orb-spin 12s linear infinite reverse; }
+  .orb-dot { fill: var(--accent); filter: drop-shadow(0 0 6px var(--accent)); }
+  @keyframes orb-spin { to { transform: rotate(360deg); } }
+  @keyframes orb-breath { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.06); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .orb-core, .orb-ring, .orb-orbit { animation: none; } }
 
   /* 7. Big name — full-width signature at the bottom */
   .name-wrap {
@@ -227,6 +251,19 @@ const stripWords = [
 
   @media (max-width: 1023px) {
     .hero-content { padding-top: 84px; }
+  }
+
+  /* ---- mobile: swap the 3D ball for the orb, and lift the name up ---- */
+  @media (max-width: 768px) {
+    .hero-content { justify-content: center; gap: clamp(18px, 3.4vh, 40px); }
+    .headline-wrap { order: 1; }
+    .name-wrap     { order: 2; }   /* SAURABH sits just under the "Open to work" pill */
+    .hero-center   { order: 3; }
+    .hero-center :global(.liquid-ball) { display: none; }
+    .hero-orb { display: block; }
+    .big-name { font-size: clamp(3.2rem, 17vw, 6rem); margin-bottom: 0; }
+    /* clean, uncluttered name — drop the sticker trinkets on small screens */
+    .name-wrap :global(.name-trinkets) { display: none; }
   }
 </style>
 

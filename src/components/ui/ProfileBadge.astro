@@ -163,6 +163,17 @@ const GITHUB_URL = 'https://github.com/Saurabh-993';
     .hint-text { font-size: 1.05rem; }
     .hint-arrow { width: 56px; height: 26px; }
   }
+  /* phones: drop the hint BELOW the badge and stand the arrow up vertically,
+     so it no longer reaches across into the navbar */
+  @media (max-width: 768px) {
+    .badge-hint {
+      left: 6px; right: auto; top: calc(100% + 10px);
+      flex-direction: column; align-items: flex-start; gap: 3px;
+      transform: none; animation: none;
+    }
+    .hint-arrow { transform: rotate(90deg); transform-origin: center; width: 34px; height: 30px; }
+    .hint-text { font-size: 0.9rem; line-height: 1; }
+  }
 
   /* ---------------- quick-links card ---------------- */
   .profile-card[hidden] { display: none; } /* keep [hidden] working despite display:flex */

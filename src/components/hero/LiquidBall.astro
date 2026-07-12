@@ -136,6 +136,8 @@
     }
 
     function frame() {
+      requestAnimationFrame(frame);
+      if (!wrap.clientWidth) return;   // hidden (e.g. mobile shows the SVG orb) — skip WebGL work
       const t = clock.getElapsedTime();
       if (!reduce) {
         deform(t * TUNE.wobbleSpeed);
@@ -145,7 +147,6 @@
         mesh.rotation.x = -my * TUNE.mousePull * 0.7;
       }
       renderer.render(scene, camera);
-      requestAnimationFrame(frame);
     }
     frame();
   }

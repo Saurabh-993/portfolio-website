@@ -152,7 +152,12 @@ const POS = [
   <div class="p3-fallback">
     <h2 class="pf-heading">Experience &amp; Journey</h2>
     <ol>
-      {FRAMES.map((f) => (
+      <li class="fb-now">
+        <h3>{END.title}</h3>
+        <p class="fb-body">{END.body}</p>
+        <a href="#connect">Let's talk ↗</a>
+      </li>
+      {FRAMES.slice().reverse().map((f) => (
         <li>
           <p class="fb-era">{f.era}</p>
           <h3>{f.title}</h3>
@@ -160,11 +165,6 @@ const POS = [
           <p class="fb-body">{f.body}</p>
         </li>
       ))}
-      <li class="fb-now">
-        <h3>{END.title}</h3>
-        <p class="fb-body">{END.body}</p>
-        <a href="#connect">Let's talk ↗</a>
-      </li>
     </ol>
   </div>
 </section>
@@ -361,9 +361,16 @@ const POS = [
     .p3-stage, .p3-caps, .p3-hud, .p3-veil { display: none; }
     .p3-fallback { display: block; max-width: 820px; margin: 0 auto; padding: 12vh 6vw; }
     .pf-heading { font-family: "Clash Display","Space Grotesk",sans-serif; font-size: clamp(1.8rem,7vw,2.6rem); margin: 0 0 6vh; }
-    .p3-fallback ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 3rem; position: relative; }
-    .p3-fallback li { border-left: 2px solid var(--p3-line); padding-left: 22px; position: relative; }
-    .p3-fallback li::before { content: ""; position: absolute; left: -7px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--p3-live); box-shadow: 0 0 12px var(--p3-live); }
+    .p3-fallback ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 3rem; position: relative; --fbp: 0; }
+    /* faint continuous rail */
+    .p3-fallback ol::before { content: ""; position: absolute; left: 0; top: 5px; bottom: 5px; width: 2px; border-radius: 2px; background: var(--p3-line); }
+    /* glowing rail that fills from the top as you scroll down */
+    .p3-fallback ol::after { content: ""; position: absolute; left: 0; top: 5px; width: 2px; border-radius: 2px; pointer-events: none;
+      height: calc(var(--fbp) * (100% - 10px));
+      background: linear-gradient(to bottom, color-mix(in srgb, var(--p3-live) 35%, transparent), var(--p3-live));
+      box-shadow: 0 0 14px var(--p3-live), 0 0 5px var(--p3-live); }
+    .p3-fallback li { padding-left: 22px; position: relative; }
+    .p3-fallback li::before { content: ""; position: absolute; left: -5px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--p3-live); box-shadow: 0 0 12px var(--p3-live); }
     .fb-era { margin: 0 0 6px; font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--p3-accent); }
     .p3-fallback h3 { margin: 0 0 6px; font-family: "Clash Display","Space Grotesk",sans-serif; font-size: 1.3rem; }
     .fb-meta { margin: 0 0 8px; font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--p3-soft); }
@@ -477,4 +484,19 @@ const POS = [
 
     return () => { window.removeEventListener("resize", apply); st.kill(); };
   });
+
+  /* MOBILE timeline: glow the left rail as you scroll (no-op on desktop where
+     the fallback is display:none, so its rect height is 0) */
+  const fbOl = document.querySelector<HTMLElement>(".p3-fallback ol");
+  if (fbOl) {
+    const updRail = () => {
+      const r = fbOl.getBoundingClientRect();
+      if (r.height === 0) return;
+      const p = Math.min(Math.max((window.innerHeight * 0.55 - r.top) / r.height, 0), 1);
+      fbOl.style.setProperty("--fbp", `${p.toFixed(3)}`);
+    };
+    window.addEventListener("scroll", updRail, { passive: true });
+    window.addEventListener("resize", updRail);
+    updRail();
+  }
 </script>

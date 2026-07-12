@@ -140,6 +140,12 @@
   .ribbon:has(.rib:hover) { transform: scale(1.012); }
   .rib.in:hover  { fill-opacity: 1; }
   .rib.out:hover { opacity: 0.88; }
+
+  /* mobile: scale the whole ribbon field up so the words read clearly and
+     feel more expressive (scaling keeps the loop timing intact) */
+  @media (max-width: 768px) {
+    .flow-ribbons { transform: translate(-50%, -50%) scale(1.3); }
+  }
 </style>
 
 <script>
