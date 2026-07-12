@@ -1,0 +1,46 @@
+---
+/**
+ * AuroraSeam.astro — the single, seamless Page 2 → Page 3 boundary.
+ *
+ * One gradient owns the whole join (no mirrored halves to keep in sync), so a
+ * visible divider line is impossible. Same bluish green→teal→navy aurora in
+ * BOTH themes; only the base fade adapts per theme:
+ *   - base = Page 2's bottom colour (top) → Page 3's top colour (bottom)
+ *   - the colour pools are masked to dissolve at the very top + bottom, so the
+ *     block's edges are pure section colour — nothing ever shows an edge.
+ */
+---
+
+<div class="aurora-seam" aria-hidden="true">
+  <span class="as-pools"></span>
+</div>
+
+<style>
+  .aurora-seam {
+    position: relative;
+    height: clamp(280px, 46vh, 520px);
+    overflow: hidden;
+    /* base: Page 2 bottom (#fbfbfa) → Page 3 top (#ffffff), light theme */
+    background: linear-gradient(to bottom, #fbfbfa 0%, #f4f7fb 52%, #ffffff 100%);
+  }
+  :global(html[data-theme='dark']) .aurora-seam {
+    /* base: Page 2 bottom (#0a0a0a) → Page 3 top (#0f131b), dark theme */
+    background: linear-gradient(to bottom, #0a0a0a 0%, #0b0e15 52%, #0f131b 100%);
+  }
+
+  /* bluish aurora pools — identical hues in both themes, masked to fade at
+     the top + bottom so they melt into the base (no hard edge either side) */
+  .as-pools {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(62% 130% at 12% 46%, rgba(96, 214, 148, 0.55) 0%, transparent 60%),
+      radial-gradient(74% 140% at 50% 52%, rgba(40, 192, 208, 0.55) 0%, transparent 62%),
+      radial-gradient(66% 130% at 90% 54%, rgba(52, 92, 190, 0.60) 0%, transparent 60%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 24%, #000 76%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 24%, #000 76%, transparent 100%);
+    opacity: 0.5;
+  }
+  :global(html[data-theme='dark']) .as-pools { opacity: 0.92; }
+</style>

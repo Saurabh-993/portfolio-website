@@ -116,9 +116,43 @@ const PROJECTS = [
         "A quarter-terabyte of raw movement becomes decisions leadership can act on the same morning. Scale stopped being a wall and became a lens.",
     },
   },
+  {
+    id: 4,
+    name: "TaskFlow Pro",
+    kicker: "Project Management Platform",
+    extra: true,
+    about:
+      "A modern project-management platform — Kanban, Scrum and timeline boards, tasks, roles and analytics, in the spirit of Jira, Trello and Asana.",
+    problem:
+      "Small teams run projects across Excel, WhatsApp and scattered notes — TaskFlow pulls collaboration, tracking, deadlines and analytics into one home.",
+    stack: [
+      { t: "React", s: "react" },
+      { t: "Vite", s: "vite" },
+      { t: "Tailwind", s: "tailwindcss" },
+      { t: "GSAP", s: "gsap" },
+      { t: "Node", s: "nodedotjs" },
+      { t: "Express", s: "express" },
+      { t: "MongoDB", s: "mongodb" },
+      { t: "Docker", s: "docker" },
+    ],
+    metric: "MERN · Kanban/Scrum/Timeline · JWT auth · Docker CI/CD",
+    repo: "https://github.com/Saurabh-993/Task-Flow",
+    preview: "/projects/p4.png",
+    modal: {
+      genesis:
+        "Small teams rarely start with a tool — they run projects across spreadsheets, WhatsApp threads and scattered notes until nothing lines up. TaskFlow Pro began as the answer to that mess: one place where work, people and deadlines actually meet.",
+      faculties:
+        "Organise work on Kanban, Scrum or timeline boards, with a full task system — labels, priority, due dates, assignees, attachments and comments. Spin up workspaces, invite members with roles and permissions, and read the room through a dashboard of productivity graphs, pending and completed tasks, and weekly analytics.",
+      substratum:
+        "A MERN build: React + Vite + Tailwind + Framer Motion + React Query on the front, a Node/Express API over MongoDB with JWT, Bcrypt and Multer, shipped through Docker, Nginx and GitHub Actions. Data flows Users → Workspaces → Projects → Boards → Tasks → Comments → activity logs.",
+      culmination:
+        "Collaboration, tracking, deadlines and analytics collapse into a single product a small team can actually run on — and it doubled as a deep run through MERN, auth and authorization, CRUD, charts, file upload and Docker.",
+    },
+  },
 ];
 
 const TOTAL = PROJECTS.length;
+const FEATURED = PROJECTS.filter((p) => !p.extra).length;
 ---
 
 <section class="p4 section" id="projects">
@@ -152,8 +186,8 @@ const TOTAL = PROJECTS.length;
 
   <div class="p4-list" data-list>
     {PROJECTS.map((p, i) => (
-      <article class="p4-row" data-row={i} data-open={i} role="button" tabindex="0"
-        aria-label={`Open ${p.name} details`}>
+      <article class={`p4-row${p.extra ? " is-extra" : ""}`} data-row={i} data-open={i} data-extra={p.extra}
+        role="button" tabindex="0" aria-label={`Open ${p.name} details`}>
         <span class="row-glow" aria-hidden="true"></span>
 
         <div class="row-inner">
@@ -209,8 +243,8 @@ const TOTAL = PROJECTS.length;
   </div>
 
   <div class="p4-foot">
-    <span class="foot-count">
-      [ {String(TOTAL).padStart(2, "0")} / {String(TOTAL).padStart(2, "0")} ]
+    <span class="foot-count" data-count>
+      [ {String(FEATURED).padStart(2, "0")} / {String(TOTAL).padStart(2, "0")} ]
     </span>
     <span class="foot-label">selected work</span>
     <button class="foot-more" type="button" data-more>
@@ -383,6 +417,24 @@ const TOTAL = PROJECTS.length;
     --row-text: #35061f; --row-text-soft: rgba(53, 6, 31, 0.74);
     --niche: #ff5c9d;
   }
+  /* project 4 (TaskFlow Pro) — project-management BLUE → INDIGO niche */
+  .p4-row:nth-child(4) {
+    --row-fill: #3f6bff; --row-core: #a9c0ff;
+    --row-accent: #0a1a5c; --row-accent-ink: #0a1a5c; --row-accent-soft: rgba(10, 26, 92, 0.4);
+    --row-glow-strong: rgba(63, 107, 255, 0.5); --row-glow-mid: rgba(63, 107, 255, 0.24); --row-glow-soft: rgba(63, 107, 255, 0.09);
+    --row-text: #08113f; --row-text-soft: rgba(8, 17, 63, 0.72);
+    --niche: #2f5fe0;
+  }
+  :global(html[data-theme='dark']) .p4-row:nth-child(4) {
+    --row-fill: #5b8cff; --row-core: #a9c4ff;
+    --row-accent: #a9c4ff; --row-accent-ink: #0a1a4a; --row-accent-soft: rgba(10, 26, 74, 0.45);
+    --row-glow-strong: rgba(91, 140, 255, 0.6); --row-glow-mid: rgba(91, 140, 255, 0.32); --row-glow-soft: rgba(91, 140, 255, 0.13);
+    --row-text: #06123a; --row-text-soft: rgba(6, 18, 58, 0.74);
+    --niche: #5b8cff;
+  }
+  /* extra projects stay hidden until "more projects" reveals them */
+  .p4-row.is-extra { display: none; }
+  .p4-row.is-extra.show { display: flex; }
 
   /* ---------- intro ---------- */
   .p4-intro { position: sticky; top: 0; min-height: 100dvh; display: grid; align-items: center; z-index: 0; }
@@ -633,7 +685,20 @@ const TOTAL = PROJECTS.length;
   });
 
   document.querySelector("[data-more]")?.addEventListener("click", () => {
-    document.querySelector("#projects .p4-list")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const extras = document.querySelectorAll<HTMLElement>(".p4-row[data-extra]");
+    if (extras.length) {
+      extras.forEach((r, k) => setTimeout(() => r.classList.add("show"), k * 90));
+      const total = document.querySelectorAll(".p4-row").length;
+      const pad = (n: number) => String(n).padStart(2, "0");
+      const count = document.querySelector<HTMLElement>("[data-count]");
+      if (count) count.textContent = `[ ${pad(total)} / ${pad(total)} ]`;
+      const more = document.querySelector<HTMLElement>("[data-more]");
+      if (more) more.style.display = "none";
+      // ease down to the freshly revealed row
+      setTimeout(() => extras[0]?.scrollIntoView({ behavior: "smooth", block: "center" }), 120);
+    } else {
+      document.querySelector("#projects .p4-list")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   });
   document.querySelectorAll<HTMLAnchorElement>("[data-soon]").forEach((a) =>
     a.addEventListener("click", (e) => e.preventDefault())

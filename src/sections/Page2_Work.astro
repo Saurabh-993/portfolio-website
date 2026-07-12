@@ -214,26 +214,30 @@ const loop = [...tech, ...tech];
     bottom: 0;
     left: 0;
     right: 0;
-    height: clamp(140px, 24vh, 260px);
+    height: clamp(160px, 26vh, 300px);
     pointer-events: none;
     z-index: 0;
-    /* sage → cyan → blue pools anchored toward the junction (bottom edge) */
+    /* rich, organic aurora pools PEAKING right at the junction (bottom edge),
+       over a base that bridges Page 2's bg into a shared junction tone so the
+       two halves meet on the exact same colour — no step, no line */
     background:
-      radial-gradient(58% 150% at 8% 130%,  rgba(118, 198, 160, 0.72) 0%, rgba(118, 198, 160, 0) 62%),
-      radial-gradient(70% 170% at 48% 145%, rgba(94, 210, 235, 0.78) 0%, rgba(94, 210, 235, 0) 66%),
-      radial-gradient(55% 140% at 90% 125%, rgba(52, 88, 180, 0.74) 0%, rgba(52, 88, 180, 0) 60%),
-      linear-gradient(to top, var(--p2-bg) 0%, rgba(251, 251, 250, 0) 68%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 32%, #000 100%);
-    mask-image: linear-gradient(to bottom, transparent 0%, #000 32%, #000 100%);
+      radial-gradient(72% 125% at 16% 102%, rgba(88, 216, 172, 0.82) 0%, transparent 56%),
+      radial-gradient(88% 135% at 50% 110%, rgba(52, 200, 220, 0.90) 0%, transparent 58%),
+      radial-gradient(76% 125% at 84% 102%, rgba(70, 120, 226, 0.84) 0%, transparent 56%),
+      radial-gradient(60% 115% at 34% 120%, rgba(140, 108, 234, 0.52) 0%, transparent 54%),
+      linear-gradient(to bottom, var(--p2-bg) 0%, #fbfcfe 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 42%, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 42%, #000 100%);
   }
   :global(html[data-theme='dark']) .p2__seam {
     background:
-      radial-gradient(55% 160% at 6% 130%,  rgba(96, 214, 148, 0.48) 0%, rgba(96, 214, 148, 0) 60%),
-      radial-gradient(65% 170% at 42% 145%, rgba(28, 168, 152, 0.52) 0%, rgba(28, 168, 152, 0) 64%),
-      radial-gradient(70% 170% at 92% 125%, rgba(35, 66, 150, 0.68) 0%, rgba(35, 66, 150, 0) 65%),
-      linear-gradient(to top, var(--p2-bg) 0%, rgba(10, 10, 10, 0) 68%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 28%, #000 100%);
-    mask-image: linear-gradient(to bottom, transparent 0%, #000 28%, #000 100%);
+      radial-gradient(72% 125% at 16% 102%, rgba(58, 216, 152, 0.66) 0%, transparent 58%),
+      radial-gradient(88% 135% at 50% 110%, rgba(32, 190, 206, 0.70) 0%, transparent 60%),
+      radial-gradient(76% 125% at 84% 102%, rgba(48, 98, 210, 0.74) 0%, transparent 58%),
+      radial-gradient(60% 115% at 34% 120%, rgba(116, 84, 220, 0.48) 0%, transparent 56%),
+      linear-gradient(to bottom, var(--p2-bg) 0%, #0c0f17 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 38%, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 38%, #000 100%);
   }
 
   /* ================= dark mode: bright, softly glowing headings (ref 4) ================= */
