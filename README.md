@@ -1,56 +1,103 @@
-# Saurabh — Portfolio
+# Saurabh Sharma — Portfolio
 
-Astro + Lenis + GSAP (ScrollTrigger, MotionPath) + plain CSS variables.
-One route (`/`); every "page" is a full-screen scroll section.
+A polished, animated personal portfolio built with Astro, GSAP, Lenis, and modern CSS. The site delivers a single-page experience with immersive sections, fluid motion, and a responsive layout designed to feel both creative and professional.
 
-## Run
+## Overview
+
+This portfolio is a custom-built web experience that showcases:
+
+- A modern one-page portfolio layout
+- Smooth scrolling and motion-driven interactions
+- Light and dark theme support
+- Responsive design for desktop and mobile
+- A clean structure ready for static deployment
+
+## Tech Stack
+
+- Astro
+- GSAP
+- Lenis
+- Three.js
+- CSS variables and custom styling
+
+## Project Structure
+
+```text
+src/
+  components/
+    hero/
+    ui/
+  layouts/
+  pages/
+  sections/
+  styles/
+public/
+```
+
+## Getting Started
+
+Install dependencies:
 
 ```bash
 npm install
-npm run dev      # http://localhost:4321
-npm run build    # static output in dist/ (Vercel / Cloudflare ready)
 ```
 
-## Structure
+Run locally:
 
-```
-src/
-  pages/index.astro          the only route — stacks the scroll sections
-  sections/
-    Page1_Hero.astro         hero (built)
-    Page2_Work.astro         placeholder — add your content
-    Page3_Story.astro        placeholder
-    Page4_Process.astro      placeholder
-    Page5_Connect.astro      placeholder
-  components/
-    ui/Navbar.astro          glass pill + hamburger (mobile)
-    ui/ThemeToggle.astro     light/dark, persisted to localStorage
-    ui/ProfileBadge.astro    hover crossfade, click → Resume/LinkedIn card
-    hero/LiquidBall.astro    gooey centerpiece — words in, "reality" out
-    hero/StrikeHeadline.astro  designer→coder→architect→builder
-    hero/SunMoon.astro       sketchy sun / glowing moon (theme-driven)
-  layouts/Base.astro         Lenis + GSAP init, fonts, theme boot
-  styles/global.css          theme variables, grid bg, resets
+```bash
+npm run dev
 ```
 
-## Add a new section
+Open your browser at:
 
-1. Create `src/sections/Page6_X.astro` with `<section class="section" id="x">`.
-2. Import + stack it in `src/pages/index.astro`.
-3. Add a link in `Navbar.astro` if it should be navigable.
+```text
+http://localhost:4321
+```
 
-## TODOs before launch
+Build for production:
 
-- Replace `src/assets/images/profile-placeholder.svg` with real photos
-  (see the README in that folder) and update `ProfileBadge.astro`.
-- Set your real LinkedIn URL in `ProfileBadge.astro`.
-- Replace `public/resume.pdf` with your actual resume.
+```bash
+npm run build
+```
 
-## Motion rules baked in
+Preview the production build:
 
-- Heavy GSAP (ball wobble, cursor lean, MotionPath word streams) only
-  initializes at `min-width: 1024px` via `gsap.matchMedia` — phones get a
-  cheap CSS pulse instead.
-- `prefers-reduced-motion: reduce` disables Lenis and all non-essential
-  animation.
-- All font sizes use `clamp()`; sections use `100dvh`.
+```bash
+npm run preview
+```
+
+## Deployment
+
+This project is ready to be deployed as a static site.
+
+Recommended platforms:
+
+- Vercel
+- Netlify
+- Cloudflare Pages
+
+### Vercel example
+
+1. Connect your GitHub repository to Vercel.
+2. Select the project folder.
+3. Use the following build settings:
+   - Build Command: npm run build
+   - Output Directory: dist
+
+## Content to Update Before Launch
+
+Before publishing publicly, consider updating:
+
+- Your name, bio, and headline copy
+- Project details and links
+- Social and contact links
+- Resume PDF
+- Profile image and personal assets
+
+## Notes
+
+The site is currently configured as a static Astro project, which makes it simple to deploy and maintain while keeping the experience fast and lightweight.
+
+## License
+
+This project is a personal portfolio website. All rights reserved unless otherwise stated.
