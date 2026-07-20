@@ -85,6 +85,12 @@ const PROJECTS = [
         "A Transformer replaced the LSTM to defeat vanishing gradients across long sequences, served through a FastAPI backend with a React client and live data pulled via yFinance.",
       culmination:
         "Half a decade of raw prices becomes a tool you can hold a conversation with. The Transformer's edge over the LSTM is the quiet proof that the architecture choice was the right one.",
+      images: {
+        genesis: "/projects/finance-genesis.png",   
+        faculties: "/projects/finance-faculties.png",   
+        substratum: "/projects/finance-substratum.png",  
+        culmination: "/projects/finance-culmination.png", 
+      },
     },
   },
   {
@@ -734,8 +740,18 @@ const FEATURED = PROJECTS.filter((p) => !p.extra).length;
     const p = DATA[current];
     if (!p) return;
     if (elTitle) elTitle.textContent = TAB_TITLES[key] || "";
-    if (elBody) elBody.textContent = p.modal[key] || "";
-    if (elImg && elPh) { elImg.hidden = true; elPh.hidden = false; }
+    if (elBody) elBody.textContent = typeof p.modal?.[key] === "string" ? p.modal[key] : (p.modal?.[key]?.text || "");
+    const imgUrl = p.modal?.images?.[key] || (typeof p.modal?.[key] === "object" ? p.modal[key]?.img : null);
+    if (elImg && elPh) {
+      if (imgUrl) {
+        elImg.src = imgUrl;
+        elImg.hidden = false;
+        elPh.hidden = true;
+      } else {
+        elImg.hidden = true;
+        elPh.hidden = false;
+      }
+    }
     [elTitle, elBody].forEach((el) => {
       if (!el) return;
       el.classList.remove("pm-swap"); void el.offsetWidth; el.classList.add("pm-swap");
